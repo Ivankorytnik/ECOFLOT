@@ -466,7 +466,7 @@ function setAppRoute(mode, view, replace){
   const url = location.pathname + location.search + hash;
   if(replace) history.replaceState(null,'',url); else history.pushState(null,'',url);
 }
-function openCRM(view, replaceRoute){
+function openCRM(view, restoreOnly){
   localStorage.setItem('ecoflot_mode','crm');
   const saved=view || localStorage.getItem('ecoflot_crm_view') || 'dashboard';
   const targetView=views && views[saved] ? saved : 'dashboard';
@@ -475,7 +475,9 @@ function openCRM(view, replaceRoute){
   $('#managerEmail').textContent='Демо-режим';
   $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView(targetView, true);
-  setAppRoute('crm', targetView, !!replaceRoute);
+  if(!restoreOnly){
+    setAppRoute('crm', targetView, true);
+  }
 }
 
 async function submitLeadForm(){
@@ -643,7 +645,7 @@ $('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>{
 function renderView(view, skipRoute){
   localStorage.setItem('ecoflot_crm_view',view);
   localStorage.setItem('ecoflot_mode','crm');
-  if(!skipRoute) setAppRoute('crm', view, false);
+  if(!skipRoute) setAppRoute('crm', view, true);
   $('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
   $('#viewTitle').textContent=views[view].title; $('#viewSubtitle').textContent=views[view].sub;
   $('#leadCounter').textContent=data.leads.filter(x=>x.status==='new').length;
@@ -748,20 +750,27 @@ if(saved){
   data.leads=data.leads.map(l=>({...l,source:l.source||'Демо / старые данные'}));
   saveLeads();
 }
-// Восстанавливаем тот же экран после обновления страницы.
-(function restoreAppState(){
+function restoreAppState(){
   const crmMatch = location.hash.match(/^#crm\/([a-z]+)$/i);
   if(crmMatch && views[crmMatch[1]]){
     localStorage.setItem('ecoflot_mode','crm');
     localStorage.setItem('ecoflot_crm_view',crmMatch[1]);
-    setTimeout(()=>openCRM(crmMatch[1], true),0);
+    openCRM(crmMatch[1], true);
     return;
   }
+
   if(localStorage.getItem('ecoflot_mode')==='crm'){
     const savedView = localStorage.getItem('ecoflot_crm_view') || 'dashboard';
-    setTimeout(()=>openCRM(savedView, true),0);
+    openCRM(savedView, true);
+    history.replaceState(null,'',location.pathname + location.search + '#crm/' + savedView);
   }
-})();
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',restoreAppState,{once:true});
+}else{
+  restoreAppState();
+}
 
 window.addEventListener('hashchange',function(){
   const crmMatch = location.hash.match(/^#crm\/([a-z]+)$/i);
