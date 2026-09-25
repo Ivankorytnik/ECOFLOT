@@ -440,20 +440,25 @@ async function sendToGoogleSheet(payload){
 const fmtDate = d => d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
 
 const data = {
+  clients:[
+    {id:'C-001',name:'ООО РемСтрой',type:'B2B',phone:'+7 999 111-22-33',orders:1,revenue:11500,last:'25.09'},
+    {id:'C-002',name:'Анна Петрова',type:'B2C',phone:'+7 999 444-55-66',orders:1,revenue:7800,last:'25.09'}
+  ],
   leads:[
-    {id:'L-1048',client:'ООО РемСтрой',type:'8 м³',address:'Одинцово, ул. Маршала Жукова',date:'Сегодня 16:00',sum:11500,status:'new'},
-    {id:'L-1047',client:'Анна П.',type:'Газель',address:'Новая Трёхгорка',date:'Сегодня 14:30',sum:7800,status:'work'},
-    {id:'L-1046',client:'СК Альфа',type:'20 м³',address:'Барвиха',date:'Завтра 10:00',sum:25900,status:'work'},
-    {id:'L-1045',client:'ИП Новиков',type:'27 м³',address:'Заречье',date:'27 сен 09:00',sum:28900,status:'won'},
-    {id:'L-1044',client:'Мария С.',type:'8 м³',address:'Лесной городок',date:'26 сен 13:00',sum:10500,status:'lost'}
+    {id:'L-1001',clientId:'C-001',client:'ООО РемСтрой',name:'Иван Соколов',phone:'+7 999 111-22-33',type:'8 м³',address:'Одинцово, ул. Маршала Жукова, 12',date:'Сегодня 16:00',sum:11500,status:'work',source:'Сайт / форма заявки',vehicleId:'V-001',partnerId:null},
+    {id:'L-1002',clientId:'C-002',client:'Анна Петрова',name:'Анна Петрова',phone:'+7 999 444-55-66',type:'Газель',address:'Новая Трёхгорка, Кутузовская, 3',date:'Сегодня 18:00',sum:7800,status:'new',source:'Сайт / обратный звонок',vehicleId:null,partnerId:'P-001'}
   ],
   vehicles:[
-    {name:'КамАЗ МСК-821',type:'Бункеровоз 8 м³',owner:'Собственный',driver:'Алексей Н.',load:78,state:'В рейсе'},
-    {name:'КамАЗ МСК-822',type:'Бункеровоз 8 м³',owner:'Собственный',driver:'Денис П.',load:54,state:'Свободен'},
-    {name:'МАЗ МЛ-204',type:'Мультилифт 20–27 м³',owner:'Собственный',driver:'Роман К.',load:86,state:'В рейсе'},
-    {name:'Газель МСК-114',type:'Газель',owner:'Собственный',driver:'Сергей И.',load:44,state:'Свободен'},
-    {name:'Партнёр 017',type:'Бункеровоз 8 м³',owner:'Партнёр',driver:'ИП Савельев',load:63,state:'Резерв'},
-    {name:'Партнёр 025',type:'Мультилифт 27 м³',owner:'Партнёр',driver:'ООО ТрансЭко',load:71,state:'Свободен'}
+    {id:'V-001',name:'КамАЗ МСК-821',type:'Бункеровоз 8 м³',owner:'Собственный',driver:'Алексей Н.',load:78,state:'В рейсе',leadId:'L-1001'},
+    {id:'V-002',name:'Газель МСК-114',type:'Газель',owner:'Собственный',driver:'Сергей И.',load:35,state:'Свободен',leadId:null}
+  ],
+  partners:[
+    {id:'P-001',name:'ИП Савельев',type:'Газель / 8 м³',rate:'от 8 900 ₽',rating:'4.8',availability:'Назначен',leadId:'L-1002'},
+    {id:'P-002',name:'ООО ТрансЭко',type:'20 / 27 м³',rate:'от 21 500 ₽',rating:'4.9',availability:'Свободен',leadId:null}
+  ],
+  bookings:[
+    {id:'R-001',leadId:'L-1001',resourceId:'V-001',resourceType:'own',time:'16:00',dayOffset:0},
+    {id:'R-002',leadId:'L-1002',resourceId:'P-001',resourceType:'partner',time:'18:00',dayOffset:0}
   ]
 };
 
@@ -659,32 +664,34 @@ function renderView(view, skipRoute){
   if(view==='analytics') root.innerHTML=analyticsHTML();
 }
 
-function dashboardHTML(){return `
+function dashboardHTML(){
+  const revenue=data.leads.reduce((s,l)=>s+(Number(l.sum)||0),0);
+  const activeTrips=data.bookings.length;
+  const freeVehicles=data.vehicles.filter(v=>v.state==='Свободен').length;
+  return `
 <div class="metric-grid">
-  ${metric('Выручка сегодня','186 400 ₽','+12% к плану')}
-  ${metric('Рейсов сегодня','17','13 свой / 4 партнёры')}
-  ${metric('Свободно машин','6','из 12 активных')}
+  ${metric('Выручка по тестовым заказам',revenue.toLocaleString('ru-RU')+' ₽','2 связанные заявки')}
+  ${metric('Рейсов сегодня',String(activeTrips),'1 свой / 1 партнёр')}
+  ${metric('Свободно своих машин',String(freeVehicles),'из '+data.vehicles.length)}
   ${metric('Новые заявки',String(data.leads.filter(x=>x.status==='new').length),'нужна обработка')}
 </div>
 <div class="dashboard-grid">
-  <section class="panel"><h3>Ближайшие рейсы</h3><table class="table"><thead><tr><th>Время</th><th>Клиент</th><th>Машина</th><th>Адрес</th><th>Статус</th></tr></thead><tbody>
-  <tr><td>14:30</td><td>Анна П.</td><td>Газель 114</td><td>Новая Трёхгорка</td><td><span class="pill work">в пути</span></td></tr>
-  <tr><td>16:00</td><td>РемСтрой</td><td>КамАЗ 822</td><td>Одинцово</td><td><span class="pill new">назначен</span></td></tr>
-  <tr><td>18:00</td><td>СК Монолит</td><td>Партнёр 017</td><td>Барвиха</td><td><span class="pill new">резерв</span></td></tr>
+  <section class="panel"><h3>Ближайшие рейсы</h3><table class="table"><thead><tr><th>Время</th><th>Клиент</th><th>Ресурс</th><th>Адрес</th><th>Статус</th></tr></thead><tbody>
+  ${data.bookings.map(b=>{const l=data.leads.find(x=>x.id===b.leadId); const r=b.resourceType==='own'?data.vehicles.find(x=>x.id===b.resourceId):data.partners.find(x=>x.id===b.resourceId); return `<tr><td>${b.time}</td><td>${l?.client||''}</td><td>${r?.name||''}</td><td>${l?.address||''}</td><td><span class="pill work">${b.resourceType==='own'?'свой флот':'партнёр'}</span></td></tr>`}).join('')}
   </tbody></table></section>
   <section class="panel"><h3>Источники заявок</h3>
     <div class="source-panel">
-      <div class="source-stat"><b>${data.leads.filter(l=>String(l.source||'').toLowerCase().includes('сайт')||String(l.source||'').toLowerCase().includes('utm')).length}</b><span>с сайта</span></div>
+      <div class="source-stat"><b>${data.leads.filter(l=>String(l.source||'').toLowerCase().includes('сайт')).length}</b><span>с сайта</span></div>
       <div class="source-stat"><b>${data.leads.filter(l=>String(l.source||'').toLowerCase().includes('crm')).length}</b><span>вручную</span></div>
       <div class="source-stat"><b>${data.leads.filter(l=>l.status==='new').length}</b><span>новых</span></div>
     </div>
-    <h3 style="margin-top:18px">Что требует внимания</h3><div class="activity-list">
-    ${activity('3 заявки без назначения машины','проверить свободные слоты')}
-    ${activity('КамАЗ МСК-821: ТО через 420 км','запланировать сервис')}
-    ${activity('Партнёр ТрансЭко обновил ставку +7%','пересмотреть тарифы')}
-    ${activity('2 клиента готовы на регулярный график','создать договорный план')}
-  </div></section>
-</div>`}
+    <h3 style="margin-top:18px">Связи</h3><div class="activity-list">
+      ${activity('L-1001 → ООО РемСтрой → КамАЗ МСК-821','свой флот, рейс 16:00')}
+      ${activity('L-1002 → Анна Петрова → ИП Савельев','партнёрский флот, рейс 18:00')}
+    </div>
+  </section>
+</div>`;
+}
 function metric(label,value,delta){return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div><div class="delta">${delta}</div></div>`}
 function activity(a,b){return `<div class="activity"><div class="activity-dot"></div><div><p>${a}</p><span>${b}</span></div></div>`}
 
@@ -717,37 +724,48 @@ function leadCard(l){
 }
 
 function calendarHTML(){
-  let days=[...Array(7)].map((_,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);return d});
-  let head=`<div class="cal-head">Автомобиль</div>${days.map(d=>`<div class="cal-head">${d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric'})}</div>`).join('')}`;
-  let rows=data.vehicles.map((v,vi)=>`<div class="vehicle-name">${v.name}<br><span style="color:#87958b;font-weight:500">${v.type}</span></div>${days.map((d,di)=>`<div class="cal-cell">${((vi+di)%3===0)?`<div class="booking ${v.owner==='Собственный'?'own':'partner'}">${9+di}:00 • заказ ${110+vi+di}</div>`:''}${((vi+di)%5===0)?`<div class="booking own">15:30 • рейс</div>`:''}</div>`).join('')}`).join('');
-  return `<div class="toolbar"><div class="filters"><button class="chip active">Неделя</button><button class="chip">День</button><button class="chip">Свой флот</button><button class="chip">Партнёры</button></div><button class="btn light small">Экспорт</button></div><div class="calendar">${head}${rows}</div>`
+  const days=[...Array(7)].map((_,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);return d});
+  const resources=[
+    ...data.vehicles.map(v=>({id:v.id,name:v.name,type:v.type,owner:'Свой флот'})),
+    ...data.partners.map(p=>({id:p.id,name:p.name,type:p.type,owner:'Партнёр'}))
+  ];
+  const head=`<div class="cal-head">Ресурс</div>${days.map(d=>`<div class="cal-head">${d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric'})}</div>`).join('')}`;
+  const rows=resources.map(r=>`<div class="vehicle-name">${r.name}<br><span style="color:#87958b;font-weight:500">${r.owner} · ${r.type}</span></div>${days.map((d,di)=>{const bs=data.bookings.filter(b=>b.resourceId===r.id&&b.dayOffset===di);return `<div class="cal-cell">${bs.map(b=>{const l=data.leads.find(x=>x.id===b.leadId);return `<div class="booking ${b.resourceType==='own'?'own':'partner'}">${b.time} · ${l?.client||b.leadId}</div>`}).join('')}</div>`}).join('')}`).join('');
+  return `<div class="toolbar"><div class="filters"><button class="chip active">Неделя</button><button class="chip">Сегодня</button></div><button class="btn light small">Экспорт</button></div><div class="calendar">${head}${rows}</div>`;
 }
-function fleetHTML(partnersOnly){
-  const list=data.vehicles.filter(v=>!partnersOnly&&v.owner==='Собственный');
-  return `<div class="toolbar"><div class="filters"><button class="chip active">Все машины</button><button class="chip">Свободные</button><button class="chip">В рейсе</button><button class="chip">ТО</button></div><button class="btn primary small">+ Автомобиль</button></div><div class="fleet-grid">${list.map(vehicleCard).join('')}</div>`
+function fleetHTML(){
+  return `<div class="toolbar"><div class="filters"><button class="chip active">2 тестовые машины</button></div><button class="btn primary small">+ Автомобиль</button></div><div class="fleet-grid">${data.vehicles.map(vehicleCard).join('')}</div>`;
 }
-function vehicleCard(v){return `<article class="vehicle-card vehicle-row"><div class="vehicle-main"><div><h3>${v.name}</h3><span class="pill ${v.state==='Свободен'?'won':'work'}">${v.state}</span></div><div class="vehicle-type">${v.type}</div><div class="vehicle-driver">${v.driver}</div><div class="vehicle-owner">${v.owner}</div><div class="vehicle-icon">🚛</div></div><div class="vehicle-load"><span>Загрузка недели</span><div class="progress"><i style="width:${v.load}%"></i></div><b>${v.load}%</b></div></article>`}
+function vehicleCard(v){
+  const l=v.leadId?data.leads.find(x=>x.id===v.leadId):null;
+  return `<article class="vehicle-card vehicle-row"><div class="vehicle-main"><div><h3>${v.name}</h3><span class="pill ${v.state==='Свободен'?'won':'work'}">${v.state}</span></div><div class="vehicle-type">${v.type}</div><div class="vehicle-driver">${v.driver}</div><div class="vehicle-owner">${l?'Заявка '+l.id+' · '+l.client:'Нет назначенной заявки'}</div><div class="vehicle-icon">🚛</div></div><div class="vehicle-load"><span>Загрузка недели</span><div class="progress"><i style="width:${v.load}%"></i></div><b>${v.load}%</b></div></article>`;
+}
 function partnersHTML(){
-  const ps=[['ООО ТрансЭко','8 / 20 / 27 м³','от 8 600 ₽','4.9'],['ИП Савельев','8 м³','от 8 900 ₽','4.8'],['ЭкоЛогистика','Газель / 8 м³','от 6 700 ₽','4.7'],['МосКонтейнер','20 / 27 м³','от 21 500 ₽','4.9']];
-  return `<div class="toolbar"><div class="filters"><button class="chip active">Доступны сегодня</button><button class="chip">Все партнёры</button></div><button class="btn primary small">+ Добавить партнёра</button></div><section class="panel"><table class="table"><thead><tr><th>Партнёр</th><th>Техника</th><th>Ставка</th><th>Рейтинг</th><th>Доступность</th></tr></thead><tbody>${ps.map(p=>`<tr><td><b>${p[0]}</b></td><td>${p[1]}</td><td>${p[2]}</td><td>★ ${p[3]}</td><td><span class="pill won">есть окна</span></td></tr>`).join('')}</tbody></table></section>`
+  return `<div class="toolbar"><div class="filters"><button class="chip active">2 тестовых партнёра</button></div><button class="btn primary small">+ Добавить партнёра</button></div><section class="panel"><table class="table"><thead><tr><th>Партнёр</th><th>Техника</th><th>Ставка</th><th>Рейтинг</th><th>Связь с заявкой</th></tr></thead><tbody>${data.partners.map(p=>{const l=p.leadId?data.leads.find(x=>x.id===p.leadId):null;return `<tr><td><b>${p.name}</b></td><td>${p.type}</td><td>${p.rate}</td><td>★ ${p.rating}</td><td>${l?l.id+' · '+l.client:'Свободен'}</td></tr>`}).join('')}</tbody></table></section>`;
 }
 function clientsHTML(){
- const cs=[['ООО РемСтрой','B2B','14','186 400 ₽','18.09'],['СК Альфа','B2B','9','312 800 ₽','24.09'],['Анна П.','B2C','2','16 900 ₽','25.09'],['ИП Новиков','B2B','6','144 700 ₽','23.09']];
- return `<div class="toolbar"><div class="filters"><button class="chip active">Все</button><button class="chip">B2B</button><button class="chip">Повторные</button></div><button class="btn primary small">+ Клиент</button></div><section class="panel"><table class="table"><thead><tr><th>Клиент</th><th>Тип</th><th>Заказов</th><th>Выручка</th><th>Последний заказ</th></tr></thead><tbody>${cs.map(c=>`<tr><td><b>${c[0]}</b></td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td></tr>`).join('')}</tbody></table></section>`
+  return `<div class="toolbar"><div class="filters"><button class="chip active">2 тестовых клиента</button></div><button class="btn primary small">+ Клиент</button></div><section class="panel"><table class="table"><thead><tr><th>Клиент</th><th>Тип</th><th>Телефон</th><th>Заявка</th><th>Ресурс</th></tr></thead><tbody>${data.clients.map(cl=>{const l=data.leads.find(x=>x.clientId===cl.id); let resource='Не назначен'; if(l?.vehicleId){resource=data.vehicles.find(v=>v.id===l.vehicleId)?.name||resource} if(l?.partnerId){resource=data.partners.find(p=>p.id===l.partnerId)?.name||resource} return `<tr><td><b>${cl.name}</b></td><td>${cl.type}</td><td>${cl.phone}</td><td>${l?l.id+' · '+l.type:'Нет'}</td><td>${resource}</td></tr>`}).join('')}</tbody></table></section>`;
 }
-function analyticsHTML(){return `<div class="metric-grid">${metric('Выручка за месяц','3,84 млн ₽','+18% м/м')}${metric('Валовая маржа','812 тыс ₽','21,1%')}${metric('Средний чек','18 420 ₽','+1 240 ₽')}${metric('Конверсия заявки','38%','+4 п.п.')}</div><div class="analytics-grid"><section class="panel"><h3>Выручка по неделям</h3><div class="bar-chart">${[62,84,74,96].map((h,i)=>`<div class="bar" style="height:${h}%" data-label="Нед ${i+1}" data-value="${[720,980,860,1280][i]}k"></div>`).join('')}</div></section><section class="panel"><h3>Структура рейсов</h3><table class="table"><tbody><tr><td>Свой флот</td><td><b>68%</b></td><td>маржа 28%</td></tr><tr><td>Привлечённый флот</td><td><b>32%</b></td><td>маржа 14%</td></tr><tr><td>Контейнер 8 м³</td><td><b>46%</b></td><td>самый частый</td></tr><tr><td>B2B клиенты</td><td><b>57%</b></td><td>выручки</td></tr></tbody></table></section></div>`}
+function analyticsHTML(){
+  const revenue=data.leads.reduce((s,l)=>s+(Number(l.sum)||0),0);
+  const ownRevenue=data.leads.filter(l=>l.vehicleId).reduce((s,l)=>s+(Number(l.sum)||0),0);
+  const partnerRevenue=data.leads.filter(l=>l.partnerId).reduce((s,l)=>s+(Number(l.sum)||0),0);
+  const avg=data.leads.length?Math.round(revenue/data.leads.length):0;
+  return `<div class="metric-grid">${metric('Выручка теста',revenue.toLocaleString('ru-RU')+' ₽','2 заказа')}${metric('Средний чек',avg.toLocaleString('ru-RU')+' ₽','по 2 заявкам')}${metric('Свой флот',ownRevenue.toLocaleString('ru-RU')+' ₽','L-1001')}${metric('Партнёрский флот',partnerRevenue.toLocaleString('ru-RU')+' ₽','L-1002')}</div><section class="panel"><h3>Связанные тестовые данные</h3><table class="table"><thead><tr><th>Заявка</th><th>Клиент</th><th>Источник</th><th>Исполнитель</th><th>Сумма</th></tr></thead><tbody>${data.leads.map(l=>{const r=l.vehicleId?data.vehicles.find(v=>v.id===l.vehicleId):data.partners.find(p=>p.id===l.partnerId);return `<tr><td>${l.id}</td><td>${l.client}</td><td>${l.source}</td><td>${r?.name||'Не назначен'}</td><td>${Number(l.sum||0).toLocaleString('ru-RU')} ₽</td></tr>`}).join('')}</tbody></table></section>`;
+}
 
 const saved=localStorage.getItem('wf_leads');
 if(saved){
   try{
-    data.leads=JSON.parse(saved).map(l=>({
-      ...l,
-      status:normalizeStatus(l.status),
-      source:l.source||'Демо / старые данные'
-    }));
-  }catch{}
+    const stored=JSON.parse(saved);
+    const oldDemo=Array.isArray(stored) && stored.some(l=>String(l.id||'').startsWith('L-104'));
+    if(!oldDemo && Array.isArray(stored) && stored.length){
+      data.leads=stored.map(l=>({...l,status:normalizeStatus(l.status),source:l.source||'Не указан'}));
+    } else {
+      saveLeads();
+    }
+  }catch{ saveLeads(); }
 }else{
-  data.leads=data.leads.map(l=>({...l,source:l.source||'Демо / старые данные'}));
   saveLeads();
 }
 function restoreAppState(){
