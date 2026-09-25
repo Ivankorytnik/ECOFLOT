@@ -22,7 +22,7 @@ body{background:#fff;color:#142019}
 .topbar{height:74px;position:relative;z-index:5}
 .topbar nav{gap:22px}
 .topbar nav a{font-size:13px;font-weight:600;color:#526058}
-.topbar-actions{display:flex;align-items:center;gap:10px}
+.topbar-actions{display:flex;align-items:center;gap:10px}.home-link,.back-home{font-size:12px;font-weight:700;color:#3f5b49;text-decoration:none}.home-link:hover,.back-home:hover{color:#1f8f5f}.back-home{display:inline-block;margin-bottom:12px}
 .brand{font-size:18px;letter-spacing:-.02em}
 .brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#bdea48,#57a93b);font-size:15px}
 .btn{min-height:44px;padding:11px 17px;border-radius:11px;font-size:13px;transition:transform .08s ease,box-shadow .12s ease,opacity .12s ease}.btn:active{transform:translateY(2px) scale(.99)}
@@ -131,7 +131,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
         <a href="#how">Как работаем</a>
         <a href="#contact">Контакты</a>
       </nav>
-      <div class="topbar-actions"><button class="btn ghost" onclick="openCallback()">Обратный звонок</button><button class="btn ghost" onclick="openCRM()">CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
+      <a href="#hero" class="home-link">На главную</a><div class="topbar-actions"><button class="btn ghost" onclick="openCallback()">Обратный звонок</button><button class="btn ghost" onclick="openCRM()">CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
     </header>
 
     <main>
@@ -155,7 +155,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
             <img src="https://183b9828ac.clvaw-cdnwnd.com/c563bc42ca29cfe73122a64a21547843/200001521-2ac402ac42/Teheraut%C3%B3%20z%C3%B6ld%20kont%C3%A9nert%20emel%20a%20telken.png?ph=183b9828ac" alt="Вывоз строительного мусора контейнером" loading="eager" />
             <div class="hero-visual-label"><strong>Техника уже рядом</strong><span>Свой флот и проверенные партнёры</span></div>
           </div>
-        <div class="hero-card" id="leadform">
+        <div class="hero-card" id="leadform"><a href="#hero" class="back-home">← На главную</a>
           <div class="form-head">
             <span class="badge">Быстрый расчёт</span>
             <h3>Получить цену и машину</h3>
@@ -293,7 +293,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.16 · заливка 25.09.2026</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.17 · заливка 25.09.2026</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
