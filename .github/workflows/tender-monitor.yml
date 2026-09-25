@@ -2,7 +2,7 @@ name: ECOFLOT tender monitor
 
 on:
   schedule:
-    - cron: "7 * * * *"
+    - cron: "0 8 * * *"
   workflow_dispatch:
   push:
     paths:
