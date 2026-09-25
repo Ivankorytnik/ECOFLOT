@@ -1,0 +1,15 @@
+name: ECOFLOT send found tender
+
+on:
+  push:
+    paths:
+      - ".github/workflows/send-found-tender.yml"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send tender to Telegram through Apps Script
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Транспортировка отходов IV-V классов опасности, Апрелевка"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Отходы IV-V классов опасности"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 30.09.2026"             --data-urlencode "address=Апрелевка, Наро-Фоминский г.о., Московская область"             --data-urlencode "source=Росэлторг / B2B.House"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Заказчик: АО СТРОЙТРАНСГАЗ. Начальная цена: 11 640 584,33 ₽. Услуги по транспортировке отходов IV-V классов опасности на полигон ООО ЭКОПЕРЕРАБОТКА. Ссылка: https://b2b.house/activepurchase/rd7e2b0a7-0998-44fa-83bc-4710aae213ae_89384045/"             --data-urlencode "requestId=TENDER-B2309261635364"             "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
