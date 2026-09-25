@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.11 · заливка 25.09.2026 14:52</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.13 · заливка 25.09.2026 15:02</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -347,7 +347,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
   <script>const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const today = new Date();
-const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwCCbbs2fu3rJc_GKjNl59aei1urvognFrmgSjnJFpe3jQ-OcCCefJqJj91RMXFJJDaTg/exec'; // сюда вставляется URL развернутого Google Apps Script Web App
+const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec'; // сюда вставляется URL развернутого Google Apps Script Web App
 
 async function sendToGoogleSheet(payload){
   if(!ECOFLOT_SHEET_WEBHOOK) return false;
