@@ -650,12 +650,20 @@ function calendarHTML(){
 }
 
 function fleetHTML(){
-  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовые машины</button></div><button class="btn primary small">+ Автомобиль</button></div><div class="fleet-grid">'+data.vehicles.map(v=>{
+  const rows = data.vehicles.map(v=>{
     const l = v.leadId ? data.leads.find(x=>x.id===v.leadId) : null;
-    return '<article class="vehicle-card vehicle-row"><div class="vehicle-main"><div><h3>'+v.name+'</h3><span class="pill '+(v.state==='Свободен'?'won':'work')+'">'+v.state+'</span></div><div class="vehicle-type">'+v.type+'</div><div class="vehicle-driver">'+v.driver+'</div><div class="vehicle-owner">'+(l?'Заявка '+l.id+' · '+l.client:'Нет назначенной заявки')+'</div><div class="vehicle-icon">🚛</div></div><div class="vehicle-load"><span>Загрузка недели</span><div class="progress"><i style="width:'+v.load+'%"></i></div><b>'+v.load+'%</b></div></article>';
-  }).join('')+'</div>';
+    return '<tr>'
+      + '<td><b>'+v.name+'</b></td>'
+      + '<td>'+v.type+'</td>'
+      + '<td>'+v.driver+'</td>'
+      + '<td><span class="pill '+(v.state==='Свободен'?'won':'work')+'">'+v.state+'</span></td>'
+      + '<td>'+(l ? l.id+' · '+l.client : 'Нет назначенной заявки')+'</td>'
+      + '<td>'+v.load+'%</td>'
+      + '</tr>';
+  }).join('');
+  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовые машины</button></div><button class="btn primary small">+ Автомобиль</button></div>'
+    + '<div style="overflow:auto"><table class="fleet-list-table"><thead><tr><th>Автомобиль</th><th>Тип</th><th>Водитель</th><th>Статус</th><th>Заявка</th><th>Загрузка недели</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
-
 function partnersHTML(){
   const rows = data.partners.map(p=>{
     const l = p.leadId ? data.leads.find(x=>x.id===p.leadId) : null;
