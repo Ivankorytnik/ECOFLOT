@@ -166,3 +166,250 @@ function testWrite() {
   ]);
   SpreadsheetApp.flush();
 }
+
+
+// ===== ECOFLOT: автоматический мониторинг тендеров ЕИС -> Telegram =====
+
+const TENDER_SEARCHES = [
+  'вывоз мусора Одинцово',
+  'вывоз отходов Одинцово',
+  'строительный мусор Одинцово',
+  'вывоз мусора Московская область',
+  'вывоз отходов Московская область',
+  'транспортирование отходов Московская область',
+  'контейнер мусор Московская область',
+  'вывоз мусора Москва',
+  'вывоз отходов Москва'
+];
+
+function tenderRssUrl_(query) {
+  const params = [
+    'searchString=' + encodeURIComponent(query),
+    'morphology=on',
+    'search-filter=' + encodeURIComponent('Дате размещения'),
+    'pageNumber=1',
+    'sortDirection=false',
+    'recordsPerPage=_50',
+    'showLotsInfoHidden=false',
+    'sortBy=UPDATE_DATE',
+    'fz44=on',
+    'fz223=on',
+    'af=on',
+    'currencyIdGeneral=-1'
+  ];
+  return 'https://zakupki.gov.ru/epz/order/extendedsearch/rss.html?' + params.join('&');
+}
+
+function tenderText_(element, names) {
+  for (let i = 0; i < names.length; i++) {
+    const child = element.getChild(names[i]);
+    if (child) return String(child.getText() || '').trim();
+  }
+  return '';
+}
+
+function tenderLink_(element) {
+  const direct = element.getChild('link');
+  if (direct) {
+    const href = direct.getAttribute && direct.getAttribute('href');
+    if (href) return String(href.getValue() || '').trim();
+    const txt = String(direct.getText() || '').trim();
+    if (txt) return txt;
+  }
+  const links = element.getChildren('link');
+  for (let i = 0; i < links.length; i++) {
+    const href = links[i].getAttribute('href');
+    if (href) return String(href.getValue() || '').trim();
+  }
+  return '';
+}
+
+function stripHtml_(s) {
+  return String(s || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tenderEntries_(xmlText) {
+  const doc = XmlService.parse(xmlText);
+  const root = doc.getRootElement();
+  const rootName = root.getName().toLowerCase();
+  let items = [];
+
+  if (rootName === 'rss') {
+    const channel = root.getChild('channel');
+    items = channel ? channel.getChildren('item') : [];
+  } else if (rootName === 'feed') {
+    items = root.getChildren('entry');
+    if (!items.length) {
+      const ns = root.getNamespace();
+      items = root.getChildren('entry', ns);
+    }
+  }
+
+  return items.map(function(item) {
+    const title = tenderText_(item, ['title']);
+    const description = tenderText_(item, ['description', 'summary', 'content']);
+    const link = tenderLink_(item);
+    const id = tenderText_(item, ['guid', 'id']) || link || title;
+    const date = tenderText_(item, ['pubDate', 'published', 'updated']);
+    return {
+      id: id,
+      title: stripHtml_(title),
+      description: stripHtml_(description),
+      link: link,
+      date: date
+    };
+  });
+}
+
+function tenderLooksRelevant_(entry) {
+  const hay = (entry.title + ' ' + entry.description).toLowerCase();
+
+  const serviceWords = [
+    'вывоз мусор', 'вывоз отход', 'транспортировани',
+    'строительн', 'крупногабарит', 'кгм',
+    'контейнер', 'отход', 'мусор'
+  ];
+  const geoWords = [
+    'одинцов', 'московская область', 'московской области',
+    'москва', 'западный административный округ', 'зао '
+  ];
+
+  const hasService = serviceWords.some(function(w) { return hay.indexOf(w) >= 0; });
+  const hasGeo = geoWords.some(function(w) { return hay.indexOf(w) >= 0; });
+  return hasService && hasGeo;
+}
+
+function tenderFresh_(entry) {
+  if (!entry.date) return true;
+  const dt = new Date(entry.date);
+  if (isNaN(dt.getTime())) return true;
+  return (Date.now() - dt.getTime()) <= 7 * 24 * 60 * 60 * 1000;
+}
+
+function sendTenderTelegram_(entry, searchQuery) {
+  const props = PropertiesService.getScriptProperties();
+  const token = props.getProperty('TELEGRAM_BOT_TOKEN');
+  const chatId = props.getProperty('TELEGRAM_CHAT_ID');
+  if (!token || !chatId) throw new Error('Telegram settings are not configured');
+
+  const text = [
+    '📢 Новый тендер для ECOFLOT',
+    '',
+    entry.title || 'Закупка без названия',
+    entry.description ? ('\n' + entry.description.slice(0, 900)) : '',
+    '',
+    'Поиск: ' + searchQuery,
+    entry.date ? ('Дата: ' + entry.date) : '',
+    entry.link ? ('Ссылка: ' + entry.link) : ''
+  ].filter(Boolean).join('\n');
+
+  const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+  const response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      chat_id: chatId,
+      text: text,
+      disable_web_page_preview: true
+    }),
+    muteHttpExceptions: true
+  });
+
+  return response.getResponseCode() >= 200 && response.getResponseCode() < 300;
+}
+
+function checkTenders() {
+  const props = PropertiesService.getScriptProperties();
+  const maxPerRun = Number(props.getProperty('TENDER_MAX_PER_RUN') || '8');
+  const sentNow = [];
+  const errors = [];
+
+  for (let q = 0; q < TENDER_SEARCHES.length; q++) {
+    if (sentNow.length >= maxPerRun) break;
+
+    const query = TENDER_SEARCHES[q];
+    const url = tenderRssUrl_(query);
+
+    try {
+      const response = UrlFetchApp.fetch(url, {
+        method: 'get',
+        followRedirects: true,
+        muteHttpExceptions: true,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 ECOFLOT Tender Monitor'
+        }
+      });
+
+      if (response.getResponseCode() < 200 || response.getResponseCode() >= 300) {
+        errors.push(query + ': HTTP ' + response.getResponseCode());
+        continue;
+      }
+
+      const entries = tenderEntries_(response.getContentText('UTF-8'));
+
+      for (let i = 0; i < entries.length; i++) {
+        if (sentNow.length >= maxPerRun) break;
+
+        const e = entries[i];
+        if (!e.id || !tenderFresh_(e) || !tenderLooksRelevant_(e)) continue;
+
+        const key = 'TENDER_SENT_' + Utilities.base64EncodeWebSafe(
+          Utilities.computeDigest(Utilities.DigestAlgorithm.MD5, e.id)
+        ).replace(/=+$/g, '');
+
+        if (props.getProperty(key)) continue;
+
+        if (sendTenderTelegram_(e, query)) {
+          props.setProperty(key, new Date().toISOString());
+          sentNow.push(e.id);
+        }
+      }
+    } catch (err) {
+      errors.push(query + ': ' + err);
+    }
+  }
+
+  console.log(JSON.stringify({
+    ok: errors.length === 0,
+    sent: sentNow.length,
+    errors: errors
+  }));
+
+  cleanupTenderHistory_();
+}
+
+function cleanupTenderHistory_() {
+  const props = PropertiesService.getScriptProperties();
+  const all = props.getProperties();
+  const cutoff = Date.now() - 90 * 24 * 60 * 60 * 1000;
+
+  Object.keys(all).forEach(function(k) {
+    if (k.indexOf('TENDER_SENT_') !== 0) return;
+    const dt = new Date(all[k]);
+    if (!isNaN(dt.getTime()) && dt.getTime() < cutoff) {
+      props.deleteProperty(k);
+    }
+  });
+}
+
+function installTenderMonitor() {
+  const fn = 'checkTenders';
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === fn) ScriptApp.deleteTrigger(t);
+  });
+
+  ScriptApp.newTrigger(fn)
+    .timeBased()
+    .everyHours(1)
+    .create();
+
+  checkTenders();
+}
