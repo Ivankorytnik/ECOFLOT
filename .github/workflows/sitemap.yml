@@ -1,0 +1,34 @@
+name: Keep sitemap current
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/index.html'
+      - 'scripts/generate_sitemap.py'
+
+permissions:
+  contents: write
+
+jobs:
+  sitemap:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate sitemap
+        run: python3 scripts/generate_sitemap.py
+      - name: Commit sitemap if changed
+        shell: bash
+        run: |
+          if git diff --quiet -- sitemap.xml; then
+            echo "sitemap.xml is already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sitemap.xml
+          git commit -m "SEO: refresh sitemap"
+          git push
