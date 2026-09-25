@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /404.html
+Disallow: /yandex_64ad02abcd9d31bd.html
 
 Sitemap: https://ecoflot.pro/sitemap.xml
 Host: ecoflot.pro
