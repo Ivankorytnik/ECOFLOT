@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.9 · заливка 25.09.2026 14:45</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.10 · заливка 25.09.2026 14:48</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -549,7 +549,7 @@ function dashboardHTML(){return `
   ${metric('Выручка сегодня','186 400 ₽','+12% к плану')}
   ${metric('Рейсов сегодня','17','13 свой / 4 партнёры')}
   ${metric('Свободно машин','6','из 12 активных')}
-  ${metric('Новые заявки','${data.leads.filter(x=>x.status==='new').length}','нужна обработка')}
+  ${metric('Новые заявки',String(data.leads.filter(x=>x.status==='new').length),'нужна обработка')}
 </div>
 <div class="dashboard-grid">
   <section class="panel"><h3>Ближайшие рейсы</h3><table class="table"><thead><tr><th>Время</th><th>Клиент</th><th>Машина</th><th>Адрес</th><th>Статус</th></tr></thead><tbody>
