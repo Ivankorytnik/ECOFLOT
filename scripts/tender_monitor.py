@@ -15,7 +15,8 @@ WEBHOOK = os.environ.get(
     "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec",
 )
 STATE_PATH = Path("tender_state.json")
-MAX_SEND = int(os.environ.get("MAX_SEND", "8"))
+MAX_SEND = int(os.environ.get("MAX_SEND", "100"))
+MAX_PAGES = int(os.environ.get("MAX_PAGES", "10"))
 
 SEARCHES = [
     "вывоз мусора Одинцово",
@@ -46,11 +47,11 @@ SERVICE_WORDS = (
     "отход", "мусор",
 )
 
-def rss_url(query: str) -> str:
+def rss_url(query: str, page_number: int = 1) -> str:
     params = {
         "searchString": query,
         "morphology": "on",
-        "pageNumber": "1",
+        "pageNumber": str(page_number),
         "sortDirection": "false",
         "recordsPerPage": "_50",
         "showLotsInfoHidden": "false",
@@ -59,6 +60,8 @@ def rss_url(query: str) -> str:
         "fz223": "on",
         "af": "on",
         "currencyIdGeneral": "-1",
+        # AF = этап подачи заявок / активные закупки.
+        "orderStages": "AF",
     }
     return "https://zakupki.gov.ru/epz/order/extendedsearch/rss.html?" + urllib.parse.urlencode(params)
 
@@ -165,14 +168,23 @@ def main():
 
     for query in SEARCHES:
         try:
-            for entry in parse_feed(fetch(rss_url(query))):
-                if not entry["id"] or not relevant(entry):
-                    continue
-                key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
-                if key in sent or key in seen_this_run:
-                    continue
-                seen_this_run.add(key)
-                candidates.append((entry, query, key))
+            for page_number in range(1, MAX_PAGES + 1):
+                entries = parse_feed(fetch(rss_url(query, page_number)))
+                if not entries:
+                    break
+                added_on_page = 0
+                for entry in entries:
+                    if not entry["id"] or not relevant(entry):
+                        continue
+                    key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+                    if key in sent or key in seen_this_run:
+                        continue
+                    seen_this_run.add(key)
+                    candidates.append((entry, query, key))
+                    added_on_page += 1
+                # Если ЕИС вернул меньше стандартной страницы, дальше страниц нет.
+                if len(entries) < 50:
+                    break
         except Exception as exc:
             errors.append(f"{query}: {exc}")
 
@@ -187,7 +199,7 @@ def main():
             errors.append(f"send {entry['title'][:80]}: {exc}")
 
     save_state(state)
-    print(f"Found new: {len(candidates)}, sent: {sent_count}, errors: {len(errors)}")
+    print(f"Found active new: {len(candidates)}, sent: {sent_count}, errors: {len(errors)}")
     for e in errors:
         print("ERROR:", e, file=sys.stderr)
 
