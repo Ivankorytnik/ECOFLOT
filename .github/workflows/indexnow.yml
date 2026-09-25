@@ -1,0 +1,72 @@
+name: Notify IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.html'
+      - 'sitemap.xml'
+      - 'robots.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Build changed URL list
+        id: urls
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, os
+          base = "https://ecoflot.pro"
+          try:
+              changed = subprocess.check_output(
+                  ["git","diff","--name-only","HEAD^","HEAD"],
+                  text=True
+              ).splitlines()
+          except Exception:
+              changed = ["index.html"]
+
+          urls = []
+          for path in changed:
+              if not path.endswith(".html"):
+                  continue
+              if path in ("404.html","yandex_64ad02abcd9d31bd.html"):
+                  continue
+              if path == "index.html":
+                  url = base + "/"
+              elif path.endswith("/index.html"):
+                  url = base + "/" + path[:-10]
+              else:
+                  continue
+              if url not in urls:
+                  urls.append(url)
+
+          if not urls:
+              urls = [base + "/"]
+
+          payload = {
+              "host": "ecoflot.pro",
+              "key": "ECOFLOT2026IndexNowK9sP4mT7vQ2xN6a",
+              "keyLocation": "https://ecoflot.pro/ECOFLOT2026IndexNowK9sP4mT7vQ2xN6a.txt",
+              "urlList": urls
+          }
+          with open("indexnow.json","w",encoding="utf-8") as f:
+              json.dump(payload,f,ensure_ascii=False)
+          print("Submitting:", *urls, sep="\n")
+          PY
+
+      - name: Submit changed URLs to Yandex IndexNow
+        run: |
+          curl --fail-with-body --retry 3 --retry-delay 10 \
+            -X POST "https://yandex.com/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data-binary @indexnow.json
