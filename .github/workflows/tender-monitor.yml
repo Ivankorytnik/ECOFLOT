@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: ecoflot-tender-monitor
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   monitor:
