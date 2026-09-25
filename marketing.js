@@ -38,3 +38,14 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addMobileCTA);
   else addMobileCTA();
 })();
+
+(function(){
+  try{
+    if(!document.querySelector('script[src="/shared-seo.js"]')){
+      var s=document.createElement('script');
+      s.src='/shared-seo.js';
+      s.defer=true;
+      document.head.appendChild(s);
+    }
+  }catch(e){}
+})();
