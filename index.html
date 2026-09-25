@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.0 · заливка 25.09.2026 13:15</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.1 · заливка 25.09.2026 13:55</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -501,6 +501,83 @@ function analyticsHTML(){return `<div class="metric-grid">${metric('Выручк
 
 const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.parse(saved)}catch{}}
 // CRM работает без авторизации в демо-режиме
+</script>
+<script>
+/* ECOFLOT resilient controls v0.9.1 */
+(function(){
+  function q(s){ return document.querySelector(s); }
+
+  window.openCallback = function(){
+    var m=q('#callbackModal');
+    if(m){ m.classList.remove('hidden'); m.style.display='grid'; }
+  };
+  window.closeCallback = function(){
+    var m=q('#callbackModal');
+    if(m){ m.classList.add('hidden'); m.style.display=''; }
+  };
+  window.openCRM = function(){
+    var landing=q('#landing'), crm=q('#crm');
+    if(landing) landing.classList.remove('active');
+    if(crm){
+      crm.classList.add('active');
+      crm.style.display='grid';
+    }
+    var email=q('#managerEmail');
+    if(email) email.textContent='Демо-режим';
+    var chip=q('#todayChip');
+    if(chip) chip.textContent=new Date().toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+    try{
+      if(typeof renderView==='function') renderView('dashboard');
+      else {
+        var root=q('#viewRoot');
+        if(root) root.innerHTML='<section class="panel"><h3>ECOFLOT CRM</h3><p>CRM открыта в демо-режиме.</p></section>';
+      }
+    }catch(e){
+      var root=q('#viewRoot');
+      if(root) root.innerHTML='<section class="panel"><h3>ECOFLOT CRM</h3><p>CRM открыта в демо-режиме.</p></section>';
+    }
+  };
+  window.openLogin = window.openCRM;
+
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('[onclick="openCRM()"]').forEach(function(el){
+      el.onclick=function(e){ if(e) e.preventDefault(); window.openCRM(); };
+    });
+    document.querySelectorAll('[onclick="openCallback()"]').forEach(function(el){
+      el.onclick=function(e){ if(e) e.preventDefault(); window.openCallback(); };
+    });
+
+    var form=q('#callbackForm');
+    if(form){
+      form.onsubmit=function(e){
+        e.preventDefault();
+        var name=q('#callbackName') ? q('#callbackName').value.trim() : '';
+        var phone=q('#callbackPhone') ? q('#callbackPhone').value.trim() : '';
+        if(!phone) return false;
+        try{
+          var leads=JSON.parse(localStorage.getItem('wf_leads')||'[]');
+          leads.unshift({id:'CB-'+Date.now(),client:name||'Обратный звонок',type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'});
+          localStorage.setItem('wf_leads',JSON.stringify(leads));
+        }catch(e){}
+        form.reset();
+        window.closeCallback();
+        var toast=q('#toast');
+        if(toast){
+          toast.textContent='Заявка на обратный звонок принята.';
+          toast.classList.remove('hidden');
+          setTimeout(function(){ toast.classList.add('hidden'); },2600);
+        }
+        return false;
+      };
+    }
+
+    document.querySelectorAll('.modal-backdrop').forEach(function(m){
+      m.addEventListener('click',function(e){
+        if(e.target===m && m.id==='callbackModal') window.closeCallback();
+      });
+    });
+  });
+})();
 </script>
 </body>
 </html>
