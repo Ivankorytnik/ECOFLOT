@@ -120,6 +120,19 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
 .mini-row i{height:16px;border-radius:6px;background:linear-gradient(90deg,#cfead7,#4aa36d)}
 @media(max-width:980px){.crm-promo{grid-template-columns:1fr}.crm-promo-copy h2{font-size:32px}}
 @media(max-width:680px){.crm-promo{padding:24px}.crm-promo-copy h2{font-size:27px}.mini-metrics{grid-template-columns:1fr}.mini-row{grid-template-columns:90px 1fr}}
+
+/* CRM row tables */
+.lead-list-table,.fleet-list-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 20px rgba(21,45,31,.05)}
+.lead-list-table th,.lead-list-table td,.fleet-list-table th,.fleet-list-table td{padding:12px 14px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;text-align:left;vertical-align:middle;white-space:nowrap}
+.lead-list-table th:last-child,.lead-list-table td:last-child,.fleet-list-table th:last-child,.fleet-list-table td:last-child{border-right:0}
+.lead-list-table tbody tr:last-child td,.fleet-list-table tbody tr:last-child td{border-bottom:0}
+.lead-list-table th,.fleet-list-table th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#f7faf7;font-weight:800}
+.lead-list-table tbody tr:hover,.fleet-list-table tbody tr:hover{background:#fbfdfb}
+.view-switch{display:flex;gap:6px;align-items:center}
+.crm-modal-form{display:grid;gap:12px;margin-top:14px}
+.crm-modal-form label{margin:0}
+.crm-modal-form input,.crm-modal-form select{margin-top:6px}
+.crm-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 </style>
 </head>
 <body>
@@ -313,7 +326,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
     </aside>
 
     <section class="workspace">
-      <header class="workspace-header"><div><h2 id="viewTitle">Дашборд</h2><p id="viewSubtitle">Оперативная картина на сегодня</p></div><div class="header-actions"><button class="btn light small" onclick="openQuickLead()">+ Новая заявка</button><div class="today-chip" id="todayChip"></div></div></header>
+      <header class="workspace-header"><div><h2 id="viewTitle">Дашборд</h2><p id="viewSubtitle">Оперативная картина на сегодня</p></div><div class="header-actions"><button class="btn light small" data-crm-action="new-lead">+ Новая заявка</button><div class="today-chip" id="todayChip"></div></div></header>
       <main id="viewRoot" class="workspace-body"></main>
     </section>
   </div>
@@ -342,6 +355,15 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
         <button class="btn primary full" type="submit">Войти</button>
       </form>
       <small>Демо-версия: подойдёт любой корректный email. Для продакшена подключается Supabase/Auth.</small>
+    </div>
+  </div>
+
+
+  <div id="crmCreateModal" class="modal-backdrop hidden">
+    <div class="modal login-modal">
+      <button class="modal-close" type="button" data-crm-action="close-create">×</button>
+      <h2 id="crmCreateTitle">Новая запись</h2>
+      <div id="crmCreateBody"></div>
     </div>
   </div>
 
@@ -601,7 +623,7 @@ function leadsHTML(){
     + '</div><div class="view-switch">'
     + '<button class="chip '+(leadViewMode==='kanban'?'active':'')+'" onclick="setLeadView(\'kanban\')">Карточки</button>'
     + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
-    + '<button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div></div>';
+    + '<button class="btn primary small" data-crm-action="new-lead">+ Новая заявка</button></div></div>';
 
   if(leadViewMode==='rows'){
     const rows = list.map(l=>{
@@ -661,7 +683,7 @@ function fleetHTML(){
       + '<td>'+v.load+'%</td>'
       + '</tr>';
   }).join('');
-  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовые машины</button></div><button class="btn primary small">+ Автомобиль</button></div>'
+  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовые машины</button></div><button class="btn primary small" data-crm-action="new-vehicle">+ Автомобиль</button></div>'
     + '<div style="overflow:auto"><table class="fleet-list-table"><thead><tr><th>Автомобиль</th><th>Тип</th><th>Водитель</th><th>Статус</th><th>Заявка</th><th>Загрузка недели</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 function partnersHTML(){
@@ -700,13 +722,73 @@ function analyticsHTML(){
     + '</div><section class="panel"><h3>Связанные тестовые данные</h3><table class="table"><thead><tr><th>Заявка</th><th>Клиент</th><th>Источник</th><th>Исполнитель</th><th>Сумма</th></tr></thead><tbody>'+rows+'</tbody></table></section>';
 }
 
-function openQuickLead(){
-  const client = prompt('Клиент / компания');
-  if(!client) return;
-  const type = prompt('Тип заявки','8 м³') || '8 м³';
-  addLeadToCRM({client,type,address:'Уточнить адрес',date:'Новая заявка',status:'new',source:'CRM / вручную'});
-  renderView('leads');
-  showToast('Заявка создана');
+function openCreateLeadModal(){
+  const m = $('#crmCreateModal');
+  if(!m) return;
+  $('#crmCreateTitle').textContent = 'Новая заявка';
+  $('#crmCreateBody').innerHTML =
+    '<form id="crmLeadCreateForm" class="crm-modal-form">'
+    + '<label>Клиент<input id="crmLeadClient" required placeholder="ООО Компания или ФИО"></label>'
+    + '<label>Телефон<input id="crmLeadPhone" placeholder="+7 999 000-00-00"></label>'
+    + '<label>Тип<select id="crmLeadType"><option>Газель</option><option selected>8 м³</option><option>20 м³</option><option>27 м³</option></select></label>'
+    + '<label>Адрес<input id="crmLeadAddress" placeholder="Адрес подачи"></label>'
+    + '<div class="crm-modal-actions"><button type="button" class="btn light" data-crm-action="close-create">Отмена</button><button type="submit" class="btn primary">Создать</button></div>'
+    + '</form>';
+  m.classList.remove('hidden');
+  $('#crmLeadCreateForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const client = $('#crmLeadClient').value.trim();
+    if(!client) return;
+    addLeadToCRM({
+      client,
+      phone:$('#crmLeadPhone').value.trim(),
+      type:$('#crmLeadType').value,
+      address:$('#crmLeadAddress').value.trim() || 'Уточнить адрес',
+      date:'Новая заявка',
+      status:'new',
+      source:'CRM / вручную'
+    });
+    closeCreateModal();
+    renderView('leads');
+    showToast('Заявка создана');
+  },{once:true});
+}
+
+function openCreateVehicleModal(){
+  const m = $('#crmCreateModal');
+  if(!m) return;
+  $('#crmCreateTitle').textContent = 'Новый автомобиль';
+  $('#crmCreateBody').innerHTML =
+    '<form id="crmVehicleCreateForm" class="crm-modal-form">'
+    + '<label>Автомобиль<input id="crmVehicleName" required placeholder="КамАЗ МСК-823"></label>'
+    + '<label>Тип<input id="crmVehicleType" required placeholder="Бункеровоз 8 м³"></label>'
+    + '<label>Водитель<input id="crmVehicleDriver" placeholder="ФИО водителя"></label>'
+    + '<label>Статус<select id="crmVehicleState"><option>Свободен</option><option>В рейсе</option><option>ТО</option></select></label>'
+    + '<div class="crm-modal-actions"><button type="button" class="btn light" data-crm-action="close-create">Отмена</button><button type="submit" class="btn primary">Создать</button></div>'
+    + '</form>';
+  m.classList.remove('hidden');
+  $('#crmVehicleCreateForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const name = $('#crmVehicleName').value.trim();
+    if(!name) return;
+    data.vehicles.push({
+      id:'V-'+Date.now().toString().slice(-6),
+      name,
+      type:$('#crmVehicleType').value.trim() || 'Автомобиль',
+      driver:$('#crmVehicleDriver').value.trim() || 'Не назначен',
+      load:0,
+      state:$('#crmVehicleState').value,
+      leadId:null
+    });
+    try{ localStorage.setItem('ecoflot_vehicles',JSON.stringify(data.vehicles)); }catch(e){}
+    closeCreateModal();
+    renderView('fleetcrm');
+    showToast('Автомобиль создан');
+  },{once:true});
+}
+
+function closeCreateModal(){
+  $('#crmCreateModal')?.classList.add('hidden');
 }
 
 async function submitLeadForm(){
@@ -765,6 +847,10 @@ function restoreAppState(){
 }
 
 loadLeads();
+try{
+  const savedVehicles = JSON.parse(localStorage.getItem('ecoflot_vehicles') || 'null');
+  if(Array.isArray(savedVehicles) && savedVehicles.length) data.vehicles = savedVehicles;
+}catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
   $$('.nav-item[data-view]').forEach(btn=>{
@@ -779,6 +865,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('#callbackForm')?.addEventListener('submit',e=>{
     e.preventDefault();
     submitCallbackForm();
+  });
+
+  document.addEventListener('click',e=>{
+    const action = e.target.closest('[data-crm-action]')?.dataset.crmAction;
+    if(!action) return;
+    if(action==='new-lead') openCreateLeadModal();
+    if(action==='new-vehicle') openCreateVehicleModal();
+    if(action==='close-create') closeCreateModal();
   });
 
   restoreAppState();
