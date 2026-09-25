@@ -104,6 +104,21 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
   .trust-row{grid-template-columns:1fr 1fr}.trust-row div:last-child{grid-column:1/-1}
 }
 
+
+.crm-promo{display:grid;grid-template-columns:1fr .95fr;gap:28px;align-items:center;background:#102319;border-radius:24px;padding:34px;color:#fff}
+.crm-promo-copy h2{font-size:36px;line-height:1.08;margin:10px 0 12px;max-width:620px}
+.crm-promo-copy p{color:#b9c7be;font-size:14px;line-height:1.55;max-width:600px}
+.crm-features{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 24px}
+.crm-features span{font-size:11px;padding:8px 10px;border:1px solid #2c4637;border-radius:999px;color:#d9e5dd}
+.crm-promo-ui{background:#f7faf8;border-radius:18px;padding:18px;color:#152119}
+.mini-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.mini-metrics div{background:#fff;border:1px solid #e4eae5;border-radius:12px;padding:14px}
+.mini-metrics b{display:block;font-size:24px}.mini-metrics span{font-size:9px;color:#748078}
+.mini-calendar{display:flex;flex-direction:column;gap:9px}
+.mini-row{display:grid;grid-template-columns:110px 1fr;align-items:center;gap:10px;font-size:10px}
+.mini-row i{height:16px;border-radius:6px;background:linear-gradient(90deg,#cfead7,#4aa36d)}
+@media(max-width:980px){.crm-promo{grid-template-columns:1fr}.crm-promo-copy h2{font-size:32px}}
+@media(max-width:680px){.crm-promo{padding:24px}.crm-promo-copy h2{font-size:27px}.mini-metrics{grid-template-columns:1fr}.mini-row{grid-template-columns:90px 1fr}}
 </style>
 </head>
 <body>
@@ -116,7 +131,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
         <a href="#how">Как работаем</a>
         <a href="#contact">Контакты</a>
       </nav>
-      <div class="topbar-actions"><button class="btn ghost" onclick="openCallback()">Обратный звонок</button><button class="btn ghost" onclick="openLogin()">Вход в CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
+      <div class="topbar-actions"><button class="btn ghost" onclick="openCallback()">Обратный звонок</button><button class="btn ghost" onclick="openCRM()">CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
     </header>
 
     <main>
@@ -237,6 +252,36 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
         </div>
       </section>
 
+      <section id="crm-section" class="section container">
+        <div class="crm-promo">
+          <div class="crm-promo-copy">
+            <span class="eyebrow">ECOFLOT CRM</span>
+            <h2>Управление заявками, флотом и рейсами в одном окне</h2>
+            <p>Контролируйте продажи, занятость собственного и привлечённого флота, клиентов, маржу и загрузку по дням.</p>
+            <div class="crm-features">
+              <span>Заявки и продажи</span>
+              <span>Календарь флота</span>
+              <span>Свой и привлечённый транспорт</span>
+              <span>Клиенты и аналитика</span>
+            </div>
+            <button class="btn primary" onclick="openCRM()">Открыть CRM</button>
+          </div>
+          <div class="crm-promo-ui">
+            <div class="mini-metrics">
+              <div><b>17</b><span>рейсов сегодня</span></div>
+              <div><b>6</b><span>свободно машин</span></div>
+              <div><b>38%</b><span>конверсия</span></div>
+            </div>
+            <div class="mini-calendar">
+              <div class="mini-row"><strong>КамАЗ 821</strong><i style="width:72%"></i></div>
+              <div class="mini-row"><strong>МАЗ 204</strong><i style="width:54%"></i></div>
+              <div class="mini-row"><strong>Газель 114</strong><i style="width:36%"></i></div>
+              <div class="mini-row"><strong>Партнёр 025</strong><i style="width:61%"></i></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="contact" class="cta-section">
         <div class="container cta-box">
           <div><span class="eyebrow">Работаем с физлицами и бизнесом</span><h2>Нужен разовый вывоз или регулярный график?</h2><p>Оставьте заявку, рассчитаем стоимость и предложим ближайшее окно.</p></div>
@@ -245,13 +290,13 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.0 · заливка 25.09.2026 13:15</small></div><button class="link-button" onclick="openLogin()">Вход для сотрудников</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.0 · заливка 25.09.2026 13:15</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
     <aside class="sidebar">
       <div class="brand inverse"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
-      <div class="manager-card"><div class="avatar">ИК</div><div><strong id="managerName">Иван Корытник</strong><span id="managerEmail">manager@company.ru</span></div></div>
+      <div class="manager-card"><div class="avatar">ИК</div><div><strong id="managerName">ECOFLOT CRM</strong><span id="managerEmail">Демо-режим</span></div></div>
       <nav class="side-nav">
         <button class="nav-item active" data-view="dashboard">◫ <span>Дашборд</span></button>
         <button class="nav-item" data-view="leads">◎ <span>Заявки и продажи</span><em id="leadCounter">5</em></button>
@@ -322,10 +367,17 @@ const data = {
   ]
 };
 
-function openLogin(){ $('#loginModal').classList.remove('hidden'); }
+function openLogin(){ openCRM(); }
 function openCallback(){ $('#callbackModal').classList.remove('hidden'); }
 function closeCallback(){ $('#callbackModal').classList.add('hidden'); }
 function closeLogin(){ $('#loginModal').classList.add('hidden'); }
+function openCRM(){
+  $('#landing').classList.remove('active');
+  $('#crm').classList.add('active');
+  $('#managerEmail').textContent='Демо-режим';
+  $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+  renderView('dashboard');
+}
 function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
 function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
 
@@ -363,7 +415,7 @@ function enterCRM(email){
   $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView('dashboard');
 }
-function logout(){localStorage.removeItem('wf_user');$('#crm').classList.remove('active');$('#landing').classList.add('active');}
+function logout(){localStorage.removeItem('wf_user');$('#crm').classList.remove('active');$('#landing').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
 function openQuickLead(){
   const client=prompt('Клиент / компания'); if(!client)return;
   const type=prompt('Тип заявки: Газель / 8 м³ / 20 м³ / 27 м³','8 м³')||'8 м³';
@@ -448,7 +500,7 @@ function clientsHTML(){
 function analyticsHTML(){return `<div class="metric-grid">${metric('Выручка за месяц','3,84 млн ₽','+18% м/м')}${metric('Валовая маржа','812 тыс ₽','21,1%')}${metric('Средний чек','18 420 ₽','+1 240 ₽')}${metric('Конверсия заявки','38%','+4 п.п.')}</div><div class="analytics-grid"><section class="panel"><h3>Выручка по неделям</h3><div class="bar-chart">${[62,84,74,96].map((h,i)=>`<div class="bar" style="height:${h}%" data-label="Нед ${i+1}" data-value="${[720,980,860,1280][i]}k"></div>`).join('')}</div></section><section class="panel"><h3>Структура рейсов</h3><table class="table"><tbody><tr><td>Свой флот</td><td><b>68%</b></td><td>маржа 28%</td></tr><tr><td>Привлечённый флот</td><td><b>32%</b></td><td>маржа 14%</td></tr><tr><td>Контейнер 8 м³</td><td><b>46%</b></td><td>самый частый</td></tr><tr><td>B2B клиенты</td><td><b>57%</b></td><td>выручки</td></tr></tbody></table></section></div>`}
 
 const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.parse(saved)}catch{}}
-const user=localStorage.getItem('wf_user'); if(user) enterCRM(user);
+// CRM работает без авторизации в демо-режиме
 </script>
 </body>
 </html>
