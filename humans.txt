@@ -1,0 +1,5 @@
+ECOFLOT
+Website: https://ecoflot.pro/
+Purpose: waste removal and container services in Moscow, Odintsovo and Moscow Region.
+Technology: static site on GitHub Pages with Google Apps Script integrations.
+Last updated: 2026-09-25
