@@ -1,0 +1,22 @@
+name: ECOFLOT send more tenders
+
+on:
+  push:
+    paths:
+      - ".github/workflows/send-more-tenders.yml"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send active tenders
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Транспортирование отходов очистки фильтрата полигона ТКО Кучино"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Транспортирование отходов / полигон ТКО"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 29.09.2026 10:00"             --data-urlencode "address=Московская область"             --data-urlencode "source=ЕИС / РТС-Тендер"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Закупка №0348500002526000036. Заказчик: ГБУ Московской области Дирекция экологических проектов. Начальная цена: 9 533 342,50 ₽. Транспортирование отходов очистки фильтрата полигона ТКО Кучино. Срок оказания: 06.11.2026-24.11.2026."             --data-urlencode "requestId=TENDER-0348500002526000036"             "$URL"
+
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Сбор, транспортирование и утилизация фильтрата полигона ТКО Малая Дубна"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Сбор и транспортирование отходов"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 30.09.2026 09:00"             --data-urlencode "address=Орехово-Зуевский городской округ, Московская область"             --data-urlencode "source=ЕИС / РТС-Тендер"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Закупка №0848300049026000814. Заказчик: МКУ Управление централизации закупок Орехово-Зуевского городского округа. Начальная цена: 1 440 000 ₽. Сбор, транспортирование, утилизация и/или обезвреживание фильтрата полигона ТКО Малая Дубна."             --data-urlencode "requestId=TENDER-0848300049026000814"             "$URL"
+
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Транспортирование отходов очистки фильтрата полигона ТКО Кучино, этап 19.10-05.11"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Транспортирование отходов / полигон ТКО"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 28.09.2026 10:00"             --data-urlencode "address=Московская область"             --data-urlencode "source=ЕИС / РТС-Тендер"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Закупка №0348500002526000035. Заказчик: ГБУ Московской области Дирекция экологических проектов. Транспортирование отходов очистки фильтрата полигона ТКО Кучино. Срок оказания: 19.10.2026-05.11.2026."             --data-urlencode "requestId=TENDER-0348500002526000035"             "$URL"
