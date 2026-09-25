@@ -350,7 +350,47 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   <script>const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const today = new Date();
-const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec'; // сюда вставляется URL развернутого Google Apps Script Web App
+const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec';
+
+function detectLeadSource(kind){
+  const p=new URLSearchParams(location.search);
+  const utm=p.get('utm_source');
+  const campaign=p.get('utm_campaign');
+  if(utm) return 'UTM: '+utm+(campaign?' / '+campaign:'');
+  if(kind==='callback') return 'Сайт / обратный звонок';
+  if(kind==='form') return 'Сайт / форма заявки';
+  return 'CRM / вручную';
+}
+function normalizeStatus(status){
+  const s=String(status||'').toLowerCase();
+  if(['new','новая','новый'].includes(s)) return 'new';
+  if(['work','в работе','обработка'].includes(s)) return 'work';
+  if(['won','согласовано','выполнено','успешно'].includes(s)) return 'won';
+  if(['lost','закрыто','отказ'].includes(s)) return 'lost';
+  return 'new';
+}
+function saveLeads(){
+  try{ localStorage.setItem('wf_leads',JSON.stringify(data.leads)); }catch(e){}
+}
+function addLeadToCRM(lead){
+  const item={
+    id:lead.id || 'L-'+Date.now().toString().slice(-6),
+    client:lead.client || lead.name || lead.phone || 'Новая заявка',
+    name:lead.name || '',
+    phone:lead.phone || '',
+    type:lead.type || lead.volume || lead.wasteType || 'Заявка',
+    address:lead.address || 'Адрес не указан',
+    date:lead.date || 'Только что',
+    sum:Number(lead.sum||0),
+    status:normalizeStatus(lead.status),
+    source:lead.source || 'Не указан',
+    comment:lead.comment || '',
+    createdAt:lead.createdAt || new Date().toISOString()
+  };
+  data.leads.unshift(item);
+  saveLeads();
+  return item;
+}
 
 async function sendToGoogleSheet(payload){
   if(!ECOFLOT_SHEET_WEBHOOK) return false;
@@ -463,7 +503,7 @@ async function submitLeadForm(){
     volume:document.getElementById('volume').value,
     when:document.getElementById('when').value,
     address:document.getElementById('address').value.trim(),
-    source:'Сайт ECOFLOT',
+    source:detectLeadSource('form'),
     status:'Новая',
     comment:(document.getElementById('comment')?.value||'').trim()
   };
@@ -490,6 +530,16 @@ async function submitLeadForm(){
   }
 
   if(sent){
+    addLeadToCRM({
+      name:payload.name,
+      phone:payload.phone,
+      type:payload.volume || payload.wasteType,
+      address:payload.address,
+      source:payload.source,
+      status:'new',
+      comment:payload.comment,
+      date:payload.when || 'Новая заявка'
+    });
     form.reset();
     if(status){
       status.textContent='';
@@ -517,9 +567,19 @@ async function submitCallbackForm(){
     volume:'',
     when:'Перезвонить',
     address:'',
-    source:'Сайт ECOFLOT',
+    source:detectLeadSource('callback'),
     status:'Новая',
     comment:''
+  });
+  addLeadToCRM({
+    name:'Обратный звонок',
+    phone:phone,
+    type:'Обратный звонок',
+    address:'Адрес не указан',
+    source:detectLeadSource('callback'),
+    status:'new',
+    comment:'',
+    date:'Перезвонить'
   });
   form.reset();
   closeCallback();
@@ -562,8 +622,7 @@ function logout(){
 function openQuickLead(){
   const client=prompt('Клиент / компания'); if(!client)return;
   const type=prompt('Тип заявки: Газель / 8 м³ / 20 м³ / 27 м³','8 м³')||'8 м³';
-  data.leads.unshift({id:'L-'+Math.floor(1100+Math.random()*800),client,type,address:'Уточнить адрес',date:'Новая заявка',sum:0,status:'new'});
-  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  addLeadToCRM({id:'L-'+Math.floor(1100+Math.random()*800),client,type,address:'Уточнить адрес',date:'Новая заявка',sum:0,status:'new',source:'CRM / вручную'});
   showToast('Заявка создана'); renderView('leads');
 }
 
@@ -611,7 +670,13 @@ function dashboardHTML(){return `
   <tr><td>16:00</td><td>РемСтрой</td><td>КамАЗ 822</td><td>Одинцово</td><td><span class="pill new">назначен</span></td></tr>
   <tr><td>18:00</td><td>СК Монолит</td><td>Партнёр 017</td><td>Барвиха</td><td><span class="pill new">резерв</span></td></tr>
   </tbody></table></section>
-  <section class="panel"><h3>Что требует внимания</h3><div class="activity-list">
+  <section class="panel"><h3>Источники заявок</h3>
+    <div class="source-panel">
+      <div class="source-stat"><b>${data.leads.filter(l=>String(l.source||'').toLowerCase().includes('сайт')||String(l.source||'').toLowerCase().includes('utm')).length}</b><span>с сайта</span></div>
+      <div class="source-stat"><b>${data.leads.filter(l=>String(l.source||'').toLowerCase().includes('crm')).length}</b><span>вручную</span></div>
+      <div class="source-stat"><b>${data.leads.filter(l=>l.status==='new').length}</b><span>новых</span></div>
+    </div>
+    <h3 style="margin-top:18px">Что требует внимания</h3><div class="activity-list">
     ${activity('3 заявки без назначения машины','проверить свободные слоты')}
     ${activity('КамАЗ МСК-821: ТО через 420 км','запланировать сервис')}
     ${activity('Партнёр ТрансЭко обновил ставку +7%','пересмотреть тарифы')}
@@ -621,11 +686,33 @@ function dashboardHTML(){return `
 function metric(label,value,delta){return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div><div class="delta">${delta}</div></div>`}
 function activity(a,b){return `<div class="activity"><div class="activity-dot"></div><div><p>${a}</p><span>${b}</span></div></div>`}
 
-function leadsHTML(){
-  const cols=[['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
-  return `<div class="toolbar"><div class="filters"><button class="chip active">Все</button><button class="chip">Сегодня</button><button class="chip">B2B</button><button class="chip">С сайта</button></div><button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div><div class="kanban">${cols.map(([s,t])=>`<div class="kanban-col"><div class="kanban-head"><span>${t}</span><span>${data.leads.filter(l=>l.status===s).length}</span></div>${data.leads.filter(l=>l.status===s).map(leadCard).join('')}</div>`).join('')}</div>`;
+let leadFilter='all';
+function setLeadFilter(filter){
+  leadFilter=filter;
+  renderView('leads',true);
 }
-function leadCard(l){return `<div class="lead-card" onclick="showToast('${l.id}: карточка клиента')"><h4>${l.client}</h4><p>${l.type} • ${l.date}<br>${l.address}</p><div class="sum">${l.sum?l.sum.toLocaleString('ru-RU')+' ₽':'Расчёт'}</div></div>`}
+function filteredLeads(){
+  if(leadFilter==='site') return data.leads.filter(l=>String(l.source||'').toLowerCase().includes('сайт') || String(l.source||'').toLowerCase().includes('utm'));
+  if(leadFilter==='manual') return data.leads.filter(l=>String(l.source||'').toLowerCase().includes('crm'));
+  if(leadFilter==='new') return data.leads.filter(l=>l.status==='new');
+  return data.leads;
+}
+function leadsHTML(){
+  const list=filteredLeads();
+  const cols=[['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
+  return `<div class="toolbar"><div class="filters">
+    <button class="chip ${leadFilter==='all'?'active':''}" onclick="setLeadFilter('all')">Все</button>
+    <button class="chip ${leadFilter==='new'?'active':''}" onclick="setLeadFilter('new')">Новые</button>
+    <button class="chip ${leadFilter==='site'?'active':''}" onclick="setLeadFilter('site')">С сайта</button>
+    <button class="chip ${leadFilter==='manual'?'active':''}" onclick="setLeadFilter('manual')">Вручную</button>
+  </div><button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div>
+  <div class="kanban">${cols.map(([s,t])=>`<div class="kanban-col"><div class="kanban-head"><span>${t}</span><span>${list.filter(l=>l.status===s).length}</span></div>${list.filter(l=>l.status===s).map(leadCard).join('')}</div>`).join('')}</div>`;
+}
+function leadCard(l){
+  const src=l.source||'Источник не указан';
+  const phone=l.phone ? `<br>${l.phone}` : '';
+  return `<div class="lead-card" onclick="showToast('${l.id}: ${src}')"><h4>${l.client}</h4><div class="lead-meta"><span class="source-badge">${src}</span></div><p>${l.type} • ${l.date}<br>${l.address}${phone}</p><div class="sum">${l.sum?l.sum.toLocaleString('ru-RU')+' ₽':'Расчёт'}</div></div>`;
+}
 
 function calendarHTML(){
   let days=[...Array(7)].map((_,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);return d});
@@ -648,7 +735,19 @@ function clientsHTML(){
 }
 function analyticsHTML(){return `<div class="metric-grid">${metric('Выручка за месяц','3,84 млн ₽','+18% м/м')}${metric('Валовая маржа','812 тыс ₽','21,1%')}${metric('Средний чек','18 420 ₽','+1 240 ₽')}${metric('Конверсия заявки','38%','+4 п.п.')}</div><div class="analytics-grid"><section class="panel"><h3>Выручка по неделям</h3><div class="bar-chart">${[62,84,74,96].map((h,i)=>`<div class="bar" style="height:${h}%" data-label="Нед ${i+1}" data-value="${[720,980,860,1280][i]}k"></div>`).join('')}</div></section><section class="panel"><h3>Структура рейсов</h3><table class="table"><tbody><tr><td>Свой флот</td><td><b>68%</b></td><td>маржа 28%</td></tr><tr><td>Привлечённый флот</td><td><b>32%</b></td><td>маржа 14%</td></tr><tr><td>Контейнер 8 м³</td><td><b>46%</b></td><td>самый частый</td></tr><tr><td>B2B клиенты</td><td><b>57%</b></td><td>выручки</td></tr></tbody></table></section></div>`}
 
-const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.parse(saved)}catch{}}
+const saved=localStorage.getItem('wf_leads');
+if(saved){
+  try{
+    data.leads=JSON.parse(saved).map(l=>({
+      ...l,
+      status:normalizeStatus(l.status),
+      source:l.source||'Демо / старые данные'
+    }));
+  }catch{}
+}else{
+  data.leads=data.leads.map(l=>({...l,source:l.source||'Демо / старые данные'}));
+  saveLeads();
+}
 // Восстанавливаем тот же экран после обновления страницы.
 (function restoreAppState(){
   const crmMatch = location.hash.match(/^#crm\/([a-z]+)$/i);
