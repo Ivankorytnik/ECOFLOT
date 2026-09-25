@@ -368,7 +368,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
     <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small><a href="/karta-saita/" style="color:inherit">Карта сайта</a> · <a href="/faq/" style="color:inherit">FAQ</a> · <a href="/kalkulyator/" style="color:inherit">Калькулятор</a></small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
-  <div id="crm" class="page crm-shell">
+  <noindex><div id="crm" class="page crm-shell" data-nosnippet aria-hidden="true">
     <aside class="sidebar">
       <div class="brand inverse"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
       <div class="manager-card"><div class="avatar">ИК</div><div><strong id="managerName">ECOFLOT CRM</strong><span id="managerEmail">Демо-режим</span></div></div>
@@ -388,9 +388,9 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       <header class="workspace-header"><div><h2 id="viewTitle">Дашборд</h2><p id="viewSubtitle">Оперативная картина на сегодня</p></div><div class="header-actions"><button class="btn light small" data-crm-action="new-lead">+ Новая заявка</button><div class="today-chip" id="todayChip"></div></div></header>
       <main id="viewRoot" class="workspace-body"></main>
     </section>
-  </div>
+  </div></noindex>
 
-  <div id="callbackModal" class="modal-backdrop hidden">
+  <div id="callbackModal" class="modal-backdrop hidden" data-nosnippet>
     <div class="modal login-modal">
       <button class="modal-close" onclick="closeCallback()">×</button>
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div>
@@ -404,7 +404,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
     </div>
   </div>
 
-  <div id="loginModal" class="modal-backdrop hidden">
+  <div id="loginModal" class="modal-backdrop hidden" data-nosnippet>
     <div class="modal login-modal">
       <button class="modal-close" onclick="closeLogin()">×</button>
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
@@ -419,7 +419,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
 
 
 
-  <div id="crmPasswordModal" class="modal-backdrop hidden">
+  <div id="crmPasswordModal" class="modal-backdrop hidden" data-nosnippet>
     <div class="modal login-modal">
       <button class="modal-close" type="button" data-crm-action="close-password">×</button>
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
