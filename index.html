@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.1 · заливка 25.09.2026 13:55</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.2 · заливка 25.09.2026 14:10</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -320,11 +320,11 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       <button class="modal-close" onclick="closeCallback()">×</button>
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div>
       <h2>Заказать обратный звонок</h2>
-      <p>Оставьте номер, менеджер перезвонит и уточнит задачу.</p>
+      <p>Введите номер телефона. Менеджер перезвонит и уточнит задачу.</p>
       <form id="callbackForm">
-        <label>Имя<input id="callbackName" type="text" placeholder="Иван" required /></label>
-        <label>Телефон<input id="callbackPhone" type="tel" placeholder="+7 999 000-00-00" required /></label>
-        <button class="btn primary full" type="submit">Перезвоните мне</button>
+        <label>Телефон<input id="callbackPhone" type="tel" placeholder="+7 999 000-00-00" required autocomplete="tel" inputmode="tel" /></label>
+        <button class="btn primary full" type="submit">Заказать звонок</button>
+        <p class="form-note">Нажимая кнопку, вы соглашаетесь на обработку номера телефона для связи.</p>
       </form>
     </div>
   </div>
@@ -347,6 +347,23 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
   <script>const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const today = new Date();
+const ECOFLOT_SHEET_WEBHOOK = ''; // сюда вставляется URL развернутого Google Apps Script Web App
+
+async function sendToGoogleSheet(payload){
+  if(!ECOFLOT_SHEET_WEBHOOK) return false;
+  try{
+    await fetch(ECOFLOT_SHEET_WEBHOOK,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+    return true;
+  }catch(e){
+    console.error('Google Sheet webhook error',e);
+    return false;
+  }
+}
 const fmtDate = d => d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
 
 const data = {
@@ -381,23 +398,50 @@ function openCRM(){
 function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
 function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
 
-$('#leadForm').addEventListener('submit',e=>{
+$('#leadForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const lead={id:'L-'+(1049+data.leads.length),client:$('#name').value,type:$('#volume').value,address:$('#address').value,date:$('#when').value,sum:0,status:'new'};
+  const payload={
+    type:'ФОС',
+    name:$('#name').value.trim(),
+    phone:$('#phone').value.trim(),
+    wasteType:$('#wasteType').value,
+    volume:$('#volume').value,
+    when:$('#when').value,
+    address:$('#address').value.trim(),
+    source:'Сайт ECOFLOT',
+    status:'Новая',
+    comment:''
+  };
+  const lead={id:'L-'+(1049+data.leads.length),client:payload.name||payload.phone,type:payload.volume,address:payload.address,date:payload.when,sum:0,status:'new'};
   data.leads.unshift(lead);
   localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  const sent=await sendToGoogleSheet(payload);
   e.target.reset();
-  showToast('Заявка принята. Менеджер свяжется с вами.');
+  showToast(sent?'Заявка принята. Менеджер свяжется с вами.':'Заявка сохранена в CRM. Подключение Google Таблицы ещё не завершено.');
 });
 
-$('#callbackForm').addEventListener('submit',e=>{
+$('#callbackForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  const lead={id:'CB-'+Date.now(),client:$('#callbackName').value,type:'Обратный звонок',address:'Телефон: '+$('#callbackPhone').value,date:'Перезвонить',sum:0,status:'new'};
+  const phone=$('#callbackPhone').value.trim();
+  const payload={
+    type:'Обратный звонок',
+    name:'',
+    phone,
+    wasteType:'',
+    volume:'',
+    when:'Перезвонить',
+    address:'',
+    source:'Сайт ECOFLOT',
+    status:'Новая',
+    comment:''
+  };
+  const lead={id:'CB-'+Date.now(),client:phone,type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'};
   data.leads.unshift(lead);
   localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  const sent=await sendToGoogleSheet(payload);
   e.target.reset();
   closeCallback();
-  showToast('Заявка на обратный звонок принята.');
+  showToast(sent?'Заявка на обратный звонок принята.':'Заявка сохранена в CRM. Подключение Google Таблицы ещё не завершено.');
 });
 
 $('#loginForm').addEventListener('submit',e=>{
@@ -551,12 +595,11 @@ const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.pars
     if(form){
       form.onsubmit=function(e){
         e.preventDefault();
-        var name=q('#callbackName') ? q('#callbackName').value.trim() : '';
         var phone=q('#callbackPhone') ? q('#callbackPhone').value.trim() : '';
         if(!phone) return false;
         try{
           var leads=JSON.parse(localStorage.getItem('wf_leads')||'[]');
-          leads.unshift({id:'CB-'+Date.now(),client:name||'Обратный звонок',type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'});
+          leads.unshift({id:'CB-'+Date.now(),client:phone,type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'});
           localStorage.setItem('wf_leads',JSON.stringify(leads));
         }catch(e){}
         form.reset();
