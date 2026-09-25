@@ -387,6 +387,7 @@ const views = {
 };
 
 let leadFilter = 'all';
+let leadViewMode = localStorage.getItem('ecoflot_lead_view') || 'kanban';
 
 function detectLeadSource(kind){
   const p = new URLSearchParams(location.search);
@@ -584,6 +585,7 @@ function filteredLeads(){
   return data.leads;
 }
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
+function setLeadView(mode){ leadViewMode = mode; localStorage.setItem('ecoflot_lead_view',mode); renderView('leads',true); }
 function leadCard(l){
   const phone = l.phone ? '<br>'+l.phone : '';
   return '<div class="lead-card"><h4>'+l.client+'</h4><div class="lead-meta"><span class="source-badge">'+(l.source||'Источник не указан')+'</span></div><p>'+l.type+' • '+l.date+'<br>'+l.address+phone+'</p><div class="sum">'+(l.sum?l.sum.toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div></div>';
@@ -591,15 +593,41 @@ function leadCard(l){
 function leadsHTML(){
   const list = filteredLeads();
   const cols = [['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
-  const kanban = cols.map(([s,t])=>'<div class="kanban-col"><div class="kanban-head"><span>'+t+'</span><span>'+list.filter(l=>l.status===s).length+'</span></div>'+list.filter(l=>l.status===s).map(leadCard).join('')+'</div>').join('');
-  return '<div class="toolbar"><div class="filters">'
+  const toolbar = '<div class="toolbar"><div class="filters">'
     + '<button class="chip '+(leadFilter==='all'?'active':'')+'" onclick="setLeadFilter(\'all\')">Все</button>'
     + '<button class="chip '+(leadFilter==='new'?'active':'')+'" onclick="setLeadFilter(\'new\')">Новые</button>'
     + '<button class="chip '+(leadFilter==='site'?'active':'')+'" onclick="setLeadFilter(\'site\')">С сайта</button>'
     + '<button class="chip '+(leadFilter==='manual'?'active':'')+'" onclick="setLeadFilter(\'manual\')">Вручную</button>'
-    + '</div><button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div><div class="kanban">'+kanban+'</div>';
-}
+    + '</div><div class="view-switch">'
+    + '<button class="chip '+(leadViewMode==='kanban'?'active':'')+'" onclick="setLeadView(\'kanban\')">Карточки</button>'
+    + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
+    + '<button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div></div>';
 
+  if(leadViewMode==='rows'){
+    const rows = list.map(l=>{
+      const resource = l.vehicleId ? (data.vehicles.find(v=>v.id===l.vehicleId)?.name || 'Не назначен')
+        : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен')
+        : 'Не назначен';
+      const statusMap = {new:'Новая',work:'В работе',won:'Согласовано',lost:'Закрыто'};
+      return '<tr>'
+        + '<td>'+l.id+'</td>'
+        + '<td><b>'+l.client+'</b></td>'
+        + '<td>'+l.phone+'</td>'
+        + '<td>'+l.type+'</td>'
+        + '<td>'+l.date+'</td>'
+        + '<td>'+l.address+'</td>'
+        + '<td>'+l.source+'</td>'
+        + '<td>'+resource+'</td>'
+        + '<td><span class="pill '+l.status+'">'+(statusMap[l.status]||l.status)+'</span></td>'
+        + '<td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td>'
+        + '</tr>';
+    }).join('');
+    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+
+  const kanban = cols.map(([s,t])=>'<div class="kanban-col"><div class="kanban-head"><span>'+t+'</span><span>'+list.filter(l=>l.status===s).length+'</span></div>'+list.filter(l=>l.status===s).map(leadCard).join('')+'</div>').join('');
+  return toolbar + '<div class="kanban">'+kanban+'</div>';
+}
 function calendarHTML(){
   const days = [...Array(7)].map((_,i)=>{ const d=new Date(today); d.setDate(today.getDate()+i); return d; });
   const resources = [
