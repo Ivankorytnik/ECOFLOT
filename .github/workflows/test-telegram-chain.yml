@@ -25,7 +25,7 @@ jobs:
             --data-urlencode "status=Тест" \
             --data-urlencode "comment=Это тестовое сообщение. Проверяем цепочку GitHub → Apps Script → Telegram. Реальной заявки или тендера нет." \
             --data-urlencode "requestId=TEST-TENDER-CHAIN-${GITHUB_RUN_ID}" \
-            "https://script.google.com/macros/s/AKfycbwCCbbs2fu3rJc_GKjNl59aei1urvognFrmgSjnJFpe3jQ-OcCCefJqJj91RMXFJJDaTg/exec")
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec")
           echo "Webhook response: $RESPONSE"
           python3 - "$RESPONSE" <<'PY'
           import json, sys
