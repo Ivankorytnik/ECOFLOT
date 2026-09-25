@@ -18,8 +18,16 @@ STATE_PATH = Path("tender_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "100"))
 
 SOURCES = [
-    ("Московская область", "https://gentender.ru/tenders/utilizaciya-othodov/moskovskaya-oblast"),
-    ("Москва", "https://gentender.ru/tenders/utilizaciya-othodov/moskva"),
+    ("Московская область / отходы", "https://gentender.ru/tenders/utilizaciya-othodov/moskovskaya-oblast"),
+    ("Москва / отходы", "https://gentender.ru/tenders/utilizaciya-othodov/moskva"),
+    ("Московская область / строительство", "https://gentender.ru/tenders/stroitelstvo/moskovskaya-oblast"),
+    ("Москва / строительство", "https://gentender.ru/tenders/stroitelstvo/moskva"),
+    ("Московская область / благоустройство", "https://gentender.ru/tenders/blagoustroystvo/moskovskaya-oblast"),
+    ("Москва / благоустройство", "https://gentender.ru/tenders/blagoustroystvo/moskva"),
+    ("Московская область / транспорт", "https://gentender.ru/tenders/transport/moskovskaya-oblast"),
+    ("Москва / транспорт", "https://gentender.ru/tenders/transport/moskva"),
+    ("Московская область / спецтехника", "https://gentender.ru/tenders/spetstehnika/moskovskaya-oblast"),
+    ("Москва / спецтехника", "https://gentender.ru/tenders/spetstehnika/moskva"),
 ]
 
 POSITIVE = (
@@ -118,7 +126,34 @@ def relevant(entry):
     hay = entry["title"].lower()
     if any(x in hay for x in EXCLUDE):
         return False
-    return any(x in hay for x in POSITIVE)
+
+    strong = (
+        "вывоз мусор", "вывоз отход", "транспортирование отход",
+        "транспортировка отход", "сбор, транспортирован", "сбор и транспортирован",
+        "некоммунальных отход", "строительный мусор", "строительных отход",
+        "отходов строительства", "отходов сноса", "ликвидац", "свалк",
+        "навал мусор", "навал отход", "крупногабаритных отход", "кго", "кгм",
+        "отходов iii", "отходов iv", "отходов v", "iii класса", "iv класса",
+        "v класса", "iii-iv клас", "iv-v клас", "iii-v клас",
+        "3 класса опасности", "4 класса опасности", "5 класса опасности",
+        "3-4 клас", "4-5 клас", "3-5 клас", "шлам", "фильтрат"
+    )
+    if any(x in hay for x in strong):
+        return True
+
+    if ("строитель" in hay or "снос" in hay or "демонтаж" in hay) and "отход" in hay:
+        return True
+
+    if ("контейнер" in hay or "бункер" in hay) and ("отход" in hay or "мусор" in hay):
+        return True
+
+    if ("уборк" in hay or "содержан" in hay) and "вывоз" in hay and ("отход" in hay or "мусор" in hay):
+        return True
+
+    if "сбор" in hay and "отход" in hay and ("транспорт" in hay or "вывоз" in hay):
+        return True
+
+    return False
 
 def load_state():
     if not STATE_PATH.exists():
