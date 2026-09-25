@@ -84,7 +84,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
 .cta-box{border-radius:22px;padding:30px 32px}
 .cta-box h2{font-size:30px;line-height:1.1;max-width:650px}
 .cta-box p{font-size:13px;margin-bottom:0}
-.footer{height:auto;padding:24px 0 34px}
+.footer{height:auto;padding:24px 0 34px}.footer-meta{display:flex;flex-direction:column;gap:3px;align-items:center}.footer-meta small{font-size:10px;color:#96a099}
 .workspace-header h2{font-size:20px}
 .metric .value{font-size:26px}
 .table td{font-size:11px}
@@ -116,7 +116,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
         <a href="#how">Как работаем</a>
         <a href="#contact">Контакты</a>
       </nav>
-      <div class="topbar-actions"><button class="btn ghost" onclick="openLogin()">Вход в CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
+      <div class="topbar-actions"><button class="btn ghost" onclick="openCallback()">Обратный звонок</button><button class="btn ghost" onclick="openLogin()">Вход в CRM</button><a class="btn primary" href="#leadform">Оставить заявку</a></div>
     </header>
 
     <main>
@@ -127,7 +127,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
           <p>Подберём контейнер или машину, заранее согласуем стоимость и назначим удобное время подачи. Свой и привлечённый флот.</p>
           <div class="hero-actions">
             <a href="#leadform" class="btn primary">Рассчитать вывоз</a>
-            <a class="btn light" href="#services">Посмотреть цены</a>
+            <button class="btn light" onclick="openCallback()">Заказать звонок</button>
           </div>
           <div class="trust-row">
             <div><strong>30+ единиц</strong><span>свой и партнёрский флот</span></div>
@@ -245,7 +245,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div>© 2026 ECOFLOT</div><button class="link-button" onclick="openLogin()">Вход для сотрудников</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.0 · заливка 25.09.2026 13:15</small></div><button class="link-button" onclick="openLogin()">Вход для сотрудников</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -268,6 +268,20 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       <header class="workspace-header"><div><h2 id="viewTitle">Дашборд</h2><p id="viewSubtitle">Оперативная картина на сегодня</p></div><div class="header-actions"><button class="btn light small" onclick="openQuickLead()">+ Новая заявка</button><div class="today-chip" id="todayChip"></div></div></header>
       <main id="viewRoot" class="workspace-body"></main>
     </section>
+  </div>
+
+  <div id="callbackModal" class="modal-backdrop hidden">
+    <div class="modal login-modal">
+      <button class="modal-close" onclick="closeCallback()">×</button>
+      <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div>
+      <h2>Заказать обратный звонок</h2>
+      <p>Оставьте номер, менеджер перезвонит и уточнит задачу.</p>
+      <form id="callbackForm">
+        <label>Имя<input id="callbackName" type="text" placeholder="Иван" required /></label>
+        <label>Телефон<input id="callbackPhone" type="tel" placeholder="+7 999 000-00-00" required /></label>
+        <button class="btn primary full" type="submit">Перезвоните мне</button>
+      </form>
+    </div>
   </div>
 
   <div id="loginModal" class="modal-backdrop hidden">
@@ -309,6 +323,8 @@ const data = {
 };
 
 function openLogin(){ $('#loginModal').classList.remove('hidden'); }
+function openCallback(){ $('#callbackModal').classList.remove('hidden'); }
+function closeCallback(){ $('#callbackModal').classList.add('hidden'); }
 function closeLogin(){ $('#loginModal').classList.add('hidden'); }
 function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
 function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
@@ -320,6 +336,16 @@ $('#leadForm').addEventListener('submit',e=>{
   localStorage.setItem('wf_leads',JSON.stringify(data.leads));
   e.target.reset();
   showToast('Заявка принята. Менеджер свяжется с вами.');
+});
+
+$('#callbackForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const lead={id:'CB-'+Date.now(),client:$('#callbackName').value,type:'Обратный звонок',address:'Телефон: '+$('#callbackPhone').value,date:'Перезвонить',sum:0,status:'new'};
+  data.leads.unshift(lead);
+  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  e.target.reset();
+  closeCallback();
+  showToast('Заявка на обратный звонок принята.');
 });
 
 $('#loginForm').addEventListener('submit',e=>{
