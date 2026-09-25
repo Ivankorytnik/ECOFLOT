@@ -623,6 +623,7 @@ function closeCrmPassword(){
   $('#crmPasswordModal')?.classList.add('hidden');
 }
 function openCRM(view){
+  if(typeof ecoflotGoal==='function') ecoflotGoal('crm_open');
   const target = views[view] ? view : (localStorage.getItem('ecoflot_crm_view') || 'dashboard');
   if(!isCrmUnlocked()){
     localStorage.setItem('ecoflot_pending_crm_view',target);
@@ -916,6 +917,7 @@ async function submitLeadForm(){
   const ok = await sendToGoogleSheet(payload);
   if(btn){ btn.disabled=false; btn.textContent='Отправить заявку'; }
   if(ok){
+    if(typeof ecoflotGoal==='function') ecoflotGoal('lead_submit',{source:payload.source,type:payload.wasteType,volume:payload.volume});
     addLeadToCRM({name,client:name,phone,type:payload.volume||payload.wasteType,address,date:payload.when,status:'new',source:payload.source,comment:payload.comment});
     $('#leadForm')?.reset();
     $('#leadSuccess')?.classList.remove('hidden');
@@ -928,6 +930,7 @@ async function submitCallbackForm(){
   const phone = $('#callbackPhone')?.value.trim() || '';
   if(!phone) return false;
   await sendToGoogleSheet({type:'Обратный звонок',phone,when:'Перезвонить',source:detectLeadSource('callback'),status:'Новая'});
+  if(typeof ecoflotGoal==='function') ecoflotGoal('callback_submit',{source:detectLeadSource('callback')});
   addLeadToCRM({client:'Обратный звонок',phone,type:'Обратный звонок',address:'Адрес не указан',date:'Перезвонить',status:'new',source:detectLeadSource('callback')});
   $('#callbackForm')?.reset();
   closeCallback();
