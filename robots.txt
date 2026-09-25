@@ -3,5 +3,9 @@ Allow: /
 Disallow: /404.html
 Disallow: /yandex_64ad02abcd9d31bd.html
 
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term /
+Clean-param: yclid /
+Clean-param: gclid /
+
 Sitemap: https://ecoflot.pro/sitemap.xml
 Host: ecoflot.pro
