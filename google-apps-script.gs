@@ -14,6 +14,50 @@ function getSheet_() {
   return sheet;
 }
 
+function sendTelegram_(p, requestId) {
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const token = props.getProperty('TELEGRAM_BOT_TOKEN');
+    const chatId = props.getProperty('TELEGRAM_CHAT_ID');
+    if (!token || !chatId) {
+      console.log('Telegram settings are not configured');
+      return false;
+    }
+
+    const lines = [
+      '🔔 Новая заявка ECOFLOT',
+      '',
+      'Тип: ' + (p.type || 'Заявка'),
+      'Имя: ' + (p.name || 'Не указано'),
+      'Телефон: ' + (p.phone || 'Не указан'),
+      'Что вывозим: ' + (p.wasteType || 'Не указано'),
+      'Объём: ' + (p.volume || 'Не указан'),
+      'Когда: ' + (p.when || 'Не указано'),
+      'Адрес: ' + (p.address || 'Не указан'),
+      'Источник: ' + (p.source || 'Сайт ECOFLOT'),
+      'Комментарий: ' + (p.comment || 'Нет'),
+      'ID: ' + requestId
+    ];
+
+    const url = 'https://api.telegram.org/bot' + token + '/sendMessage';
+    const response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({
+        chat_id: chatId,
+        text: lines.join('\n'),
+        disable_web_page_preview: true
+      }),
+      muteHttpExceptions: true
+    });
+
+    return response.getResponseCode() >= 200 && response.getResponseCode() < 300;
+  } catch (error) {
+    console.error('Telegram error: ' + error);
+    return false;
+  }
+}
+
 function ensureHeaders_(sheet) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow([
@@ -67,7 +111,8 @@ function doPost(e) {
       requestId
     ]);
     SpreadsheetApp.flush();
-    return json_({ok:true,requestId:requestId});
+    const telegramSent = sendTelegram_(p, requestId);
+    return json_({ok:true,requestId:requestId,telegramSent:telegramSent});
   } catch (error) {
     console.error(error);
     return json_({ok:false,error:String(error)});
