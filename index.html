@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.6 · заливка 25.09.2026 14:32</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.7 · заливка 25.09.2026 14:35</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -352,11 +352,14 @@ const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwCCbbs2f
 async function sendToGoogleSheet(payload){
   if(!ECOFLOT_SHEET_WEBHOOK) return false;
   try{
+    const body=new URLSearchParams();
+    Object.keys(payload).forEach(function(key){
+      body.append(key, payload[key] == null ? '' : String(payload[key]));
+    });
     await fetch(ECOFLOT_SHEET_WEBHOOK,{
       method:'POST',
       mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify(payload)
+      body:body
     });
     return true;
   }catch(e){
