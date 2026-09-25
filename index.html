@@ -904,17 +904,33 @@ document.addEventListener('DOMContentLoaded',()=>{
     submitCallbackForm();
   });
 
-  $('#crmPasswordForm')?.addEventListener('submit',e=>{
-    e.preventDefault();
-    const val = $('#crmPasswordInput')?.value || '';
+  function unlockCrmIfValid(){
+    const input = $('#crmPasswordInput');
+    const val = input?.value || '';
     if(val === CRM_PASSWORD){
       sessionStorage.setItem('ecoflot_crm_unlocked','1');
       closeCrmPassword();
       const pending = localStorage.getItem('ecoflot_pending_crm_view') || localStorage.getItem('ecoflot_crm_view') || 'dashboard';
       localStorage.removeItem('ecoflot_pending_crm_view');
       openCRM(pending);
-    }else{
+      return true;
+    }
+    return false;
+  }
+
+  $('#crmPasswordForm')?.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(!unlockCrmIfValid()){
       $('#crmPasswordError').textContent = 'Неверный пароль';
+    }
+  });
+
+  $('#crmPasswordInput')?.addEventListener('input',()=>{
+    $('#crmPasswordError').textContent = '';
+    if(($('#crmPasswordInput')?.value || '').length >= CRM_PASSWORD.length){
+      if(!unlockCrmIfValid() && ($('#crmPasswordInput')?.value || '').length > CRM_PASSWORD.length){
+        $('#crmPasswordError').textContent = 'Неверный пароль';
+      }
     }
   });
 
