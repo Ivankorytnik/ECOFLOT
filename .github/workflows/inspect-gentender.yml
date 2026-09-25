@@ -1,0 +1,27 @@
+name: ECOFLOT inspect gentender
+
+on:
+  push:
+    paths:
+      - ".github/workflows/inspect-gentender.yml"
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect GenTender HTML
+        run: |
+          python3 - <<'PY'
+          import urllib.request, re
+          u='https://gentender.ru/tenders/utilizaciya-othodov/moskovskaya-oblast'
+          req=urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'})
+          s=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','replace')
+          print('LEN',len(s))
+          print('STATUS OK')
+          for pat in [r'href="([^"]+)"[^>]*>([^<]{20,200})</a>', r'приём до', r'Оказание услуг']:
+              print('PATTERN',pat)
+              for m in re.finditer(pat,s,re.I|re.S):
+                  print(m.group(0)[:500])
+                  if m.start()>300000: break
+          print('HEAD',s[:3000])
+          PY
