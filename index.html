@@ -160,7 +160,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
             <span class="badge">Быстрый расчёт</span>
             <h3>Получить цену и машину</h3>
           </div>
-          <form id="leadForm">
+          <form id="leadForm" onsubmit="return submitLeadForm(event)">
             <label>Что вывозим
               <select id="wasteType" required>
                 <option value="Строительный мусор">Строительный мусор</option>
@@ -290,7 +290,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.4 · заливка 25.09.2026 14:21</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.5 · заливка 25.09.2026 14:25</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -321,7 +321,7 @@ input,select{margin-top:6px;padding:11px 11px;border-radius:9px;font-size:13px}
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div>
       <h2>Заказать обратный звонок</h2>
       <p>Введите номер телефона. Менеджер перезвонит и уточнит задачу.</p>
-      <form id="callbackForm">
+      <form id="callbackForm" onsubmit="return submitCallbackForm(event)">
         <label>Телефон<input id="callbackPhone" type="tel" placeholder="+7 999 000-00-00" required autocomplete="tel" inputmode="tel" /></label>
         <button class="btn primary full" type="submit">Заказать звонок</button>
         <p class="form-note">Нажимая кнопку, вы соглашаетесь на обработку номера телефона для связи.</p>
@@ -395,38 +395,36 @@ function openCRM(){
   $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView('dashboard');
 }
-function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
-function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
 
-$('#leadForm').addEventListener('submit',async e=>{
+async function submitLeadForm(e){
   e.preventDefault();
+  const form=document.getElementById('leadForm');
   const payload={
     type:'ФОС',
-    name:$('#name').value.trim(),
-    phone:$('#phone').value.trim(),
-    wasteType:$('#wasteType').value,
-    volume:$('#volume').value,
-    when:$('#when').value,
-    address:$('#address').value.trim(),
+    name:document.getElementById('name').value.trim(),
+    phone:document.getElementById('phone').value.trim(),
+    wasteType:document.getElementById('wasteType').value,
+    volume:document.getElementById('volume').value,
+    when:document.getElementById('when').value,
+    address:document.getElementById('address').value.trim(),
     source:'Сайт ECOFLOT',
     status:'Новая',
     comment:''
   };
-  const lead={id:'L-'+(1049+data.leads.length),client:payload.name||payload.phone,type:payload.volume,address:payload.address,date:payload.when,sum:0,status:'new'};
-  data.leads.unshift(lead);
-  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
-  const sent=await sendToGoogleSheet(payload);
-  e.target.reset();
-  showToast(sent?'Заявка принята. Менеджер свяжется с вами.':'Заявка сохранена в CRM. Подключение Google Таблицы ещё не завершено.');
-});
+  await sendToGoogleSheet(payload);
+  form.reset();
+  showToast('Заявка отправлена. Менеджер ECOFLOT свяжется с Вами.');
+  return false;
+}
 
-$('#callbackForm').addEventListener('submit',async e=>{
+async function submitCallbackForm(e){
   e.preventDefault();
-  const phone=$('#callbackPhone').value.trim();
-  const payload={
+  const form=document.getElementById('callbackForm');
+  const phone=document.getElementById('callbackPhone').value.trim();
+  await sendToGoogleSheet({
     type:'Обратный звонок',
     name:'',
-    phone,
+    phone:phone,
     wasteType:'',
     volume:'',
     when:'Перезвонить',
@@ -434,15 +432,19 @@ $('#callbackForm').addEventListener('submit',async e=>{
     source:'Сайт ECOFLOT',
     status:'Новая',
     comment:''
-  };
-  const lead={id:'CB-'+Date.now(),client:phone,type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'};
-  data.leads.unshift(lead);
-  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
-  const sent=await sendToGoogleSheet(payload);
-  e.target.reset();
+  });
+  form.reset();
   closeCallback();
-  showToast(sent?'Заявка на обратный звонок принята.':'Заявка сохранена в CRM. Подключение Google Таблицы ещё не завершено.');
-});
+  showToast('Заявка на обратный звонок отправлена.');
+  return false;
+}
+
+function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
+function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
+
+
+
+
 
 $('#loginForm').addEventListener('submit',e=>{
   e.preventDefault();
@@ -590,29 +592,6 @@ const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.pars
     document.querySelectorAll('[onclick="openCallback()"]').forEach(function(el){
       el.onclick=function(e){ if(e) e.preventDefault(); window.openCallback(); };
     });
-
-    var form=q('#callbackForm');
-    if(form){
-      form.onsubmit=function(e){
-        e.preventDefault();
-        var phone=q('#callbackPhone') ? q('#callbackPhone').value.trim() : '';
-        if(!phone) return false;
-        try{
-          var leads=JSON.parse(localStorage.getItem('wf_leads')||'[]');
-          leads.unshift({id:'CB-'+Date.now(),client:phone,type:'Обратный звонок',address:'Телефон: '+phone,date:'Перезвонить',sum:0,status:'new'});
-          localStorage.setItem('wf_leads',JSON.stringify(leads));
-        }catch(e){}
-        form.reset();
-        window.closeCallback();
-        var toast=q('#toast');
-        if(toast){
-          toast.textContent='Заявка на обратный звонок принята.';
-          toast.classList.remove('hidden');
-          setTimeout(function(){ toast.classList.add('hidden'); },2600);
-        }
-        return false;
-      };
-    }
 
     document.querySelectorAll('.modal-backdrop').forEach(function(m){
       m.addEventListener('click',function(e){
