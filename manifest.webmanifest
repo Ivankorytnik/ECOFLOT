@@ -1,0 +1,11 @@
+{
+  "name": "ECOFLOT",
+  "short_name": "ECOFLOT",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f8f5f",
+  "description": "Вывоз мусора и аренда контейнеров в Москве и Московской области",
+  "icons": []
+}
