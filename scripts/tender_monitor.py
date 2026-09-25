@@ -12,7 +12,7 @@ from pathlib import Path
 
 WEBHOOK = os.environ.get(
     "ECOFLOT_WEBHOOK",
-    "https://script.google.com/macros/s/AKfycbwCCbbs2fu3rJc_GKjNl59aei1urvognFrmgSjnJFpe3jQ-OcCCefJqJj91RMXFJJDaTg/exec",
+    "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec",
 )
 STATE_PATH = Path("tender_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "8"))
