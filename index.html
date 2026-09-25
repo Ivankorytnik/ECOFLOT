@@ -359,6 +359,21 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   </div>
 
 
+
+  <div id="crmPasswordModal" class="modal-backdrop hidden">
+    <div class="modal login-modal">
+      <button class="modal-close" type="button" data-crm-action="close-password">×</button>
+      <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
+      <h2>Вход в CRM</h2>
+      <p>Введите пароль доступа.</p>
+      <form id="crmPasswordForm">
+        <label>Пароль<input id="crmPasswordInput" type="password" inputmode="numeric" autocomplete="current-password" required /></label>
+        <div id="crmPasswordError" class="form-status error"></div>
+        <button class="btn primary full" type="submit">Войти</button>
+      </form>
+    </div>
+  </div>
+
   <div id="crmCreateModal" class="modal-backdrop hidden">
     <div class="modal login-modal">
       <button class="modal-close" type="button" data-crm-action="close-create">×</button>
@@ -374,6 +389,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const today = new Date();
 const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec';
+const CRM_PASSWORD = '3649';
 
 const data = {
   clients:[
@@ -528,8 +544,25 @@ function setCrmHash(view){
   history.replaceState(null,'',location.pathname + location.search + '#crm/' + view);
 }
 
+function isCrmUnlocked(){
+  return sessionStorage.getItem('ecoflot_crm_unlocked') === '1';
+}
+function showCrmPassword(){
+  $('#crmPasswordError').textContent = '';
+  $('#crmPasswordInput').value = '';
+  $('#crmPasswordModal')?.classList.remove('hidden');
+  setTimeout(()=>$('#crmPasswordInput')?.focus(),50);
+}
+function closeCrmPassword(){
+  $('#crmPasswordModal')?.classList.add('hidden');
+}
 function openCRM(view){
   const target = views[view] ? view : (localStorage.getItem('ecoflot_crm_view') || 'dashboard');
+  if(!isCrmUnlocked()){
+    localStorage.setItem('ecoflot_pending_crm_view',target);
+    showCrmPassword();
+    return;
+  }
   localStorage.setItem('ecoflot_mode','crm');
   localStorage.setItem('ecoflot_crm_view',target);
   $('#landing')?.classList.remove('active');
@@ -543,6 +576,7 @@ function openCRM(view){
 function logout(){
   localStorage.removeItem('ecoflot_mode');
   localStorage.removeItem('ecoflot_crm_view');
+  sessionStorage.removeItem('ecoflot_crm_unlocked');
   $('#crm')?.classList.remove('active');
   $('#landing')?.classList.add('active');
   history.replaceState(null,'',location.pathname + location.search + '#hero');
@@ -838,11 +872,14 @@ async function submitCallbackForm(){
 function restoreAppState(){
   const m = location.hash.match(/^#crm\/([a-z]+)$/i);
   if(m && views[m[1]]){
+    localStorage.setItem('ecoflot_pending_crm_view',m[1]);
     openCRM(m[1]);
     return;
   }
   if(localStorage.getItem('ecoflot_mode')==='crm'){
-    openCRM(localStorage.getItem('ecoflot_crm_view') || 'dashboard');
+    const saved = localStorage.getItem('ecoflot_crm_view') || 'dashboard';
+    localStorage.setItem('ecoflot_pending_crm_view',saved);
+    openCRM(saved);
   }
 }
 
@@ -867,12 +904,27 @@ document.addEventListener('DOMContentLoaded',()=>{
     submitCallbackForm();
   });
 
+  $('#crmPasswordForm')?.addEventListener('submit',e=>{
+    e.preventDefault();
+    const val = $('#crmPasswordInput')?.value || '';
+    if(val === CRM_PASSWORD){
+      sessionStorage.setItem('ecoflot_crm_unlocked','1');
+      closeCrmPassword();
+      const pending = localStorage.getItem('ecoflot_pending_crm_view') || localStorage.getItem('ecoflot_crm_view') || 'dashboard';
+      localStorage.removeItem('ecoflot_pending_crm_view');
+      openCRM(pending);
+    }else{
+      $('#crmPasswordError').textContent = 'Неверный пароль';
+    }
+  });
+
   document.addEventListener('click',e=>{
     const action = e.target.closest('[data-crm-action]')?.dataset.crmAction;
     if(!action) return;
     if(action==='new-lead') openCreateLeadModal();
     if(action==='new-vehicle') openCreateVehicleModal();
     if(action==='close-create') closeCreateModal();
+    if(action==='close-password') closeCrmPassword();
   });
 
   restoreAppState();
