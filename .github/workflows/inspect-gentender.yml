@@ -9,19 +9,16 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect GenTender HTML
+      - name: Inspect GenTender cards
         run: |
           python3 - <<'PY'
-          import urllib.request, re
+          import urllib.request,re
           u='https://gentender.ru/tenders/utilizaciya-othodov/moskovskaya-oblast'
-          req=urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'})
-          s=urllib.request.urlopen(req,timeout=30).read().decode('utf-8','replace')
-          print('LEN',len(s))
-          print('STATUS OK')
-          for pat in [r'href="([^"]+)"[^>]*>([^<]{20,200})</a>', r'приём до', r'Оказание услуг']:
-              print('PATTERN',pat)
-              for m in re.finditer(pat,s,re.I|re.S):
-                  print(m.group(0)[:500])
-                  if m.start()>300000: break
-          print('HEAD',s[:3000])
+          s=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0'}),timeout=30).read().decode('utf-8','replace')
+          matches=list(re.finditer(r'href="/search\?q=([^"]+)"[^>]*>(.*?)</a>',s,re.I|re.S))
+          print('COUNT',len(matches))
+          for i,m in enumerate(matches[:5]):
+              start=max(0,m.start()-800); end=min(len(s),m.end()+1400)
+              print('\n--- CARD',i+1,'ID',m.group(1),'---')
+              print(s[start:end])
           PY
