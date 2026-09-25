@@ -1,0 +1,22 @@
+name: Site health check
+
+on:
+  schedule:
+    - cron: '20 6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/site-health.yml'
+      - 'scripts/site_health.py'
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check live ECOFLOT site
+        run: python3 scripts/site_health.py
