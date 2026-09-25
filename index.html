@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WasteFlow — вывоз мусора и управление автопарком</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>:root{--bg:#f6f8f6;--paper:#fff;--ink:#17201a;--muted:#6d786f;--line:#e5ebe6;--brand:#1f8f5f;--brand-dark:#146845;--accent:#d8f35b;--danger:#d75959;--warn:#d99932;--sidebar:#122018;--shadow:0 18px 50px rgba(21,45,31,.08)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Arial,sans-serif;color:var(--ink);background:var(--bg)}button,input,select{font:inherit}.page{display:none}.page.active{display:block}.container{width:min(1180px,calc(100% - 40px));margin:auto}.topbar{height:80px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--ink);text-decoration:none}.brand-mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--accent);color:#102017;font-weight:900}.topbar nav{display:flex;gap:28px}.topbar nav a{color:#39453d;text-decoration:none;font-size:14px}.btn{border:0;border-radius:12px;padding:13px 18px;cursor:pointer;font-weight:700;transition:.2s}.btn.primary{background:var(--brand);color:#fff;box-shadow:0 8px 24px rgba(31,143,95,.25)}.btn.primary:hover{background:var(--brand-dark)}.btn.ghost{background:transparent;border:1px solid var(--line)}.btn.light{background:#edf1ed}.btn.full{width:100%}.btn.small{padding:10px 14px;font-size:13px}.hero{padding:72px 0 80px;display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:center}.eyebrow,.section-head>span{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}.hero h1{font-size:62px;line-height:1.02;margin:14px 0 24px;letter-spacing:-.04em}.hero-copy>p{font-size:19px;line-height:1.6;color:var(--muted);max-width:700px}.hero-actions{display:flex;gap:12px;margin:28px 0 34px}.trust-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.trust-row div{padding-top:16px;border-top:1px solid var(--line)}.trust-row strong{display:block;font-size:20px}.trust-row span{font-size:12px;color:var(--muted)}.hero-card{background:var(--paper);padding:26px;border-radius:24px;box-shadow:var(--shadow);border:1px solid var(--line)}.form-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.form-head h3{margin:0;font-size:22px}.badge{padding:7px 10px;border-radius:999px;background:#eff8ef;color:var(--brand);font-size:12px;font-weight:700}label{display:block;font-size:12px;font-weight:700;color:#4f5d53;margin-bottom:14px}input,select{width:100%;margin-top:7px;border:1px solid var(--line);background:#fafcf9;border-radius:10px;padding:13px 12px;outline:none}input:focus,select:focus{border-color:var(--brand)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.form-note{font-size:11px;color:var(--muted);text-align:center}.section{padding:84px 0}.section.alt{background:#edf3ee}.section-head{max-width:720px;margin-bottom:36px}.section-head h2{font-size:42px;letter-spacing:-.03em;margin:10px 0 12px}.section-head p{color:var(--muted);font-size:17px;line-height:1.6}.cards.four{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.service-card{padding:24px;background:var(--paper);border:1px solid var(--line);border-radius:18px;min-height:210px}.service-card.featured{border-color:#b8dbbf;box-shadow:0 16px 40px rgba(31,143,95,.10)}.icon{font-size:30px}.service-card h3{margin:18px 0 8px}.service-card p{font-size:14px;color:var(--muted);line-height:1.5}.price{margin-top:26px;font-size:21px;font-weight:800}.fleet-showcase{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.fleet-item{display:flex;gap:18px;padding:22px;background:#fff;border-radius:18px;border:1px solid var(--line)}.vehicle-art{font-size:40px}.fleet-item h3{margin:0 0 6px}.fleet-item p{margin:0 0 14px;color:var(--muted);font-size:13px}.status{font-size:12px;font-weight:800;padding:6px 9px;border-radius:999px}.status.ok{background:#e4f5e9;color:#2a7a4c}.status.warn{background:#fff2d8;color:#9c6b18}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:28px}.steps b{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--accent)}.steps h3{margin:18px 0 7px}.steps p{color:var(--muted);font-size:14px;line-height:1.5}.cta-section{padding:40px 0 90px}.cta-box{background:var(--sidebar);color:#fff;border-radius:28px;padding:38px;display:flex;align-items:center;justify-content:space-between;gap:20px}.cta-box h2{font-size:34px;margin:8px 0}.cta-box p{color:#b8c6bd}.footer{height:90px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--muted)}.link-button{border:0;background:none;color:var(--brand);cursor:pointer}.modal-backdrop{position:fixed;inset:0;background:rgba(9,15,11,.58);display:grid;place-items:center;z-index:50}.hidden{display:none!important}.modal{position:relative;background:#fff;border-radius:20px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.login-modal{width:min(440px,calc(100% - 30px))}.modal-close{position:absolute;right:16px;top:12px;border:0;background:none;font-size:28px;cursor:pointer}.login-modal h2{margin:26px 0 8px}.login-modal p{color:var(--muted)}.login-modal small{display:block;margin-top:16px;color:var(--muted);line-height:1.5}.toast{position:fixed;right:24px;bottom:24px;background:#142219;color:#fff;padding:13px 18px;border-radius:12px;z-index:100;box-shadow:var(--shadow)}
+/* CRM */
+.crm-shell.active{display:grid;grid-template-columns:248px 1fr;min-height:100vh}.sidebar{background:var(--sidebar);color:#fff;padding:22px 16px;display:flex;flex-direction:column}.brand.inverse{color:#fff;padding:0 8px}.manager-card{display:flex;gap:10px;align-items:center;padding:16px 8px;margin:20px 0;border-top:1px solid #24372b;border-bottom:1px solid #24372b}.avatar{width:36px;height:36px;border-radius:50%;background:#264a34;display:grid;place-items:center;font-size:12px}.manager-card strong,.manager-card span{display:block}.manager-card span{font-size:10px;color:#9eb1a5;margin-top:3px}.side-nav{display:flex;flex-direction:column;gap:5px}.nav-item{width:100%;display:flex;gap:10px;align-items:center;text-align:left;color:#c4d1c8;background:transparent;border:0;padding:11px 12px;border-radius:10px;cursor:pointer}.nav-item:hover,.nav-item.active{background:#203629;color:#fff}.nav-item em{margin-left:auto;font-style:normal;background:#31543f;border-radius:999px;padding:2px 7px;font-size:10px}.sidebar-bottom{margin-top:auto}.workspace{min-width:0}.workspace-header{height:84px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 28px}.workspace-header h2{margin:0;font-size:22px}.workspace-header p{margin:4px 0 0;color:var(--muted);font-size:12px}.header-actions{display:flex;align-items:center;gap:10px}.today-chip{padding:10px 12px;background:#f0f4f0;border-radius:10px;font-size:12px;font-weight:700}.workspace-body{padding:26px;overflow:auto}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}.metric{background:#fff;border:1px solid var(--line);padding:18px;border-radius:16px}.metric .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.metric .value{font-size:30px;font-weight:800;margin:8px 0}.metric .delta{font-size:11px;color:var(--brand)}.dashboard-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}.panel h3{margin:0 0 16px;font-size:16px}.table{width:100%;border-collapse:collapse}.table th{text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:10px;border-bottom:1px solid var(--line)}.table td{padding:12px 10px;border-bottom:1px solid #eef2ee;font-size:12px}.pill{display:inline-flex;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800}.pill.new{background:#eef2ff;color:#5266ad}.pill.work{background:#fff1d6;color:#956a1d}.pill.won{background:#e4f5e9;color:#277047}.pill.lost{background:#fdeaea;color:#a94a4a}.activity-list{display:flex;flex-direction:column;gap:12px}.activity{display:flex;gap:10px}.activity-dot{width:9px;height:9px;margin-top:5px;border-radius:50%;background:var(--brand)}.activity p{margin:0;font-size:12px}.activity span{font-size:10px;color:var(--muted)}.toolbar{display:flex;gap:10px;justify-content:space-between;margin-bottom:14px}.toolbar .filters{display:flex;gap:8px}.chip{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:11px;cursor:pointer}.chip.active{background:#eaf5ee;border-color:#bcdcc7;color:var(--brand)}.calendar{display:grid;grid-template-columns:180px repeat(7,1fr);border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}.cal-head,.cal-cell,.vehicle-name{min-height:70px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px}.cal-head{background:#f7faf7;font-size:11px;font-weight:800}.vehicle-name{font-size:11px;font-weight:700}.booking{border-radius:8px;padding:6px 7px;margin-bottom:5px;font-size:9px;font-weight:700}.booking.own{background:#e2f2e7;color:#256f48}.booking.partner{background:#e9edf8;color:#475c9d}.fleet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.vehicle-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px}.vehicle-card .vehicle-top{display:flex;justify-content:space-between;gap:10px}.vehicle-card h3{margin:0}.vehicle-meta{font-size:11px;color:var(--muted);line-height:1.7;margin:12px 0}.progress{height:7px;background:#edf1ed;border-radius:999px;overflow:hidden}.progress i{display:block;height:100%;background:var(--brand)}.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kanban-col{background:#f0f4f0;border-radius:14px;padding:12px;min-height:440px}.kanban-head{display:flex;justify-content:space-between;font-size:12px;font-weight:800;margin-bottom:10px}.lead-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:9px;cursor:pointer}.lead-card h4{margin:0 0 6px;font-size:12px}.lead-card p{margin:0;color:var(--muted);font-size:10px;line-height:1.5}.lead-card .sum{font-size:12px;font-weight:800;margin-top:9px}.analytics-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.bar-chart{height:220px;display:flex;align-items:flex-end;gap:12px;padding:12px 4px}.bar{flex:1;background:#dfece3;border-radius:8px 8px 0 0;position:relative}.bar::after{content:attr(data-label);position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted)}.bar::before{content:attr(data-value);position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700}
+@media(max-width:980px){.hero{grid-template-columns:1fr}.hero h1{font-size:48px}.cards.four,.fleet-showcase,.steps{grid-template-columns:repeat(2,1fr)}.crm-shell.active{grid-template-columns:80px 1fr}.sidebar .brand span:last-child,.manager-card>div:last-child,.nav-item span,.nav-item em{display:none}.manager-card{justify-content:center}.metric-grid{grid-template-columns:repeat(2,1fr)}.dashboard-grid,.analytics-grid{grid-template-columns:1fr}.fleet-grid,.kanban{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.topbar nav{display:none}.hero{padding-top:36px}.hero h1{font-size:40px}.trust-row,.cards.four,.fleet-showcase,.steps,.metric-grid,.fleet-grid,.kanban{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.cta-box{flex-direction:column;align-items:flex-start}.workspace-header{padding:0 14px}.workspace-body{padding:14px}.calendar{grid-template-columns:130px repeat(7,120px);overflow:auto}.header-actions .today-chip{display:none}}
+</style>
+</head>
+<body>
+  <div id="landing" class="page active">
+    <header class="topbar container">
+      <a class="brand" href="#hero"><span class="brand-mark">W</span><span>WasteFlow</span></a>
+      <nav>
+        <a href="#services">Услуги</a>
+        <a href="#fleet">Автопарк</a>
+        <a href="#how">Как работаем</a>
+        <a href="#contact">Контакты</a>
+      </nav>
+      <button class="btn ghost" onclick="openLogin()">Вход для менеджеров</button>
+    </header>
+
+    <main>
+      <section id="hero" class="hero container">
+        <div class="hero-copy">
+          <div class="eyebrow">Вывоз строительного мусора • свой и привлечённый флот</div>
+          <h1>Вывозим мусор быстро. Управляем флотом точно.</h1>
+          <p>Контейнеры 8–27 м³, Газель, самосвалы и спецтехника. Рассчитаем стоимость, подберём машину и подачу на удобное время.</p>
+          <div class="hero-actions">
+            <a href="#leadform" class="btn primary">Рассчитать вывоз</a>
+            <button class="btn light" onclick="scrollToFleet()">Посмотреть автопарк</button>
+          </div>
+          <div class="trust-row">
+            <div><strong>30+ машин</strong><span>свой и партнёрский флот</span></div>
+            <div><strong>от 90 мин</strong><span>подача по району</span></div>
+            <div><strong>7 дней</strong><span>работаем без выходных</span></div>
+          </div>
+        </div>
+        <div class="hero-card" id="leadform">
+          <div class="form-head">
+            <span class="badge">Быстрый расчёт</span>
+            <h3>Получить цену и машину</h3>
+          </div>
+          <form id="leadForm">
+            <label>Что вывозим
+              <select id="wasteType" required>
+                <option value="Строительный мусор">Строительный мусор</option>
+                <option value="Мебель и хлам">Мебель и хлам</option>
+                <option value="Грунт">Грунт</option>
+                <option value="Ветки и древесина">Ветки и древесина</option>
+                <option value="Смешанные отходы">Смешанные отходы</option>
+              </select>
+            </label>
+            <div class="form-grid">
+              <label>Объём
+                <select id="volume" required>
+                  <option>Газель</option>
+                  <option selected>8 м³</option>
+                  <option>20 м³</option>
+                  <option>27 м³</option>
+                </select>
+              </label>
+              <label>Когда
+                <select id="when" required>
+                  <option>Сегодня</option>
+                  <option>Завтра</option>
+                  <option>Выбрать дату</option>
+                </select>
+              </label>
+            </div>
+            <label>Адрес подачи
+              <input id="address" type="text" placeholder="Одинцово, улица, дом" required />
+            </label>
+            <div class="form-grid">
+              <label>Имя
+                <input id="name" type="text" placeholder="Иван" required />
+              </label>
+              <label>Телефон
+                <input id="phone" type="tel" placeholder="+7 999 000-00-00" required />
+              </label>
+            </div>
+            <button class="btn primary full" type="submit">Получить расчёт</button>
+            <p class="form-note">Менеджер свяжется и подтвердит стоимость и время подачи.</p>
+          </form>
+        </div>
+      </section>
+
+      <section id="services" class="section container">
+        <div class="section-head"><span>Услуги</span><h2>Подбираем формат под задачу</h2><p>От небольшого вывоза после ремонта до регулярного обслуживания стройплощадок.</p></div>
+        <div class="cards four">
+          <article class="service-card"><div class="icon">🚚</div><h3>Газель</h3><p>Мешки, мебель, бытовой хлам, небольшие объёмы.</p><div class="price">от 7 500 ₽</div></article>
+          <article class="service-card featured"><div class="icon">▰</div><h3>Контейнер 8 м³</h3><p>Ремонт, демонтаж, строймусор. Самый популярный формат.</p><div class="price">от 9 900 ₽</div></article>
+          <article class="service-card"><div class="icon">▰▰</div><h3>Контейнер 20 м³</h3><p>Средние и крупные объёмы, стройплощадки.</p><div class="price">от 24 900 ₽</div></article>
+          <article class="service-card"><div class="icon">▰▰▰</div><h3>Контейнер 27 м³</h3><p>Крупный объём, регулярный вывоз, B2B.</p><div class="price">от 27 900 ₽</div></article>
+        </div>
+      </section>
+
+      <section id="fleet" class="section alt">
+        <div class="container">
+          <div class="section-head"><span>Автопарк</span><h2>Свой флот + проверенные партнёры</h2><p>CRM автоматически показывает, какая техника свободна, и предлагает альтернативу, если свой автомобиль занят.</p></div>
+          <div class="fleet-showcase">
+            <div class="fleet-item"><div class="vehicle-art">🚛</div><div><h3>Бункеровоз 8 м³</h3><p>6 собственных • 4 партнёрских</p><span class="status ok">7 свободно сегодня</span></div></div>
+            <div class="fleet-item"><div class="vehicle-art">🚚</div><div><h3>Мультилифт 20–27 м³</h3><p>4 собственных • 6 партнёрских</p><span class="status warn">3 свободно сегодня</span></div></div>
+            <div class="fleet-item"><div class="vehicle-art">🛻</div><div><h3>Газель / малотоннажный</h3><p>3 собственных • 8 партнёрских</p><span class="status ok">8 свободно сегодня</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="how" class="section container">
+        <div class="section-head"><span>Процесс</span><h2>От заявки до закрытого рейса</h2></div>
+        <div class="steps">
+          <div><b>1</b><h3>Заявка</h3><p>Сайт, звонок, мессенджер или менеджер.</p></div>
+          <div><b>2</b><h3>Расчёт</h3><p>Стоимость, объём, тип техники и время подачи.</p></div>
+          <div><b>3</b><h3>Планирование</h3><p>CRM назначает машину и резервирует слот.</p></div>
+          <div><b>4</b><h3>Выполнение</h3><p>Рейс, документы, фото, закрытие и повторные продажи.</p></div>
+        </div>
+      </section>
+
+      <section id="contact" class="cta-section">
+        <div class="container cta-box">
+          <div><span class="eyebrow">Работаем с физлицами и бизнесом</span><h2>Нужен разовый вывоз или регулярный график?</h2><p>Оставьте заявку, рассчитаем стоимость и предложим ближайшее окно.</p></div>
+          <a href="#leadform" class="btn primary">Оставить заявку</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer container"><div class="brand"><span class="brand-mark">W</span><span>WasteFlow</span></div><div>© 2026 WasteFlow</div><button class="link-button" onclick="openLogin()">Вход для сотрудников</button></footer>
+  </div>
+
+  <div id="crm" class="page crm-shell">
+    <aside class="sidebar">
+      <div class="brand inverse"><span class="brand-mark">W</span><span>WasteFlow CRM</span></div>
+      <div class="manager-card"><div class="avatar">ИК</div><div><strong id="managerName">Иван Корытник</strong><span id="managerEmail">manager@company.ru</span></div></div>
+      <nav class="side-nav">
+        <button class="nav-item active" data-view="dashboard">◫ <span>Дашборд</span></button>
+        <button class="nav-item" data-view="leads">◎ <span>Заявки и продажи</span><em id="leadCounter">5</em></button>
+        <button class="nav-item" data-view="calendar">▦ <span>Календарь флота</span></button>
+        <button class="nav-item" data-view="fleetcrm">🚛 <span>Автопарк</span></button>
+        <button class="nav-item" data-view="partners">⇄ <span>Привлечённый флот</span></button>
+        <button class="nav-item" data-view="clients">◉ <span>Клиенты</span></button>
+        <button class="nav-item" data-view="analytics">▥ <span>Аналитика</span></button>
+      </nav>
+      <div class="sidebar-bottom"><button class="nav-item" onclick="logout()">↩ <span>Выйти</span></button></div>
+    </aside>
+
+    <section class="workspace">
+      <header class="workspace-header"><div><h2 id="viewTitle">Дашборд</h2><p id="viewSubtitle">Оперативная картина на сегодня</p></div><div class="header-actions"><button class="btn light small" onclick="openQuickLead()">+ Новая заявка</button><div class="today-chip" id="todayChip"></div></div></header>
+      <main id="viewRoot" class="workspace-body"></main>
+    </section>
+  </div>
+
+  <div id="loginModal" class="modal-backdrop hidden">
+    <div class="modal login-modal">
+      <button class="modal-close" onclick="closeLogin()">×</button>
+      <div class="brand"><span class="brand-mark">W</span><span>WasteFlow CRM</span></div>
+      <h2>Вход для менеджеров</h2><p>Введите рабочую почту компании.</p>
+      <form id="loginForm">
+        <label>Рабочая почта<input id="loginEmail" type="email" placeholder="manager@company.ru" required /></label>
+        <button class="btn primary full" type="submit">Войти</button>
+      </form>
+      <small>Демо-версия: подойдёт любой корректный email. Для продакшена подключается Supabase/Auth.</small>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const today = new Date();
+const fmtDate = d => d.toLocaleDateString('ru-RU',{day:'2-digit',month:'short'});
+
+const data = {
+  leads:[
+    {id:'L-1048',client:'ООО РемСтрой',type:'8 м³',address:'Одинцово, ул. Маршала Жукова',date:'Сегодня 16:00',sum:11500,status:'new'},
+    {id:'L-1047',client:'Анна П.',type:'Газель',address:'Новая Трёхгорка',date:'Сегодня 14:30',sum:7800,status:'work'},
+    {id:'L-1046',client:'СК Альфа',type:'20 м³',address:'Барвиха',date:'Завтра 10:00',sum:25900,status:'work'},
+    {id:'L-1045',client:'ИП Новиков',type:'27 м³',address:'Заречье',date:'27 сен 09:00',sum:28900,status:'won'},
+    {id:'L-1044',client:'Мария С.',type:'8 м³',address:'Лесной городок',date:'26 сен 13:00',sum:10500,status:'lost'}
+  ],
+  vehicles:[
+    {name:'КамАЗ МСК-821',type:'Бункеровоз 8 м³',owner:'Собственный',driver:'Алексей Н.',load:78,state:'В рейсе'},
+    {name:'КамАЗ МСК-822',type:'Бункеровоз 8 м³',owner:'Собственный',driver:'Денис П.',load:54,state:'Свободен'},
+    {name:'МАЗ МЛ-204',type:'Мультилифт 20–27 м³',owner:'Собственный',driver:'Роман К.',load:86,state:'В рейсе'},
+    {name:'Газель МСК-114',type:'Газель',owner:'Собственный',driver:'Сергей И.',load:44,state:'Свободен'},
+    {name:'Партнёр 017',type:'Бункеровоз 8 м³',owner:'Партнёр',driver:'ИП Савельев',load:63,state:'Резерв'},
+    {name:'Партнёр 025',type:'Мультилифт 27 м³',owner:'Партнёр',driver:'ООО ТрансЭко',load:71,state:'Свободен'}
+  ]
+};
+
+function openLogin(){ $('#loginModal').classList.remove('hidden'); }
+function closeLogin(){ $('#loginModal').classList.add('hidden'); }
+function scrollToFleet(){ $('#fleet').scrollIntoView({behavior:'smooth'}); }
+function showToast(text){ const t=$('#toast'); t.textContent=text; t.classList.remove('hidden'); setTimeout(()=>t.classList.add('hidden'),2600); }
+
+$('#leadForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const lead={id:'L-'+(1049+data.leads.length),client:$('#name').value,type:$('#volume').value,address:$('#address').value,date:$('#when').value,sum:0,status:'new'};
+  data.leads.unshift(lead);
+  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  e.target.reset();
+  showToast('Заявка принята. Менеджер свяжется с вами.');
+});
+
+$('#loginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const email=$('#loginEmail').value.trim();
+  localStorage.setItem('wf_user',email);
+  enterCRM(email);
+});
+
+function enterCRM(email){
+  closeLogin();
+  $('#landing').classList.remove('active');
+  $('#crm').classList.add('active');
+  $('#managerEmail').textContent=email;
+  $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
+  renderView('dashboard');
+}
+function logout(){localStorage.removeItem('wf_user');$('#crm').classList.remove('active');$('#landing').classList.add('active');}
+function openQuickLead(){
+  const client=prompt('Клиент / компания'); if(!client)return;
+  const type=prompt('Тип заявки: Газель / 8 м³ / 20 м³ / 27 м³','8 м³')||'8 м³';
+  data.leads.unshift({id:'L-'+Math.floor(1100+Math.random()*800),client,type,address:'Уточнить адрес',date:'Новая заявка',sum:0,status:'new'});
+  localStorage.setItem('wf_leads',JSON.stringify(data.leads));
+  showToast('Заявка создана'); renderView('leads');
+}
+
+const views={
+ dashboard:{title:'Дашборд',sub:'Оперативная картина на сегодня'},
+ leads:{title:'Заявки и продажи',sub:'Воронка от обращения до выполненного заказа'},
+ calendar:{title:'Календарь флота',sub:'Загрузка машин и планирование рейсов'},
+ fleetcrm:{title:'Автопарк',sub:'Собственная техника и её загрузка'},
+ partners:{title:'Привлечённый флот',sub:'Партнёры, ставки и доступность'},
+ clients:{title:'Клиенты',sub:'История заказов и повторные продажи'},
+ analytics:{title:'Аналитика',sub:'Выручка, маржинальность и загрузка'}
+};
+$$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>renderView(b.dataset.view)));
+
+function renderView(view){
+  $$('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
+  $('#viewTitle').textContent=views[view].title; $('#viewSubtitle').textContent=views[view].sub;
+  $('#leadCounter').textContent=data.leads.filter(x=>x.status==='new').length;
+  const root=$('#viewRoot');
+  if(view==='dashboard') root.innerHTML=dashboardHTML();
+  if(view==='leads') root.innerHTML=leadsHTML();
+  if(view==='calendar') root.innerHTML=calendarHTML();
+  if(view==='fleetcrm') root.innerHTML=fleetHTML(false);
+  if(view==='partners') root.innerHTML=partnersHTML();
+  if(view==='clients') root.innerHTML=clientsHTML();
+  if(view==='analytics') root.innerHTML=analyticsHTML();
+}
+
+function dashboardHTML(){return `
+<div class="metric-grid">
+  ${metric('Выручка сегодня','186 400 ₽','+12% к плану')}
+  ${metric('Рейсов сегодня','17','13 свой / 4 партнёры')}
+  ${metric('Свободно машин','6','из 12 активных')}
+  ${metric('Новые заявки','${data.leads.filter(x=>x.status==='new').length}','нужна обработка')}
+</div>
+<div class="dashboard-grid">
+  <section class="panel"><h3>Ближайшие рейсы</h3><table class="table"><thead><tr><th>Время</th><th>Клиент</th><th>Машина</th><th>Адрес</th><th>Статус</th></tr></thead><tbody>
+  <tr><td>14:30</td><td>Анна П.</td><td>Газель 114</td><td>Новая Трёхгорка</td><td><span class="pill work">в пути</span></td></tr>
+  <tr><td>16:00</td><td>РемСтрой</td><td>КамАЗ 822</td><td>Одинцово</td><td><span class="pill new">назначен</span></td></tr>
+  <tr><td>18:00</td><td>СК Монолит</td><td>Партнёр 017</td><td>Барвиха</td><td><span class="pill new">резерв</span></td></tr>
+  </tbody></table></section>
+  <section class="panel"><h3>Что требует внимания</h3><div class="activity-list">
+    ${activity('3 заявки без назначения машины','проверить свободные слоты')}
+    ${activity('КамАЗ МСК-821: ТО через 420 км','запланировать сервис')}
+    ${activity('Партнёр ТрансЭко обновил ставку +7%','пересмотреть тарифы')}
+    ${activity('2 клиента готовы на регулярный график','создать договорный план')}
+  </div></section>
+</div>`}
+function metric(label,value,delta){return `<div class="metric"><div class="label">${label}</div><div class="value">${value}</div><div class="delta">${delta}</div></div>`}
+function activity(a,b){return `<div class="activity"><div class="activity-dot"></div><div><p>${a}</p><span>${b}</span></div></div>`}
+
+function leadsHTML(){
+  const cols=[['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
+  return `<div class="toolbar"><div class="filters"><button class="chip active">Все</button><button class="chip">Сегодня</button><button class="chip">B2B</button><button class="chip">С сайта</button></div><button class="btn primary small" onclick="openQuickLead()">+ Новая заявка</button></div><div class="kanban">${cols.map(([s,t])=>`<div class="kanban-col"><div class="kanban-head"><span>${t}</span><span>${data.leads.filter(l=>l.status===s).length}</span></div>${data.leads.filter(l=>l.status===s).map(leadCard).join('')}</div>`).join('')}</div>`;
+}
+function leadCard(l){return `<div class="lead-card" onclick="showToast('${l.id}: карточка клиента')"><h4>${l.client}</h4><p>${l.type} • ${l.date}<br>${l.address}</p><div class="sum">${l.sum?l.sum.toLocaleString('ru-RU')+' ₽':'Расчёт'}</div></div>`}
+
+function calendarHTML(){
+  let days=[...Array(7)].map((_,i)=>{const d=new Date(today);d.setDate(today.getDate()+i);return d});
+  let head=`<div class="cal-head">Автомобиль</div>${days.map(d=>`<div class="cal-head">${d.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric'})}</div>`).join('')}`;
+  let rows=data.vehicles.map((v,vi)=>`<div class="vehicle-name">${v.name}<br><span style="color:#87958b;font-weight:500">${v.type}</span></div>${days.map((d,di)=>`<div class="cal-cell">${((vi+di)%3===0)?`<div class="booking ${v.owner==='Собственный'?'own':'partner'}">${9+di}:00 • заказ ${110+vi+di}</div>`:''}${((vi+di)%5===0)?`<div class="booking own">15:30 • рейс</div>`:''}</div>`).join('')}`).join('');
+  return `<div class="toolbar"><div class="filters"><button class="chip active">Неделя</button><button class="chip">День</button><button class="chip">Свой флот</button><button class="chip">Партнёры</button></div><button class="btn light small">Экспорт</button></div><div class="calendar">${head}${rows}</div>`
+}
+function fleetHTML(partnersOnly){
+  const list=data.vehicles.filter(v=>!partnersOnly&&v.owner==='Собственный');
+  return `<div class="toolbar"><div class="filters"><button class="chip active">Все машины</button><button class="chip">Свободные</button><button class="chip">В рейсе</button><button class="chip">ТО</button></div><button class="btn primary small">+ Автомобиль</button></div><div class="fleet-grid">${list.map(vehicleCard).join('')}</div>`
+}
+function vehicleCard(v){return `<article class="vehicle-card"><div class="vehicle-top"><div><h3>${v.name}</h3><span class="pill ${v.state==='Свободен'?'won':'work'}">${v.state}</span></div><div style="font-size:30px">🚛</div></div><div class="vehicle-meta">${v.type}<br>${v.driver}<br>${v.owner}</div><div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:5px"><span>Загрузка недели</span><b>${v.load}%</b></div><div class="progress"><i style="width:${v.load}%"></i></div></article>`}
+function partnersHTML(){
+  const ps=[['ООО ТрансЭко','8 / 20 / 27 м³','от 8 600 ₽','4.9'],['ИП Савельев','8 м³','от 8 900 ₽','4.8'],['ЭкоЛогистика','Газель / 8 м³','от 6 700 ₽','4.7'],['МосКонтейнер','20 / 27 м³','от 21 500 ₽','4.9']];
+  return `<div class="toolbar"><div class="filters"><button class="chip active">Доступны сегодня</button><button class="chip">Все партнёры</button></div><button class="btn primary small">+ Добавить партнёра</button></div><section class="panel"><table class="table"><thead><tr><th>Партнёр</th><th>Техника</th><th>Ставка</th><th>Рейтинг</th><th>Доступность</th></tr></thead><tbody>${ps.map(p=>`<tr><td><b>${p[0]}</b></td><td>${p[1]}</td><td>${p[2]}</td><td>★ ${p[3]}</td><td><span class="pill won">есть окна</span></td></tr>`).join('')}</tbody></table></section>`
+}
+function clientsHTML(){
+ const cs=[['ООО РемСтрой','B2B','14','186 400 ₽','18.09'],['СК Альфа','B2B','9','312 800 ₽','24.09'],['Анна П.','B2C','2','16 900 ₽','25.09'],['ИП Новиков','B2B','6','144 700 ₽','23.09']];
+ return `<div class="toolbar"><div class="filters"><button class="chip active">Все</button><button class="chip">B2B</button><button class="chip">Повторные</button></div><button class="btn primary small">+ Клиент</button></div><section class="panel"><table class="table"><thead><tr><th>Клиент</th><th>Тип</th><th>Заказов</th><th>Выручка</th><th>Последний заказ</th></tr></thead><tbody>${cs.map(c=>`<tr><td><b>${c[0]}</b></td><td>${c[1]}</td><td>${c[2]}</td><td>${c[3]}</td><td>${c[4]}</td></tr>`).join('')}</tbody></table></section>`
+}
+function analyticsHTML(){return `<div class="metric-grid">${metric('Выручка за месяц','3,84 млн ₽','+18% м/м')}${metric('Валовая маржа','812 тыс ₽','21,1%')}${metric('Средний чек','18 420 ₽','+1 240 ₽')}${metric('Конверсия заявки','38%','+4 п.п.')}</div><div class="analytics-grid"><section class="panel"><h3>Выручка по неделям</h3><div class="bar-chart">${[62,84,74,96].map((h,i)=>`<div class="bar" style="height:${h}%" data-label="Нед ${i+1}" data-value="${[720,980,860,1280][i]}k"></div>`).join('')}</div></section><section class="panel"><h3>Структура рейсов</h3><table class="table"><tbody><tr><td>Свой флот</td><td><b>68%</b></td><td>маржа 28%</td></tr><tr><td>Привлечённый флот</td><td><b>32%</b></td><td>маржа 14%</td></tr><tr><td>Контейнер 8 м³</td><td><b>46%</b></td><td>самый частый</td></tr><tr><td>B2B клиенты</td><td><b>57%</b></td><td>выручки</td></tr></tbody></table></section></div>`}
+
+const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.parse(saved)}catch{}}
+const user=localStorage.getItem('wf_user'); if(user) enterCRM(user);
+</script>
+</body>
+</html>
