@@ -487,13 +487,20 @@ let leadFilter = 'all';
 let leadViewMode = localStorage.getItem('ecoflot_lead_view') || 'kanban';
 
 function detectLeadSource(kind){
-  const p = new URLSearchParams(location.search);
-  const utm = p.get('utm_source');
-  const campaign = p.get('utm_campaign');
-  if(utm) return 'UTM: ' + utm + (campaign ? ' / ' + campaign : '');
-  if(kind === 'callback') return 'Сайт / обратный звонок';
-  if(kind === 'form') return 'Сайт / форма заявки';
-  return 'CRM / вручную';
+  const a = window.ECOFLOT_ATTRIBUTION || {};
+  const bits = [];
+  if(a.utm_source) bits.push('utm_source=' + a.utm_source);
+  if(a.utm_medium) bits.push('utm_medium=' + a.utm_medium);
+  if(a.utm_campaign) bits.push('utm_campaign=' + a.utm_campaign);
+  if(a.yclid) bits.push('yclid=' + a.yclid);
+  if(a.gclid) bits.push('gclid=' + a.gclid);
+  if(a.landing) bits.push('landing=' + a.landing);
+  if(a.referrer) {
+    try { bits.push('ref=' + new URL(a.referrer).hostname); }
+    catch(e){ bits.push('ref=' + a.referrer); }
+  }
+  const base = kind === 'callback' ? 'Сайт / обратный звонок' : kind === 'form' ? 'Сайт / форма заявки' : 'CRM / вручную';
+  return bits.length ? base + ' | ' + bits.join(' | ') : base;
 }
 
 function normalizeStatus(status){
