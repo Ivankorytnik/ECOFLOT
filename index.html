@@ -294,7 +294,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       </section>
     </main>
 
-    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.18 · заливка 25.09.2026</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
+    <footer class="footer container"><div class="brand"><span class="brand-mark">E</span><span>ECOFLOT</span></div><div class="footer-meta"><span>© 2026 ECOFLOT</span><small>Версия v0.9.19 · заливка 25.09.2026</small></div><button class="link-button" onclick="openCRM()">CRM</button></footer>
   </div>
 
   <div id="crm" class="page crm-shell">
@@ -422,12 +422,14 @@ function openLogin(){ openCRM(); }
 function openCallback(){ $('#callbackModal').classList.remove('hidden'); }
 function closeCallback(){ $('#callbackModal').classList.add('hidden'); }
 function closeLogin(){ $('#loginModal').classList.add('hidden'); }
-function openCRM(){
+function openCRM(view){
+  localStorage.setItem('ecoflot_mode','crm');
+  const targetView=view || localStorage.getItem('ecoflot_crm_view') || 'dashboard';
   $('#landing').classList.remove('active');
   $('#crm').classList.add('active');
   $('#managerEmail').textContent='Демо-режим';
   $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
-  renderView('dashboard');
+  renderView(targetView);
 }
 
 async function submitLeadForm(){
@@ -541,7 +543,7 @@ function enterCRM(email){
   $('#todayChip').textContent=today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView('dashboard');
 }
-function logout(){localStorage.removeItem('wf_user');$('#crm').classList.remove('active');$('#landing').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function logout(){localStorage.removeItem('wf_user');localStorage.removeItem('ecoflot_mode');$('#crm').classList.remove('active');$('#landing').classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
 function openQuickLead(){
   const client=prompt('Клиент / компания'); if(!client)return;
   const type=prompt('Тип заявки: Газель / 8 м³ / 20 м³ / 27 м³','8 м³')||'8 м³';
@@ -559,10 +561,11 @@ const views={
  clients:{title:'Клиенты',sub:'История заказов и повторные продажи'},
  analytics:{title:'Аналитика',sub:'Выручка, маржинальность и загрузка'}
 };
-$$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>renderView(b.dataset.view)));
+$('.nav-item[data-view]').forEach(b=>b.addEventListener('click',()=>{localStorage.setItem('ecoflot_crm_view',b.dataset.view);renderView(b.dataset.view)}));
 
 function renderView(view){
-  $$('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
+  localStorage.setItem('ecoflot_crm_view',view);
+  $('.nav-item[data-view]').forEach(x=>x.classList.toggle('active',x.dataset.view===view));
   $('#viewTitle').textContent=views[view].title; $('#viewSubtitle').textContent=views[view].sub;
   $('#leadCounter').textContent=data.leads.filter(x=>x.status==='new').length;
   const root=$('#viewRoot');
@@ -627,6 +630,9 @@ function analyticsHTML(){return `<div class="metric-grid">${metric('Выручк
 
 const saved=localStorage.getItem('wf_leads'); if(saved){try{data.leads=JSON.parse(saved)}catch{}}
 // CRM работает без авторизации в демо-режиме
+if(localStorage.getItem('ecoflot_mode')==='crm'){
+  setTimeout(()=>openCRM(localStorage.getItem('ecoflot_crm_view') || 'dashboard'),0);
+}
 </script>
 <script>
 /* ECOFLOT resilient controls v0.9.1 */
