@@ -1,0 +1,20 @@
+name: ECOFLOT send newly found waste tenders
+
+on:
+  push:
+    paths:
+      - ".github/workflows/send-new-waste-tenders.yml"
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send new waste tenders
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Вывоз ТКО, МО Михайловская Слобода"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Вывоз ТКО"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 28.09.2026 09:00"             --data-urlencode "address=Михайловская Слобода, Московская область"             --data-urlencode "source=Bidzaar"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Закупка 375-507. Открытый запрос на услуги по вывозу ТКО в МО Михайловская Слобода. Прием предложений до 28.09.2026 09:00. Источник: https://bidzaar.com/app/process/light/01a0ae56-e292-7b2b-b0c4-ce7c8349d74f"             --data-urlencode "requestId=TENDER-BIDZAAR-375-507"             "$URL"
+
+          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Ликвидация аварийного объекта с вывозом мусора, Красноармейск"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Демонтаж / вывоз мусора"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 30.09.2026 10:00"             --data-urlencode "address=Красноармейск, г.о. Пушкинский, Московская область"             --data-urlencode "source=ЕИС / СИНАПС"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Закупка №0348300410726000124. Работы по ликвидации самовольного, недостроенного и аварийного объекта по адресу ул. Лермонтова, д.11, включая вывоз мусора. Заказчик: МКУ УКС, г. Пушкино. Заявки до 30.09.2026 10:00. Источник: https://synapsenet.ru/zakupki/fz44/0348300410726000124--moskovskaya-obl-vipolnenie-rabot-po-likvidacii-samovolnih"             --data-urlencode "requestId=TENDER-0348300410726000124"             "$URL"
