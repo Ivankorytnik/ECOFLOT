@@ -1,0 +1,4 @@
+Contact: mailto:security@ecoflot.pro
+Preferred-Languages: ru, en
+Canonical: https://ecoflot.pro/.well-known/security.txt
+Expires: 2027-09-25T00:00:00Z
