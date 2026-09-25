@@ -1,0 +1,29 @@
+# ECOFLOT
+
+ECOFLOT provides waste removal and container services in Moscow, Odintsovo and the Moscow Region.
+
+## Main services
+- Waste removal in Odintsovo: https://ecoflot.pro/vyvoz-musora-odincovo/
+- Waste removal in Moscow: https://ecoflot.pro/vyvoz-musora-moskva/
+- Construction waste removal: https://ecoflot.pro/vyvoz-stroitelnogo-musora/
+- Waste removal after renovation: https://ecoflot.pro/vyvoz-musora-posle-remonta/
+- Bulky waste removal: https://ecoflot.pro/vyvoz-krupnogabaritnogo-musora/
+- Waste removal by Gazelle: https://ecoflot.pro/vyvoz-musora-gazelyu/
+- Container rental: https://ecoflot.pro/arenda-konteynera/
+- 8 m3 container: https://ecoflot.pro/konteyner-8m3/
+- 20 and 27 m3 containers: https://ecoflot.pro/konteynery-20-27m3/
+- Container for construction waste: https://ecoflot.pro/konteyner-dlya-stroitelnogo-musora/
+- Waste removal for business: https://ecoflot.pro/vyvoz-musora-dlya-biznesa/
+- Prices: https://ecoflot.pro/ceny/
+
+## Helpful pages
+- Services: https://ecoflot.pro/uslugi/
+- Calculator: https://ecoflot.pro/kalkulyator/
+- How to choose a container: https://ecoflot.pro/kak-vybrat-konteyner/
+- What can be removed: https://ecoflot.pro/chto-mozhno-vyvozit/
+- FAQ: https://ecoflot.pro/faq/
+- HTML sitemap: https://ecoflot.pro/karta-saita/
+
+## Contact / lead form
+Use the lead form on the home page:
+https://ecoflot.pro/#leadform
