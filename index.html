@@ -801,6 +801,23 @@ function stableLeadId(requestId,seed){
   return 'L-' + String(hash >>> 0).slice(-6).padStart(6,'0');
 }
 
+function extractLeadApplicationUrl(comment){
+  const text = String(comment || '');
+  const labeled = text.match(/(?:Ссылка|Заявка|Объявление|Сообщение):\s*(https?:\/\/[^\s]+)/i);
+  const candidate = labeled ? labeled[1] : '';
+  if(!candidate) return '';
+  const clean = candidate.replace(/[),.;]+$/g,'');
+  if(/docs\.google\.com\/spreadsheets/i.test(clean)) return '';
+  return clean;
+}
+
+function leadClientHTML(l){
+  const name = '<b>'+escHTML(l.client)+'</b>';
+  const url = String(l.applicationUrl || '');
+  if(!url) return name;
+  return '<a href="'+escHTML(url)+'" target="_blank" rel="noopener noreferrer" title="Открыть исходную заявку" style="color:inherit;text-decoration:underline;text-underline-offset:3px">'+name+'</a>';
+}
+
 function googleSheetRowsToLeads(response){
   if(!response || response.status === 'error'){
     throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
@@ -847,6 +864,7 @@ function googleSheetRowsToLeads(response){
       vehicleId:null,
       partnerId:null,
       comment,
+      applicationUrl:extractLeadApplicationUrl(comment),
       requestType,
       requestId
     };
@@ -1377,7 +1395,7 @@ function leadsHTML(){
       return '<tr>'
         + '<td><input type="checkbox" '+checked+' onchange="toggleLeadSelect(\''+escHTML(l.id)+'\',this.checked)"></td>'
         + '<td>'+escHTML(l.id)+'</td>'
-        + '<td><b>'+escHTML(l.client)+'</b></td>'
+        + '<td>'+leadClientHTML(l)+'</td>'
         + '<td>'+escHTML(l.phone)+'</td>'
         + '<td>'+escHTML(l.type)+'</td>'
         + '<td>'+escHTML(l.date)+'</td>'
