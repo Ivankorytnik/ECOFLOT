@@ -1,0 +1,33 @@
+name: ECOFLOT one-off internet leads scan
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/internet-leads-oneoff.yml"
+
+jobs:
+  scan:
+    if: contains(github.event.head_commit.message, 'One-off internet lead scan')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run one-off internet lead scan
+        env:
+          MAX_SEND: "50"
+          RECENT_DAYS: "21"
+        run: python3 scripts/internet_leads_monitor.py
+
+      - name: Save processed request IDs
+        run: |
+          if [ -n "$(git status --porcelain internet_leads_state.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add internet_leads_state.json
+            git commit -m "Update internet leads state after one-off scan"
+            git pull --rebase origin main
+            git push origin main
+          fi
