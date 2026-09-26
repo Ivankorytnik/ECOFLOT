@@ -800,6 +800,70 @@ function loadTenders(){
   }
 }
 
+const TENDER_STATUSES = ['Новый тендер','В работе','Подготовка заявки','Подано','Выигран','Проигран','Не участвуем'];
+const TENDER_OVERRIDES_KEY = 'wf_tender_status_overrides';
+const TENDER_DELETED_KEY = 'wf_tender_deleted_ids';
+
+function getTenderStatusOverrides(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(TENDER_OVERRIDES_KEY) || '{}');
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  }catch(e){ return {}; }
+}
+
+function getDeletedTenderIds(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(TENDER_DELETED_KEY) || '[]');
+    return new Set(Array.isArray(raw) ? raw : []);
+  }catch(e){ return new Set(); }
+}
+
+function applyTenderLocalState(items){
+  const overrides = getTenderStatusOverrides();
+  const deleted = getDeletedTenderIds();
+  return (items || [])
+    .filter(t=>!deleted.has(t.id))
+    .map(t=>overrides[t.id] ? {...t,status:overrides[t.id]} : t);
+}
+
+function updateTenderStatus(id,status){
+  const tender = data.tenders.find(t=>t.id===id);
+  if(!tender) return;
+  tender.status = status;
+  const overrides = getTenderStatusOverrides();
+  overrides[id] = status;
+  try{ localStorage.setItem(TENDER_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  saveTenders();
+  renderView('tenders',true);
+  showToast('Статус тендера изменён');
+}
+
+function deleteTender(id){
+  const tender = data.tenders.find(t=>t.id===id);
+  if(!tender) return;
+  if(!confirm('Удалить тендер «' + (tender.title || 'Без названия') + '» из CRM?')) return;
+  const deleted = getDeletedTenderIds();
+  deleted.add(id);
+  try{ localStorage.setItem(TENDER_DELETED_KEY, JSON.stringify([...deleted])); }catch(e){}
+  const overrides = getTenderStatusOverrides();
+  if(overrides[id]){
+    delete overrides[id];
+    try{ localStorage.setItem(TENDER_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  }
+  data.tenders = data.tenders.filter(t=>t.id!==id);
+  saveTenders();
+  renderView('tenders',true);
+  showToast('Тендер удалён');
+}
+
+function tenderStatusSelect(tender){
+  const current = String(tender.status || 'Новый тендер');
+  const statuses = TENDER_STATUSES.includes(current) ? TENDER_STATUSES : [current,...TENDER_STATUSES];
+  return '<select aria-label="Статус тендера" onchange="updateTenderStatus(\''+escHTML(tender.id)+'\',this.value)" style="min-width:150px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
+    + statuses.map(s=>'<option value="'+escHTML(s)+'" '+(s===current?'selected':'')+'>'+escHTML(s)+'</option>').join('')
+    + '</select>';
+}
+
 function tenderCommentValue(comment,label){
   const text = String(comment || '');
   const lower = text.toLowerCase();
@@ -823,7 +887,7 @@ function googleSheetRowsToTenders(response){
     throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
   }
   const rows = response.table?.rows || [];
-  return rows.map(row=>{
+  const tenders = rows.map(row=>{
     const createdAt = sheetCell(row,0);
     const title = sheetCell(row,2);
     const work = sheetCell(row,4);
@@ -855,6 +919,7 @@ function googleSheetRowsToTenders(response){
       link
     };
   }).filter(t=>t.title && t.title.toLowerCase() !== 'тест');
+  return applyTenderLocalState(tenders);
 }
 
 let tenderSyncInFlight = false;
@@ -1152,20 +1217,20 @@ function tendersHTML(){
     + '</div><div class="view-switch"><button class="btn light small" onclick="syncTendersFromGoogleSheet(true)">↻ Обновить</button></div></div>';
 
   const rows = list.map(t=>{
-    const score = t.score != null ? '<span class="pill '+(t.score>=80?'won':t.score>=60?'work':'new')+'">'+escHTML(t.score)+'/100</span>' : '—';
     const title = '<div class="tender-name"><b>'+escHTML(t.title)+'</b>'
       + (t.customer ? '<small>'+escHTML(t.customer)+'</small>' : '') + '</div>';
     const link = t.link ? '<a class="btn light small" href="'+escHTML(t.link)+'" target="_blank" rel="noopener noreferrer">Открыть</a>' : '—';
+    const remove = '<button class="btn light small" type="button" onclick="deleteTender(\''+escHTML(t.id)+'\')" style="color:#a94a4a">Удалить</button>';
     return '<tr>'
-      + '<td>'+score+'</td>'
       + '<td>'+title+'</td>'
       + '<td>'+escHTML(t.work)+'</td>'
       + '<td>'+escHTML(t.deadline)+'</td>'
       + '<td>'+escHTML(t.region)+'</td>'
       + '<td>'+escHTML(t.price || '—')+'</td>'
       + '<td>'+escHTML(t.source)+'</td>'
-      + '<td>'+escHTML(t.status)+'</td>'
+      + '<td>'+tenderStatusSelect(t)+'</td>'
       + '<td>'+link+'</td>'
+      + '<td>'+remove+'</td>'
       + '</tr>';
   }).join('');
   const empty = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Тендеров пока нет</td></tr>';
@@ -1178,7 +1243,7 @@ function tendersHTML(){
     + '</div>'
     + toolbar
     + '<div style="overflow:auto"><table class="lead-list-table tender-table"><thead><tr>'
-    + '<th>Скоринг</th><th>Тендер</th><th>Работы</th><th>Срок</th><th>Регион</th><th>Цена</th><th>Источник</th><th>Статус</th><th>Ссылка</th>'
+    + '<th>Тендер</th><th>Работы</th><th>Срок</th><th>Регион</th><th>Цена</th><th>Источник</th><th>Статус</th><th>Ссылка</th><th>Действия</th>'
     + '</tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
 }
 
