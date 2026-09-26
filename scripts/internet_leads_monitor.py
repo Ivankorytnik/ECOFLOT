@@ -503,7 +503,8 @@ def send_webhook(item):
         f"Описание: {item['description']}\n"
         f"Цена: {item['price']}\n"
         f"Дата публикации: {item['date']}\n"
-        f"Ссылка: {item['url']}"
+        f"Ссылка: {item['url']}\n"
+        f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws/export?format=xlsx"
     )
     payload = {
         "type": "Интернет-заявка",
