@@ -164,6 +164,59 @@ def relevant(title, description):
         return False
     return any(x in hay for x in POSITIVE)
 
+def infer_work_equipment(title, description):
+    hay = normalize((title or "") + " " + (description or ""))
+    if any(x in hay for x in ("контейнер 8","контейнер 20","контейнер 27","бункер")):
+        return "Контейнерный вывоз", "Бункеровоз / мультилифт"
+    if any(x in hay for x in ("грунт","котлован","земляные работы")):
+        return "Вывоз / погрузка грунта", "Самосвал / экскаватор-погрузчик"
+    if any(x in hay for x in ("металлолом","металлическ","грейфер")):
+        return "Вывоз металлолома / механизированная погрузка", "Ломовоз с КМУ и грейфером"
+    if any(x in hay for x in ("ветк","древес","доски")):
+        return "Вывоз древесины", "Ломовоз с КМУ / бункеровоз"
+    if any(x in hay for x in ("тко","контейнерная площадка","регулярный вывоз")):
+        return "Регулярный вывоз ТКО / обслуживание площадок", "Мусоровоз"
+    if any(x in hay for x in ("кгм","кго","крупногабарит","мебель","диван","шкаф","хлам")):
+        return "Вывоз КГМ / мебели и хлама", "Газель / бункеровоз / мультилифт"
+    if any(x in hay for x in ("строитель","ремонт","демонтаж","кирпич","бетон")):
+        return "Вывоз строительного мусора", "Бункеровоз / мультилифт / самосвал"
+    if any(x in hay for x in ("расчистка территории","очистка стройплощадки","погрузка мусора","погрузка отходов")):
+        return "Расчистка / погрузка и вывоз", "Экскаватор-погрузчик + самосвал / контейнер"
+    if any(x in hay for x in ("перевозка песка","перевозка щебня","сыпучие материалы")):
+        return "Перевозка сыпучих материалов", "Самосвал"
+    if any(x in hay for x in ("производственные отходы","смешанные отходы")):
+        return "Вывоз производственных / смешанных отходов", "Мультилифт / бункеровоз"
+    return "", ""
+
+def relevance_score(item):
+    work, equipment = infer_work_equipment(item.get("title",""), item.get("description",""))
+    if not work or not equipment:
+        return 0, work, equipment
+    score = 60
+    loc = normalize(item.get("location",""))
+    if "одинцов" in loc:
+        score += 20
+    elif geo_allowed(loc):
+        score += 15
+    else:
+        return 0, work, equipment
+    dt = parse_date(item.get("date",""))
+    if dt:
+        age = datetime.now(timezone.utc) - dt
+        if age <= timedelta(days=1):
+            score += 10
+        elif age <= timedelta(days=3):
+            score += 6
+        elif age <= timedelta(days=7):
+            score += 3
+    else:
+        score += 3
+    if item.get("volume") and item.get("volume") != "-":
+        score += 3
+    if item.get("price") and "договор" not in str(item.get("price")).lower():
+        score += 2
+    return min(score,100), work, equipment
+
 def priority_for(text):
     hay = text.lower()
     if any(x in hay for x in ("27 м", "20 м", "контейнер", "регуляр", "постоян", "юр. лица", "юрлица", "договор")):
