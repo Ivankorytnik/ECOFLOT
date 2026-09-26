@@ -22,24 +22,13 @@ MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
 RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "21"))
 
 NPD_SOURCES = [
-    ("Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora"),
-    ("Строительный мусор / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-stroitelnogo-musora"),
-    ("С грузчиками / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora-s-gruzchikami"),
-    ("Контейнерный вывоз / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora-konteinerom"),
-    ("Макулатура / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-makulatury"),
     ("Одинцово", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-odincovo"),
+    ("Краснознаменск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-krasnoznamensk"),
+    ("Звенигород", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-zvenigorod"),
     ("Красногорск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-krasnogorsk"),
     ("Истра", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-istra"),
-    ("Химки", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-ximki"),
-    ("Солнечногорск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-solnecnogorsk"),
-    ("Наро-Фоминск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-naro-fominsk"),
-    ("Можайск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-mozaisk"),
-    ("Подольск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-podolsk"),
     ("Апрелевка", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-aprelevka"),
-    ("Краснознаменск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-krasnoznamensk"),
-    ("Балашиха", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-balasixa"),
-    ("Звенигород", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-zvenigorod"),
-    ("Видное", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-vidnoe"),
+    ("Наро-Фоминск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-naro-fominsk"),
 ]
 
 PROFI_SOURCES = [
@@ -54,6 +43,15 @@ PROFI_SOURCES = [
 # which can create false leads. They can be added later only with a reliable public
 # order feed or authenticated API.
 YOUDO_SOURCES = []
+
+GEO_ALLOW = (
+    "одинцов", "барвиха", "горки-2", "горки 2", "горки-10", "горки 10",
+    "рублев", "рублёв", "усово", "жуковка", "николина гора", "раздоры",
+    "новоивановск", "новоивановский", "лесной городок", "внуково",
+    "кубинк", "голицыно", "большие вяземы", "малые вяземы",
+    "краснознаменск", "звенигород", "красногорск", "нахабино",
+    "истра", "дедовск", "апрелевка", "наро-фоминск", "наро фоминск"
+)
 
 POSITIVE = (
     "вывоз мусор", "вывоз строитель", "вывоз бытов", "строительн", "бытовой мусор",
@@ -148,6 +146,10 @@ def extract_volume(text):
                 return value + " мешков"
             return value + " м³"
     return ""
+
+def geo_allowed(location, title="", description=""):
+    hay = " ".join([location or "", title or "", description or ""]).lower().replace("ё", "е")
+    return any(term.replace("ё", "е") in hay for term in GEO_ALLOW)
 
 def relevant(title, description):
     hay = (title + " " + description).lower()
@@ -367,6 +369,8 @@ def parse_profi_orders(page, source_label, source_url):
         if not description:
             continue
         if not relevant(title, description):
+            continue
+        if not geo_allowed(location, title, description):
             continue
         if date_text and not profi_recent(date_text):
             continue
