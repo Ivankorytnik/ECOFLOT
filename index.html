@@ -634,6 +634,82 @@ function saveLeads(){
   try { localStorage.setItem('wf_leads', JSON.stringify(data.leads)); } catch(e){}
 }
 
+const LEAD_STATUSES = [
+  {value:'new',label:'Новая'},
+  {value:'work',label:'В работе'},
+  {value:'won',label:'Согласовано'},
+  {value:'lost',label:'Закрыто'}
+];
+const LEAD_OVERRIDES_KEY = 'wf_lead_status_overrides';
+const LEAD_DELETED_KEY = 'wf_lead_deleted_ids';
+
+function getLeadStatusOverrides(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEAD_OVERRIDES_KEY) || '{}');
+    return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+  }catch(e){ return {}; }
+}
+
+function getDeletedLeadIds(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(LEAD_DELETED_KEY) || '[]');
+    return new Set(Array.isArray(raw) ? raw : []);
+  }catch(e){ return new Set(); }
+}
+
+function applyLeadLocalState(items){
+  const overrides = getLeadStatusOverrides();
+  const deleted = getDeletedLeadIds();
+  return (items || [])
+    .filter(l=>!deleted.has(l.id))
+    .map(l=>overrides[l.id] ? {...l,status:normalizeStatus(overrides[l.id])} : l);
+}
+
+function updateLeadStatus(id,status){
+  const lead = data.leads.find(l=>l.id===id);
+  if(!lead) return;
+  const normalized = normalizeStatus(status);
+  lead.status = normalized;
+  const overrides = getLeadStatusOverrides();
+  overrides[id] = normalized;
+  try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  saveLeads();
+  renderView('leads',true);
+  showToast('Статус заявки изменён');
+}
+
+function deleteLead(id){
+  const lead = data.leads.find(l=>l.id===id);
+  if(!lead) return;
+  if(!confirm('Удалить заявку «' + (lead.client || lead.id || 'Без названия') + '» из CRM?')) return;
+
+  const deleted = getDeletedLeadIds();
+  deleted.add(id);
+  try{ localStorage.setItem(LEAD_DELETED_KEY, JSON.stringify([...deleted])); }catch(e){}
+
+  const overrides = getLeadStatusOverrides();
+  if(overrides[id]){
+    delete overrides[id];
+    try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  }
+
+  data.leads = data.leads.filter(l=>l.id!==id);
+  data.bookings = data.bookings.filter(b=>b.leadId!==id);
+  data.vehicles.forEach(v=>{ if(v.leadId===id) v.leadId=null; });
+  data.partners.forEach(p=>{ if(p.leadId===id) p.leadId=null; });
+  saveLeads();
+  if(typeof saveVehicles==='function') saveVehicles();
+  renderView('leads',true);
+  showToast('Заявка удалена');
+}
+
+function leadStatusSelect(lead){
+  const current = normalizeStatus(lead.status);
+  return '<select aria-label="Статус заявки" onchange="updateLeadStatus(\''+escHTML(lead.id)+'\',this.value)" style="min-width:135px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
+    + LEAD_STATUSES.map(s=>'<option value="'+s.value+'" '+(s.value===current?'selected':'')+'>'+s.label+'</option>').join('')
+    + '</select>';
+}
+
 function isDemoLead(lead){
   const id = String(lead?.id || '');
   const client = String(lead?.client || lead?.name || '').toLowerCase();
@@ -650,9 +726,11 @@ function loadLeads(){
     if(!raw){ data.leads = []; saveLeads(); return; }
     const stored = JSON.parse(raw);
     if(!Array.isArray(stored)){ data.leads = []; saveLeads(); return; }
-    data.leads = stored
-      .filter(x => !isDemoLead(x))
-      .map(x => ({...x,status:normalizeStatus(x.status),source:x.source || 'Не указан'}));
+    data.leads = applyLeadLocalState(
+      stored
+        .filter(x => !isDemoLead(x))
+        .map(x => ({...x,status:normalizeStatus(x.status),source:x.source || 'Не указан'}))
+    );
     saveLeads();
   }catch(e){
     data.leads = [];
@@ -694,7 +772,7 @@ function googleSheetRowsToLeads(response){
     throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
   }
   const rows = response.table?.rows || [];
-  return rows.map(row=>{
+  const leads = rows.map(row=>{
     const createdAt = sheetCell(row,0);
     const requestType = sheetCell(row,1);
     const name = sheetCell(row,2);
@@ -729,6 +807,7 @@ function googleSheetRowsToLeads(response){
       requestId
     };
   }).filter(x=>!isDemoLead(x));
+  return applyLeadLocalState(leads);
 }
 
 let sheetSyncInFlight = false;
@@ -756,8 +835,8 @@ function syncLeadsFromGoogleSheet(rerender=true){
       clearTimeout(timer);
       try{
         const sheetLeads = googleSheetRowsToLeads(response);
-        const manualLeads = data.leads.filter(l=>String(l.source || '').toLowerCase().includes('crm / вручную'));
-        data.leads = [...sheetLeads,...manualLeads].filter(l=>!isDemoLead(l));
+        const manualLeads = applyLeadLocalState(data.leads.filter(l=>String(l.source || '').toLowerCase().includes('crm / вручную')));
+        data.leads = applyLeadLocalState([...sheetLeads,...manualLeads]).filter(l=>!isDemoLead(l));
         saveLeads();
         if(rerender && $('#crm')?.classList.contains('active')){
           const currentView = localStorage.getItem('ecoflot_crm_view') || 'leads';
@@ -1158,8 +1237,15 @@ function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
 function setLeadView(mode){ leadViewMode = mode; localStorage.setItem('ecoflot_lead_view',mode); renderView('leads',true); }
 function leadCard(l){
   const phone = l.phone ? '<br>'+escHTML(l.phone) : '';
-  return '<div class="lead-card"><h4>'+escHTML(l.client)+'</h4><div class="lead-meta"><span class="source-badge">'+escHTML(l.source||'Источник не указан')+'</span></div><p>'+escHTML(l.type)+' • '+escHTML(l.date)+'<br>'+escHTML(l.address)+phone+'</p><div class="sum">'+(l.sum?Number(l.sum).toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div></div>';
+  const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
+  return '<div class="lead-card"><h4>'+escHTML(l.client)+'</h4>'
+    + '<div class="lead-meta"><span class="source-badge">'+escHTML(l.source||'Источник не указан')+'</span></div>'
+    + '<p>'+escHTML(l.type)+' • '+escHTML(l.date)+'<br>'+escHTML(l.address)+phone+'</p>'
+    + '<div class="sum">'+(l.sum?Number(l.sum).toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px">'+leadStatusSelect(l)+remove+'</div>'
+    + '</div>';
 }
+
 function leadsHTML(){
   const list = filteredLeads();
   const cols = [['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
@@ -1173,16 +1259,32 @@ function leadsHTML(){
     + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
     + '<button class="btn light small" onclick="syncLeadsFromGoogleSheet(true)">↻ Обновить</button>'
     + '<button class="btn primary small" data-crm-action="new-lead">+ Новая заявка</button></div></div>';
+
   if(leadViewMode==='rows'){
     const rows = list.map(l=>{
       const resource = l.vehicleId ? (data.vehicles.find(v=>v.id===l.vehicleId)?.name || 'Не назначен')
         : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен') : 'Не назначен';
-      const statusMap = {new:'Новая',work:'В работе',won:'Согласовано',lost:'Закрыто'};
-      return '<tr><td>'+escHTML(l.id)+'</td><td><b>'+escHTML(l.client)+'</b></td><td>'+escHTML(l.phone)+'</td><td>'+escHTML(l.type)+'</td><td>'+escHTML(l.date)+'</td><td>'+escHTML(l.address)+'</td><td>'+escHTML(l.source)+'</td><td>'+escHTML(resource)+'</td><td><span class="pill '+escHTML(l.status)+'">'+escHTML(statusMap[l.status]||l.status)+'</span></td><td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td></tr>';
+      const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
+      return '<tr>'
+        + '<td>'+escHTML(l.id)+'</td>'
+        + '<td><b>'+escHTML(l.client)+'</b></td>'
+        + '<td>'+escHTML(l.phone)+'</td>'
+        + '<td>'+escHTML(l.type)+'</td>'
+        + '<td>'+escHTML(l.date)+'</td>'
+        + '<td>'+escHTML(l.address)+'</td>'
+        + '<td>'+escHTML(l.source)+'</td>'
+        + '<td>'+escHTML(resource)+'</td>'
+        + '<td>'+leadStatusSelect(l)+'</td>'
+        + '<td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td>'
+        + '<td>'+remove+'</td>'
+        + '</tr>';
     }).join('');
-    const empty = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
-    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
+    const empty = '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
+    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr>'
+      + '<th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th><th>Действия</th>'
+      + '</tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
   }
+
   const kanban = cols.map(([status,title])=>{
     const cards = list.filter(l=>l.status===status);
     const body = cards.length ? cards.map(leadCard).join('') : '<div style="padding:16px 4px;color:var(--muted);font-size:11px">Нет заявок</div>';
