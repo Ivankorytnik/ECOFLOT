@@ -8,10 +8,6 @@ on:
   schedule:
     - cron: "0 8 * * *"
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/tender-monitor.yml"
-      - "scripts/tender_monitor.py"
 
 permissions:
   contents: write
