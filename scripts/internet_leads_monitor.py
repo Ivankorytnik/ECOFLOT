@@ -38,10 +38,17 @@ NPD_SOURCES = [
     ("Видное", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-vidnoe"),
 ]
 
-YOUDO_SOURCES = [
-    ("YouDo / грузоперевозки", "https://youdo.com/rabota/gruzoperevozki"),
-    ("YouDo / Наро-Фоминск", "https://youdo.com/rabota/gruzoperevozki/gruzchik/gor-naro-fominsk"),
+PROFI_SOURCES = [
+    ("Профи / вывоз мусора", "https://profi.ru/registration/remont/musor/"),
+    ("Профи / заказы на вывоз мусора", "https://profi.ru/rabota/remont/vyvoz-musora/"),
+    ("Профи / уборка строительного мусора", "https://profi.ru/rabota/remont/uslugi-po-uborke-stroitelnogo-musora/"),
 ]
+
+# YouDo/Yandex/Avito are intentionally not treated as automatic demand feeds here.
+# Their public pages currently mix provider profiles with service catalog content,
+# which can create false leads. They can be added later only with a reliable public
+# order feed or authenticated API.
+YOUDO_SOURCES = []
 
 POSITIVE = (
     "вывоз мусор", "вывоз строитель", "вывоз бытов", "строительн", "бытовой мусор",
@@ -269,6 +276,111 @@ def parse_npd_order(url, source_label):
         "priority": priority_for(title + " " + description),
     }
 
+def parse_profi_relative_date(text):
+    t = (text or "").strip().lower()
+    now = datetime.now(timezone.utc)
+    if t == "сегодня":
+        return now
+    if t == "вчера":
+        return now - timedelta(days=1)
+    m = re.match(r"(\d+)\s*(?:час|часа|часов)\s+назад", t)
+    if m:
+        return now - timedelta(hours=int(m.group(1)))
+    m = re.match(r"(\d+)\s*(?:минут|минуты|минуту)\s+назад", t)
+    if m:
+        return now - timedelta(minutes=int(m.group(1)))
+    months = {
+        "января":1,"февраля":2,"марта":3,"апреля":4,"мая":5,"июня":6,
+        "июля":7,"августа":8,"сентября":9,"октября":10,"ноября":11,"декабря":12,
+    }
+    m = re.match(r"(\d{1,2})\s+([а-яё]+)\s+(20\d{2})", t)
+    if m and m.group(2) in months:
+        try:
+            return datetime(int(m.group(3)), months[m.group(2)], int(m.group(1)), tzinfo=timezone.utc)
+        except ValueError:
+            return None
+    return None
+
+def profi_recent(date_text):
+    dt = parse_profi_relative_date(date_text)
+    if not dt:
+        return True
+    return datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS)
+
+def parse_profi_orders(page, source_label, source_url):
+    out = []
+    blocks = re.findall(
+        r"(?is)<h3[^>]*>(.*?)</h3>(.*?)(?=<h3[^>]*>|</main>|<footer|$)",
+        page,
+    )
+    for raw_title, raw_body in blocks:
+        title = clean(raw_title)
+        if "вывоз" not in title.lower() and "мусор" not in title.lower():
+            continue
+
+        body_lines = lines_from_html(raw_body)
+        if not any("Откликнуться" in x for x in body_lines):
+            continue
+
+        cleaned_lines = []
+        for line in body_lines:
+            if line == "Откликнуться" or line.startswith("Image:"):
+                continue
+            cleaned_lines.append(line)
+        if not cleaned_lines:
+            continue
+
+        date_text = ""
+        date_idx = None
+        for i in range(len(cleaned_lines) - 1, -1, -1):
+            line = cleaned_lines[i]
+            if (
+                re.match(r"^\d{1,2}\s+[А-Яа-яЁё]+\s+20\d{2}$", line)
+                or re.match(r"^\d+\s+(?:час|часа|часов|минут|минуты|минуту)\s+назад$", line, re.I)
+                or line.lower() in ("сегодня", "вчера")
+            ):
+                date_text = line
+                date_idx = i
+                break
+
+        if date_idx is not None and date_idx > 0:
+            location = cleaned_lines[date_idx - 1]
+            desc_lines = cleaned_lines[: max(0, date_idx - 1)]
+        else:
+            location = source_label
+            desc_lines = cleaned_lines
+
+        price = "договорная"
+        desc_clean = []
+        for line in desc_lines:
+            if re.fullmatch(r"(?:до\s*)?[\d\s\u00a0]+\s*₽", line, re.I):
+                price = line
+                continue
+            desc_clean.append(line)
+
+        description = " ".join(desc_clean).strip()
+        if not description:
+            continue
+        if not relevant(title, description):
+            continue
+        if date_text and not profi_recent(date_text):
+            continue
+
+        sig = signature(title, location, description)
+        out.append({
+            "request_id": "WEB-PROFI-" + sig[:20],
+            "title": title[:250],
+            "description": description[:1800],
+            "price": price[:120],
+            "date": date_text or "актуальная заявка",
+            "location": location[:250],
+            "volume": extract_volume(description) or "-",
+            "url": source_url,
+            "source": "Профи.ру",
+            "priority": priority_for(title + " " + description),
+        })
+    return out
+
 def extract_youdo_candidates(page, source_label, source_url):
     candidates = []
     seen = set()
@@ -331,6 +443,15 @@ def collect_candidates():
                 candidates.append(item)
         except Exception as exc:
             errors.append(f"NPD order {link}: {exc}")
+
+    for source_label, source_url in PROFI_SOURCES:
+        try:
+            page = fetch(source_url)
+            found = parse_profi_orders(page, source_label, source_url)
+            print(f"PROFI_SOURCE {source_label}: {len(found)} current order blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Profi {source_label}: {exc}")
 
     for source_label, source_url in YOUDO_SOURCES:
         try:
