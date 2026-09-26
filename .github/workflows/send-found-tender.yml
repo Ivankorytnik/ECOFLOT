@@ -1,4 +1,4 @@
-name: ECOFLOT send found tender
+name: ECOFLOT send expanded tender search
 
 on:
   push:
@@ -9,7 +9,121 @@ jobs:
   send:
     runs-on: ubuntu-latest
     steps:
-      - name: Send tender to Telegram through Apps Script
+      - name: Send tender 1
         run: |
           set -euo pipefail
-          curl -sS -L -X POST             --data-urlencode "type=Тендер"             --data-urlencode "name=Транспортировка отходов IV-V классов опасности, Апрелевка"             --data-urlencode "phone=-"             --data-urlencode "wasteType=Отходы IV-V классов опасности"             --data-urlencode "volume=-"             --data-urlencode "when=Заявки до 30.09.2026"             --data-urlencode "address=Апрелевка, Наро-Фоминский г.о., Московская область"             --data-urlencode "source=Росэлторг / B2B.House"             --data-urlencode "status=Новый тендер"             --data-urlencode "comment=Заказчик: АО СТРОЙТРАНСГАЗ. Начальная цена: 11 640 584,33 ₽. Услуги по транспортировке отходов IV-V классов опасности на полигон ООО ЭКОПЕРЕРАБОТКА. Ссылка: https://b2b.house/activepurchase/rd7e2b0a7-0998-44fa-83bc-4710aae213ae_89384045/"             --data-urlencode "requestId=TENDER-B2309261635364"             "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Оказание услуг по вывозу грунта с ВЗУ 9" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Вывоз грунта / самосвалы / экскаватор-погрузчик" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 01.10.2026 16:00" \
+            --data-urlencode "address=Московская область" \
+            --data-urlencode "source=ЕИС / РТС-тендер / B2B.House" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Заказчик: ООО «ВКС». Начальная цена: 11 500 000 ₽. Объём: 10 000 м³ грунта. Прямое соответствие парку ECOFLOT: самосвалы + экскаватор-погрузчик. Скоринг: 88/100. Ссылка: https://b2b.house/activepurchase/06cbfcfc-cfcd-4ea2-a38d-804f46e74224_496ace74/" \
+            --data-urlencode "requestId=TENDER-32616405262" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 2
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Вывоз строительного мусора" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Строительный мусор / контейнеры / мультилифты / самосвалы" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 02.10.2026 14:30" \
+            --data-urlencode "address=Москва" \
+            --data-urlencode "source=Росэлторг / B2B.House" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Заказчик: ООО «Региональное управление КМЗ». Начальная цена: 44 225 000 ₽. Прямое соответствие ECOFLOT: строительный мусор, контейнеры, мультилифты, бункеровозы, самосвалы. Скоринг: 95/100. Ссылка: https://b2b.house/activepurchase/rd3e94aed-b320-4605-8eaa-f4c5af67e014_ef424614/" \
+            --data-urlencode "requestId=TENDER-B2409261352496" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 3
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Предоставление спецтехники с экипажем (кран-манипулятор)" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=КМУ / спецтехника с экипажем" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 02.10.2026 09:00" \
+            --data-urlencode "address=Москва" \
+            --data-urlencode "source=ЕИС / РТС-тендер" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Заказчик: АО «ТРАНСИНЖСТРОЙ». Начальная цена: 30 075 340 ₽. Активная закупка КМУ с экипажем. У ECOFLOT есть ломовозы с КМУ и грейфером; требуется проверить грузоподъёмность, вылет стрелы и соответствие ТЗ. Категория: проверить. Скоринг: 79/100. Ссылка: https://energybase.ru/tender/01a0a941-a5b1-7274-ad1e-5886a5e22533" \
+            --data-urlencode "requestId=TENDER-32616377823" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 4
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Ликвидация несанкционированных свалок мусора в г.о. Электросталь" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Ликвидация свалок / погрузка / вывоз" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 02.10.2026 12:00" \
+            --data-urlencode "address=Электросталь, Московская область" \
+            --data-urlencode "source=ЕИС / Фабрикант" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Начальная цена: 1 798 200 ₽. Прямое соответствие технике ECOFLOT: экскаватор-погрузчик, самосвалы, ломовоз с грейфером, контейнерная техника. Минус: удалённость от базы в Одинцово. Скоринг: 71/100. Ссылка: https://poisktenderov.ru/item/0848600005326000179/" \
+            --data-urlencode "requestId=TENDER-0848600005326000179" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 5
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Земляные работы и благоустройство для АО «Мособлгаз» «Запад»" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Земляные работы / экскаватор-погрузчик / самосвалы" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 30.09.2026 10:00" \
+            --data-urlencode "address=Запад Московской области / Одинцовское направление" \
+            --data-urlencode "source=ЕИС / Росэлторг" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Заказчик: АО «Мособлгаз». Начальная цена: 15 000 000 ₽. В составе работ есть земляные работы и благоустройство. Для ECOFLOT интересно как возможный субподряд под экскаватор-погрузчик и самосвалы; полный контракт требует проверки профильных газовых работ. Скоринг: 76/100. Ссылка: https://poisktenderov.ru/item/223/32616399378/" \
+            --data-urlencode "requestId=TENDER-32616399378" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 6
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=СМР газопровода в д. Петровское, включая земляные работы" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Земляные работы / вывоз грунта / возможный субподряд" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 02.10.2026" \
+            --data-urlencode "address=Истринский район, Московская область" \
+            --data-urlencode "source=ЕИС / Росэлторг" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Заказчик: АО «Мособлгаз». Начальная цена: 2 370 131,83 ₽. Документация содержит отдельную смету на земляные работы, рекультивацию и восстановление покрытия. Для ECOFLOT интереснее как субподряд: экскаватор-погрузчик + самосвалы. Скоринг: 67/100. Ссылка: https://tendik.ru/tender/eis223/32616405323" \
+            --data-urlencode "requestId=TENDER-32616405323" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send tender 7
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Тендер" \
+            --data-urlencode "name=Круглогодичное содержание контейнерных площадок и территорий Можайского округа" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Контейнерные площадки / уборка / спецтехника / возможный субподряд" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=Заявки до 02.10.2026 10:00" \
+            --data-urlencode "address=Можайский муниципальный округ, Московская область" \
+            --data-urlencode "source=ЕИС / РТС-тендер" \
+            --data-urlencode "status=Новый тендер" \
+            --data-urlencode "comment=Начальная цена: 49 900 000 ₽. Комплексное содержание детских и контейнерных площадок и территорий общего пользования. Возможен интерес ECOFLOT как субподряд по вывозу, погрузке и спецтехнике. Обеспечение заявки 499 000 ₽, контракта 30%; требуется проверить состав ТЗ и опыт. Скоринг: 73/100. Ссылка: https://poisktenderov.ru/item/0848300046126000359/" \
+            --data-urlencode "requestId=TENDER-0848300046126000359" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
