@@ -605,6 +605,7 @@ let leadFilter = 'all';
 let leadViewMode = 'rows';
 let leadDateFrom = localStorage.getItem('ecoflot_lead_date_from') || '';
 let leadDateTo = localStorage.getItem('ecoflot_lead_date_to') || '';
+let leadTypeFilter = localStorage.getItem('ecoflot_lead_type_filter') || 'all';
 let leadSelectedIds = new Set();
 let tenderFilter = 'all';
 
@@ -1303,9 +1304,15 @@ function filteredLeads(){
   if(leadFilter==='site') list = list.filter(l=>String(l.source||'').toLowerCase().includes('сайт') || String(l.source||'').toLowerCase().includes('utm'));
   if(leadFilter==='manual') list = list.filter(l=>String(l.source||'').toLowerCase().includes('crm'));
   if(leadFilter==='new') list = list.filter(l=>l.status==='new');
+  if(leadTypeFilter!=='all') list = list.filter(l=>String(l.type||'')===leadTypeFilter);
   return list.filter(leadMatchesDate);
 }
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
+function setLeadTypeFilter(value){
+  leadTypeFilter = value || 'all';
+  localStorage.setItem('ecoflot_lead_type_filter',leadTypeFilter);
+  renderView('leads',true);
+}
 function setLeadView(){ leadViewMode = 'rows'; localStorage.setItem('ecoflot_lead_view','rows'); renderView('leads',true); }
 function setLeadDateRange(from,to){
   leadDateFrom = from || '';
@@ -1341,6 +1348,8 @@ function leadsHTML(){
   const visibleIds = list.map(l=>l.id);
   const allVisibleSelected = visibleIds.length>0 && visibleIds.every(id=>leadSelectedIds.has(id));
   const selectedCount = [...leadSelectedIds].filter(id=>data.leads.some(l=>l.id===id)).length;
+  const leadTypes = [...new Set(data.leads.map(l=>String(l.type||'').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'));
+  const typeOptions = '<option value="all">Все типы</option>' + leadTypes.map(type=>'<option value="'+escHTML(type)+'" '+(leadTypeFilter===type?'selected':'')+'>'+escHTML(type)+'</option>').join('');
   const toolbar = '<div class="toolbar" style="align-items:flex-end;gap:12px;flex-wrap:wrap"><div class="filters">'
     + '<button class="chip '+(leadFilter==='all'?'active':'')+'" onclick="setLeadFilter(\'all\')">Все</button>'
     + '<button class="chip '+(leadFilter==='new'?'active':'')+'" onclick="setLeadFilter(\'new\')">Новые</button>'
@@ -1348,6 +1357,7 @@ function leadsHTML(){
     + '<button class="chip '+(leadFilter==='manual'?'active':'')+'" onclick="setLeadFilter(\'manual\')">Вручную</button>'
     + '</div>'
     + '<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">'
+    + '<label style="font-size:12px;color:var(--muted)">Тип<br><select onchange="setLeadTypeFilter(this.value)" style="min-width:190px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'+typeOptions+'</select></label>'
     + '<label style="font-size:12px;color:var(--muted)">С<br><input type="date" value="'+escHTML(leadDateFrom)+'" onchange="setLeadDateRange(this.value,leadDateTo)" style="padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff"></label>'
     + '<label style="font-size:12px;color:var(--muted)">По<br><input type="date" value="'+escHTML(leadDateTo)+'" onchange="setLeadDateRange(leadDateFrom,this.value)" style="padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff"></label>'
     + '<button class="btn light small" type="button" onclick="clearLeadDateRange()">Сбросить даты</button>'
