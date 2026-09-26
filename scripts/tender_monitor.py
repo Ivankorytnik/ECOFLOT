@@ -208,6 +208,36 @@ def send_webhook(entry):
         except json.JSONDecodeError:
             pass
 
+def send_no_results_message():
+    payload = {
+        "type": "Тендеры",
+        "name": "Поиск тендеров ECOFLOT",
+        "phone": "-",
+        "wasteType": "Мониторинг тендеров",
+        "volume": "-",
+        "when": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "address": "Одинцово / Москва / Московская область",
+        "source": "ECOFLOT tender monitor",
+        "status": "Поиск завершен",
+        "comment": "Поиск проведён, новых тендеров не обнаружено",
+        "requestId": "TENDER-CHECK-" + datetime.now(timezone.utc).strftime("%Y%m%d"),
+    }
+    data = urllib.parse.urlencode(payload).encode("utf-8")
+    req = urllib.request.Request(
+        WEBHOOK, data=data, method="POST",
+        headers={"User-Agent": "ECOFLOT-Tender-Monitor/2.0"},
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        body = r.read().decode("utf-8", "replace")
+        if not (200 <= r.status < 300):
+            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
+        try:
+            resp = json.loads(body)
+            if not resp.get("ok"):
+                raise RuntimeError(f"Webhook error: {body[:300]}")
+        except json.JSONDecodeError:
+            pass
+
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
@@ -240,6 +270,13 @@ def main():
             print("SENT:", entry["id"], entry["title"][:140], entry["price"], entry["deadline"])
         except Exception as exc:
             errors.append(f"send {entry['id']}: {exc}")
+
+    if sent_count == 0 and len(errors) < len(SOURCES):
+        try:
+            send_no_results_message()
+            print("NO_RESULTS_NOTICE_SENT")
+        except Exception as exc:
+            errors.append(f"send no-results notice: {exc}")
 
     save_state(state)
     print(f"Found new active relevant: {len(candidates)}, sent: {sent_count}, errors: {len(errors)}")
