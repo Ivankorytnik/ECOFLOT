@@ -568,6 +568,12 @@ def send_webhook(item):
         f"Ссылка: {item['url']}\n"
         f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws/export?format=xlsx"
     )
+    action_lines = [
+        comment,
+        f"▶ В работу: https://ecoflot.pro/?botAction=lead_work&rid={urllib.parse.quote(item['request_id'])}",
+        f"✖ Не подходит: https://ecoflot.pro/?botAction=lead_lost&rid={urllib.parse.quote(item['request_id'])}",
+        "📂 Открыть CRM: https://ecoflot.pro/#crm/leads",
+    ]
     payload = {
         "type": "Интернет-заявка",
         "name": item["title"],
@@ -578,7 +584,7 @@ def send_webhook(item):
         "address": item["location"],
         "source": item["source"],
         "status": "Новая",
-        "comment": comment[:3500],
+        "comment": "\n".join(action_lines)[:3500],
         "requestId": item["request_id"],
     }
     data = urllib.parse.urlencode(payload).encode("utf-8")
