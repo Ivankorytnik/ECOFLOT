@@ -607,7 +607,13 @@ def main():
     )
 
     candidates, errors = collect_candidates()
-    candidates.sort(key=lambda x: (x["priority"] != "Высокий", x["priority"] != "Средний", x["source"], x["title"]))
+    for item in candidates:
+        score, work, equipment = relevance_score(item)
+        item["score"] = score
+        item["work"] = work
+        item["equipment"] = equipment
+    candidates = [x for x in candidates if x.get("score",0) >= MIN_RELEVANCE_SCORE]
+    candidates.sort(key=lambda x: (-x.get("score",0), x["source"], x["title"]))
 
     new_items = []
     local_seen = set()
