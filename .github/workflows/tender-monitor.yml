@@ -1,6 +1,7 @@
 # manual odintsovo scan
 # manual active scan
 # manual run trigger
+# forced telegram/table sync 2026-09-26
 name: ECOFLOT tender monitor
 
 on:
