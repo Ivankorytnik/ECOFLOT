@@ -7,6 +7,7 @@ import re
 import sys
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -64,7 +65,7 @@ EXCLUDE = (
     "аккумулятор", "шины", "пищев", "реактив",
 )
 
-def fetch(url: str, timeout=30) -> str:
+def fetch(url: str, timeout=8) -> str:
     req = urllib.request.Request(
         url,
         headers={
@@ -430,32 +431,53 @@ def collect_candidates():
     errors = []
     npd_links = {}
 
-    for source_label, source_url in NPD_SOURCES:
-        try:
-            page = fetch(source_url)
-            links = npd_listing_links(page)
-            print(f"NPD_SOURCE {source_label}: {len(links)} order links")
-            for link in links:
-                npd_links.setdefault(link, source_label)
-        except Exception as exc:
-            errors.append(f"NPD listing {source_label}: {exc}")
+    def fetch_npd_listing(source):
+        source_label, source_url = source
+        page = fetch(source_url)
+        return source_label, npd_listing_links(page)
 
-    for link, source_label in npd_links.items():
-        try:
-            item = parse_npd_order(link, source_label)
-            if item:
-                candidates.append(item)
-        except Exception as exc:
-            errors.append(f"NPD order {link}: {exc}")
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(fetch_npd_listing, src): src for src in NPD_SOURCES}
+        for future in as_completed(futures):
+            source_label, source_url = futures[future]
+            try:
+                label, links = future.result()
+                print(f"NPD_SOURCE {label}: {len(links)} order links")
+                for link in links:
+                    npd_links.setdefault(link, label)
+            except Exception as exc:
+                errors.append(f"NPD listing {source_label}: {exc}")
 
-    for source_label, source_url in PROFI_SOURCES:
-        try:
-            page = fetch(source_url)
-            found = parse_profi_orders(page, source_label, source_url)
-            print(f"PROFI_SOURCE {source_label}: {len(found)} current order blocks")
-            candidates.extend(found)
-        except Exception as exc:
-            errors.append(f"Profi {source_label}: {exc}")
+    def fetch_npd_order(args):
+        link, source_label = args
+        return link, parse_npd_order(link, source_label)
+
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        futures = {pool.submit(fetch_npd_order, item): item for item in npd_links.items()}
+        for future in as_completed(futures):
+            link, source_label = futures[future]
+            try:
+                _, item = future.result()
+                if item:
+                    candidates.append(item)
+            except Exception as exc:
+                errors.append(f"NPD order {link}: {exc}")
+
+    def fetch_profi(source):
+        source_label, source_url = source
+        page = fetch(source_url)
+        return source_label, parse_profi_orders(page, source_label, source_url)
+
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        futures = {pool.submit(fetch_profi, src): src for src in PROFI_SOURCES}
+        for future in as_completed(futures):
+            source_label, source_url = futures[future]
+            try:
+                label, found = future.result()
+                print(f"PROFI_SOURCE {label}: {len(found)} current order blocks")
+                candidates.extend(found)
+            except Exception as exc:
+                errors.append(f"Profi {source_label}: {exc}")
 
     for source_label, source_url in YOUDO_SOURCES:
         try:
