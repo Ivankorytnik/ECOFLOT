@@ -198,6 +198,101 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   background-repeat:no-repeat!important;
   background-color:#dfe8df;
 }
+</style><style id="ecoflot-lead-form-balance">
+@media (min-width:981px){
+  .hero{
+    grid-template-columns:minmax(0,.92fr) minmax(540px,1.08fr);
+    gap:34px;
+  }
+}
+.hero-side{gap:12px}
+.hero-visual.hero-photo-replacement{
+  height:260px!important;
+  aspect-ratio:auto!important;
+  background-position:center 52%!important;
+}
+.hero-card{
+  padding:18px 18px 16px;
+  border-radius:20px;
+}
+.hero-card .form-head{
+  margin-bottom:11px;
+}
+.hero-card .form-head h3{
+  font-size:18px;
+}
+.hero-card .lead-form-compact{
+  display:grid;
+  grid-template-columns:minmax(0,2fr) minmax(110px,1fr) minmax(135px,1fr);
+  gap:9px 12px;
+  align-items:end;
+}
+.hero-card .lead-field{
+  margin:0;
+  min-width:0;
+  font-size:10px;
+  line-height:1.2;
+}
+.hero-card .lead-field input,
+.hero-card .lead-field select,
+.hero-card .lead-field textarea{
+  margin-top:5px;
+  padding:9px 10px;
+  min-height:38px;
+  border-radius:9px;
+  font-size:12px;
+}
+.hero-card .field-waste{grid-column:1}
+.hero-card .field-volume{grid-column:2}
+.hero-card .field-when{grid-column:3}
+.hero-card .field-address{grid-column:1}
+.hero-card .field-name{grid-column:2}
+.hero-card .field-phone{grid-column:3}
+.hero-card .field-comment{grid-column:1/-1}
+.hero-card .field-comment textarea{
+  min-height:58px;
+  height:58px;
+  resize:vertical;
+}
+.hero-card .lead-submit{
+  grid-column:1/-1;
+  min-height:40px;
+  padding:9px 16px;
+  margin-top:1px;
+}
+.hero-card .form-status,
+.hero-card .form-success{
+  grid-column:1/-1;
+  margin-top:0;
+}
+@media (max-width:980px){
+  .hero-side{grid-template-columns:1fr!important}
+  .hero-card .lead-form-compact{
+    grid-template-columns:minmax(0,2fr) minmax(110px,1fr) minmax(135px,1fr);
+  }
+}
+@media (max-width:680px){
+  .hero-card .lead-form-compact{grid-template-columns:1fr 1fr}
+  .hero-card .field-waste,
+  .hero-card .field-address,
+  .hero-card .field-comment,
+  .hero-card .lead-submit,
+  .hero-card .form-status,
+  .hero-card .form-success{grid-column:1/-1}
+  .hero-card .field-volume,.hero-card .field-name{grid-column:1}
+  .hero-card .field-when,.hero-card .field-phone{grid-column:2}
+}
+@media (max-width:480px){
+  .hero-card .lead-form-compact{grid-template-columns:1fr}
+  .hero-card .lead-field,
+  .hero-card .field-waste,
+  .hero-card .field-volume,
+  .hero-card .field-when,
+  .hero-card .field-address,
+  .hero-card .field-name,
+  .hero-card .field-phone,
+  .hero-card .field-comment{grid-column:1}
+}
 </style></head>
 <body>
   <div id="landing" class="page active">
@@ -234,8 +329,8 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
           <div class="form-head">
             <h3>Отправить заявку</h3>
           </div>
-          <form id="leadForm" onsubmit="return false;">
-            <label>Что вывозим
+          <form id="leadForm" class="lead-form-compact" onsubmit="return false;">
+            <label class="lead-field field-waste">Что вывозим
               <select id="wasteType" required>
                 <option value="Строительный мусор">Строительный мусор</option>
                 <option value="Мебель и хлам">Мебель и хлам</option>
@@ -244,39 +339,36 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
                 <option value="Смешанные отходы">Смешанные отходы</option>
               </select>
             </label>
-            <div class="form-grid">
-              <label>Объём
-                <select id="volume" required>
-                  <option>Газель</option>
-                  <option selected>8 м³</option>
-                  <option>20 м³</option>
-                  <option>27 м³</option>
-                </select>
-              </label>
-              <label>Когда
-                <select id="when" required>
-                  <option>Сегодня</option>
-                  <option>Завтра</option>
-                  <option>Выбрать дату</option>
-                </select>
-              </label>
-            </div>
-            <label>Адрес подачи
+            <label class="lead-field field-volume">Объём
+              <select id="volume" required>
+                <option>Газель</option>
+                <option selected>8 м³</option>
+                <option>20 м³</option>
+                <option>27 м³</option>
+              </select>
+            </label>
+            <label class="lead-field field-when">Когда
+              <select id="when" required>
+                <option>Сегодня</option>
+                <option>Завтра</option>
+                <option>Выбрать дату</option>
+              </select>
+            </label>
+            <label class="lead-field field-address">Адрес подачи
               <input id="address" type="text" placeholder="Одинцово, улица, дом" required />
             </label>
-            <div class="form-grid">
-              <label>Имя
-                <input id="name" type="text" placeholder="Иван" required />
-              </label>
-              <label>Телефон
-                <input id="phone" type="tel" placeholder="+7 999 000-00-00" required />
-              </label>
-            </div>
-            <label>Комментарий
-      <textarea id="comment" rows="3" placeholder="Например: нужен грузчик, есть ограничение по въезду, мусор на 4 этаже"></textarea>
-    </label>
-    <button class="btn primary full" type="button" id="leadSubmitBtn" onclick="submitLeadForm()">Отправить заявку</button><div id="leadStatus" class="form-status"></div><div id="leadSuccess" class="form-success hidden">Заявка отправлена</div>
-            
+            <label class="lead-field field-name">Имя
+              <input id="name" type="text" placeholder="Иван" required />
+            </label>
+            <label class="lead-field field-phone">Телефон
+              <input id="phone" type="tel" placeholder="+7 999 000-00-00" required />
+            </label>
+            <label class="lead-field field-comment">Комментарий
+              <textarea id="comment" rows="2" placeholder="Например: нужен грузчик, ограничение по въезду, мусор на 4 этаже"></textarea>
+            </label>
+            <button class="btn primary full lead-submit" type="button" id="leadSubmitBtn" onclick="submitLeadForm()">Отправить заявку</button>
+            <div id="leadStatus" class="form-status"></div>
+            <div id="leadSuccess" class="form-success hidden">Заявка отправлена</div>
           </form>
         </div>
         </div>
