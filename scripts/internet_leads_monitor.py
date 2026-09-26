@@ -559,7 +559,9 @@ def collect_candidates():
 
 def send_webhook(item):
     comment = (
-        f"Приоритет: {item['priority']}\n"
+        f"Релевантность: {item.get('score',0)}/100\n"
+        f"Работа ECOFLOT: {item.get('work','')}\n"
+        f"Техника: {item.get('equipment','')}\n"
         f"Описание: {item['description']}\n"
         f"Цена: {item['price']}\n"
         f"Дата публикации: {item['date']}\n"
@@ -570,7 +572,7 @@ def send_webhook(item):
         "type": "Интернет-заявка",
         "name": item["title"],
         "phone": "-",
-        "wasteType": "Вывоз мусора / отходов",
+        "wasteType": item.get("work") or "Работа ECOFLOT",
         "volume": item["volume"],
         "when": item["date"],
         "address": item["location"],
