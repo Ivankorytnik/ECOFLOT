@@ -534,7 +534,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
       <h2>Вход в CRM</h2>
       <p>Введите пароль доступа.</p>
-      <form id="crmPasswordForm">
+      <form id="crmPasswordForm" onsubmit="event.preventDefault();var p=document.getElementById('crmPasswordInput');var e=document.getElementById('crmPasswordError');if(p&&p.value.trim()===CRM_PASSWORD){sessionStorage.setItem('ecoflot_crm_unlocked','1');document.getElementById('crmPasswordModal')?.classList.add('hidden');var v=localStorage.getItem('ecoflot_pending_crm_view')||localStorage.getItem('ecoflot_crm_view')||'dashboard';localStorage.removeItem('ecoflot_pending_crm_view');openCRM(v);}else if(e){e.textContent='Неверный пароль';}return false;">
         <label>Пароль<input id="crmPasswordInput" type="password" inputmode="numeric" autocomplete="current-password" required /></label>
         <div id="crmPasswordError" class="form-status error"></div>
         <button class="btn primary full" type="submit">Войти</button>
