@@ -23,6 +23,9 @@ RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "21"))
 NPD_SOURCES = [
     ("Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora"),
     ("Строительный мусор / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-stroitelnogo-musora"),
+    ("С грузчиками / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora-s-gruzchikami"),
+    ("Контейнерный вывоз / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora-konteinerom"),
+    ("Макулатура / Москва", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-makulatury"),
     ("Одинцово", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-odincovo"),
     ("Красногорск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-krasnogorsk"),
     ("Истра", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-istra"),
@@ -41,6 +44,7 @@ NPD_SOURCES = [
 PROFI_SOURCES = [
     ("Профи / вывоз мусора", "https://profi.ru/registration/remont/musor/"),
     ("Профи / заказы на вывоз мусора", "https://profi.ru/rabota/remont/vyvoz-musora/"),
+    ("Профи / вывоз с грузчиками", "https://profi.ru/rabota/remont/uslugi-po-vyvozu-musora-s-gruzchikami/"),
     ("Профи / уборка строительного мусора", "https://profi.ru/rabota/remont/uslugi-po-uborke-stroitelnogo-musora/"),
 ]
 
