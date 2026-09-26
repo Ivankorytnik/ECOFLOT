@@ -16,6 +16,8 @@ WEBHOOK = os.environ.get(
 )
 STATE_PATH = Path("tender_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "100"))
+SHEET_ID = "1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws"
+SHEET_NAME = "Заявки"
 
 SOURCES = [
     ("Московская область / отходы", "https://gentender.ru/tenders/utilizaciya-othodov/moskovskaya-oblast"),
@@ -95,6 +97,38 @@ def fetch(url: str, timeout=30) -> str:
 def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
     return re.sub(r"\s+", " ", s).strip()
+
+def request_id_for(entry) -> str:
+    return "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", entry["id"])[:80]
+
+def load_sheet_request_ids():
+    params = urllib.parse.urlencode({
+        "sheet": SHEET_NAME,
+        "headers": "1",
+        "tqx": "out:json",
+        "tq": "select L where L is not null",
+    })
+    url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?{params}"
+    try:
+        raw = fetch(url)
+        m = re.search(r"google\.visualization\.Query\.setResponse\((.*)\);?\s*$", raw, re.S)
+        payload = json.loads(m.group(1) if m else raw)
+        ids = set()
+        for row in payload.get("table", {}).get("rows", []):
+            cells = row.get("c") or []
+            if not cells or not cells[0]:
+                continue
+            cell = cells[0]
+            value = cell.get("v")
+            if value is None:
+                value = cell.get("f")
+            value = str(value or "").strip()
+            if value:
+                ids.add(value)
+        return ids, True
+    except Exception as exc:
+        print("SHEET_DEDUPE_WARNING:", exc, file=sys.stderr)
+        return set(), False
 
 def extract_cards(page: str, source_region: str):
     out = []
@@ -190,7 +224,7 @@ def send_webhook(entry):
         "source": "GenTender / данные ЕИС",
         "status": "Новый тендер",
         "comment": comment[:1800],
-        "requestId": "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", entry["id"])[:80],
+        "requestId": request_id_for(entry),
     }
     data = urllib.parse.urlencode(payload).encode("utf-8")
     req = urllib.request.Request(
@@ -241,6 +275,8 @@ def send_no_results_message():
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
+    sheet_request_ids, sheet_ok = load_sheet_request_ids()
+    print(f"SHEET_DEDUPE: {'ok' if sheet_ok else 'fallback-to-state'}, ids={len(sheet_request_ids)}")
     candidates = []
     seen = set()
     errors = []
@@ -254,6 +290,9 @@ def main():
                 if not relevant(entry):
                     continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+                request_id = request_id_for(entry)
+                if request_id in sheet_request_ids:
+                    continue
                 if entry["id"] in KNOWN_ALREADY_SENT or key in sent or key in seen:
                     continue
                 seen.add(key)
@@ -266,6 +305,7 @@ def main():
         try:
             send_webhook(entry)
             sent[key] = datetime.now(timezone.utc).isoformat()
+            sheet_request_ids.add(request_id_for(entry))
             sent_count += 1
             print("SENT:", entry["id"], entry["title"][:140], entry["price"], entry["deadline"])
         except Exception as exc:
