@@ -205,13 +205,20 @@ def save_state(state):
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
 def send_webhook(entry):
+    action_rid = urllib.parse.quote(request_id_for(entry))
     comment = (
         f"Заказчик: {entry['customer'] or 'не указан'}\n"
         f"Цена: {entry['price'] or 'не указана'}\n"
         f"Закон/тип: {entry['law'] or 'не указан'}\n"
         f"Регион: {entry['region']}\n"
         f"Срок: {entry['deadline'] or 'не указан'}\n"
-        f"Ссылка: {entry['link']}"
+        f"Ссылка: {entry['link']}\n"
+        f"🔗 Открыть источник: {entry['link']}\n"
+        f"▶ В работу: https://ecoflot.pro/?botAction=tender_work&rid={action_rid}\n"
+        f"⏸ Отложить: https://ecoflot.pro/?botAction=tender_defer&rid={action_rid}\n"
+        f"✖ Не участвуем: https://ecoflot.pro/?botAction=tender_skip&rid={action_rid}\n"
+        f"⏰ Напомнить за 2 дня: https://ecoflot.pro/?botAction=tender_remind&rid={action_rid}\n"
+        f"📂 Открыть CRM: https://ecoflot.pro/#crm/tenders"
     )
     payload = {
         "type": "Тендер",
