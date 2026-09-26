@@ -557,17 +557,13 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 const today = new Date();
 const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec';
+const ECOFLOT_SHEET_ID = '1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws';
+const ECOFLOT_SHEET_NAME = 'Заявки';
 const CRM_PASSWORD = '3649';
 
 const data = {
-  clients:[
-    {id:'C-001',name:'ООО РемСтрой',type:'B2B',phone:'+7 999 111-22-33'},
-    {id:'C-002',name:'Анна Петрова',type:'B2C',phone:'+7 999 444-55-66'}
-  ],
-  leads:[
-    {id:'L-1001',clientId:'C-001',client:'ООО РемСтрой',phone:'+7 999 111-22-33',type:'8 м³',address:'Одинцово, ул. Маршала Жукова, 12',date:'Сегодня 16:00',sum:11500,status:'work',source:'Сайт / форма заявки',vehicleId:'V-001',partnerId:null},
-    {id:'L-1002',clientId:'C-002',client:'Анна Петрова',phone:'+7 999 444-55-66',type:'Газель',address:'Новая Трёхгорка, Кутузовская, 3',date:'Сегодня 18:00',sum:7800,status:'new',source:'Сайт / обратный звонок',vehicleId:null,partnerId:'P-001'}
-  ],
+  clients:[],
+  leads:[],
   vehicles:[
     {id:'V-001',name:'Мультилифт №1',type:'Мультилифт / крюковой погрузчик',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'Сменные контейнеры, строймусор, демонтаж, грунт, КГО',photo:'/assets/fleet/ecoflot-multilift.webp?v=20260926-4'},
     {id:'V-002',name:'Мультилифт №2',type:'Мультилифт / крюковой погрузчик',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'Сменные контейнеры, строймусор, демонтаж, грунт, КГО',photo:'/assets/fleet/ecoflot-multilift.webp?v=20260926-4'},
@@ -582,14 +578,8 @@ const data = {
     {id:'V-011',name:'Мусоровоз',type:'Мусоровоз с задней загрузкой',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'ТКО, контейнерные площадки, регулярный вывоз',photo:'/assets/fleet/ecoflot-garbage.webp?v=20260926-4'},
     {id:'V-012',name:'Экскаватор-погрузчик',type:'Экскаватор-погрузчик',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'Погрузка мусора и грунта, расчистка, земляные работы',photo:'/assets/fleet/ecoflot-excavator.webp?v=20260926-4'}
   ],
-  partners:[
-    {id:'P-001',name:'ИП Савельев',type:'Газель / 8 м³',rate:'от 8 900 ₽',rating:'4.8',leadId:'L-1002'},
-    {id:'P-002',name:'ООО ТрансЭко',type:'20 / 27 м³',rate:'от 21 500 ₽',rating:'4.9',leadId:null}
-  ],
-  bookings:[
-    {id:'R-001',leadId:'L-1001',resourceId:'V-001',resourceType:'own',time:'16:00',dayOffset:0},
-    {id:'R-002',leadId:'L-1002',resourceId:'P-001',resourceType:'partner',time:'18:00',dayOffset:0}
-  ]
+  partners:[],
+  bookings:[]
 };
 
 const views = {
@@ -634,16 +624,155 @@ function saveLeads(){
   try { localStorage.setItem('wf_leads', JSON.stringify(data.leads)); } catch(e){}
 }
 
+function isDemoLead(lead){
+  const id = String(lead?.id || '');
+  const client = String(lead?.client || lead?.name || '').toLowerCase();
+  const phone = String(lead?.phone || '').replace(/\D/g,'');
+  return ['L-1001','L-1002'].includes(id)
+    || client.includes('ремстрой')
+    || client.includes('анна петрова')
+    || ['79991112233','79994445566'].includes(phone);
+}
+
 function loadLeads(){
   try{
     const raw = localStorage.getItem('wf_leads');
-    if(!raw){ saveLeads(); return; }
+    if(!raw){ data.leads = []; saveLeads(); return; }
     const stored = JSON.parse(raw);
-    if(!Array.isArray(stored) || !stored.length){ saveLeads(); return; }
-    const legacy = stored.some(x => String(x.id || '').startsWith('L-104'));
-    if(legacy){ saveLeads(); return; }
-    data.leads = stored.map(x => ({...x,status:normalizeStatus(x.status),source:x.source || 'Не указан'}));
-  }catch(e){ saveLeads(); }
+    if(!Array.isArray(stored)){ data.leads = []; saveLeads(); return; }
+    data.leads = stored
+      .filter(x => !isDemoLead(x))
+      .map(x => ({...x,status:normalizeStatus(x.status),source:x.source || 'Не указан'}));
+    saveLeads();
+  }catch(e){
+    data.leads = [];
+    saveLeads();
+  }
+}
+
+function escHTML(value){
+  return String(value == null ? '' : value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+function sheetCell(row,index){
+  const cell = row?.c?.[index];
+  if(!cell) return '';
+  if(cell.f != null) return String(cell.f);
+  if(cell.v != null) return String(cell.v);
+  return '';
+}
+
+function stableLeadId(requestId,seed){
+  const digits = String(requestId || '').replace(/\D/g,'');
+  if(digits) return 'L-' + digits.slice(-6).padStart(6,'0');
+  let hash = 2166136261;
+  const text = String(seed || '');
+  for(let i=0;i<text.length;i++){
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash,16777619);
+  }
+  return 'L-' + String(hash >>> 0).slice(-6).padStart(6,'0');
+}
+
+function googleSheetRowsToLeads(response){
+  if(!response || response.status === 'error'){
+    throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
+  }
+  const rows = response.table?.rows || [];
+  return rows.map(row=>{
+    const createdAt = sheetCell(row,0);
+    const requestType = sheetCell(row,1);
+    const name = sheetCell(row,2);
+    const phone = sheetCell(row,3);
+    const wasteType = sheetCell(row,4);
+    const volume = sheetCell(row,5);
+    const when = sheetCell(row,6);
+    const address = sheetCell(row,7);
+    const source = sheetCell(row,8) || 'Сайт ECOFLOT';
+    const status = sheetCell(row,9) || 'Новая';
+    const comment = sheetCell(row,10);
+    const requestId = sheetCell(row,11);
+    const callback = requestType.toLowerCase().includes('обратный звонок');
+    const client = name || (callback ? 'Обратный звонок' : phone || 'Новая заявка');
+    const type = callback ? 'Обратный звонок' : (volume || wasteType || 'ФОС');
+    return {
+      id:stableLeadId(requestId,[createdAt,requestType,name,phone,address].join('|')),
+      clientId:null,
+      client,
+      phone,
+      type,
+      address:address || 'Адрес не указан',
+      date:when || createdAt || 'Новая заявка',
+      createdAt,
+      sum:0,
+      status:normalizeStatus(status),
+      source,
+      vehicleId:null,
+      partnerId:null,
+      comment,
+      requestType,
+      requestId
+    };
+  }).filter(x=>!isDemoLead(x));
+}
+
+let sheetSyncInFlight = false;
+
+function syncLeadsFromGoogleSheet(rerender=true){
+  if(sheetSyncInFlight) return Promise.resolve(false);
+  sheetSyncInFlight = true;
+  return new Promise(resolve=>{
+    const callbackName = 'ecoflotSheetResponse_' + Date.now();
+    const script = document.createElement('script');
+    let finished = false;
+    const finish = ok=>{
+      if(finished) return;
+      finished = true;
+      sheetSyncInFlight = false;
+      try{ delete window[callbackName]; }catch(e){}
+      script.remove();
+      resolve(ok);
+    };
+    const timer = setTimeout(()=>{
+      console.warn('ECOFLOT: Google Sheets sync timeout');
+      finish(false);
+    },10000);
+    window[callbackName] = response=>{
+      clearTimeout(timer);
+      try{
+        const sheetLeads = googleSheetRowsToLeads(response);
+        const manualLeads = data.leads.filter(l=>String(l.source || '').toLowerCase().includes('crm / вручную'));
+        data.leads = [...sheetLeads,...manualLeads].filter(l=>!isDemoLead(l));
+        saveLeads();
+        if(rerender && $('#crm')?.classList.contains('active')){
+          const currentView = localStorage.getItem('ecoflot_crm_view') || 'leads';
+          renderView(currentView,true);
+        }
+        finish(true);
+      }catch(e){
+        console.error('ECOFLOT Google Sheets sync:',e);
+        finish(false);
+      }
+    };
+    script.onerror = ()=>{
+      clearTimeout(timer);
+      console.error('ECOFLOT: не удалось загрузить Google Sheets');
+      finish(false);
+    };
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок') order by A desc";
+    const tqx = 'out:json;responseHandler:' + callbackName;
+    script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
+      + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
+      + '&headers=1&tqx=' + encodeURIComponent(tqx)
+      + '&tq=' + encodeURIComponent(tq)
+      + '&_=' + Date.now();
+    document.head.appendChild(script);
+  });
 }
 
 function addLeadToCRM(lead){
@@ -753,9 +882,10 @@ function openCRM(view){
   localStorage.setItem('ecoflot_crm_view',target);
   $('#landing')?.classList.remove('active');
   $('#crm')?.classList.add('active');
-  if($('#managerEmail')) $('#managerEmail').textContent = 'Демо-режим';
+  if($('#managerEmail')) $('#managerEmail').textContent = 'Google Sheets · синхронизация';
   if($('#todayChip')) $('#todayChip').textContent = today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView(target, true);
+  syncLeadsFromGoogleSheet(true);
   setCrmHash(target);
 }
 
@@ -801,23 +931,18 @@ function activity(a,b){
 }
 
 function dashboardHTML(){
-  const revenue = data.leads.reduce((s,l)=>s+(Number(l.sum)||0),0);
-  const free = data.vehicles.filter(v=>v.state==='Свободен').length;
-  const rows = data.bookings.map(b=>{
-    const l = data.leads.find(x=>x.id===b.leadId);
-    const r = b.resourceType==='own' ? data.vehicles.find(x=>x.id===b.resourceId) : data.partners.find(x=>x.id===b.resourceId);
-    return '<tr><td>'+b.time+'</td><td>'+(l?.client||'')+'</td><td>'+(r?.name||'')+'</td><td>'+(l?.address||'')+'</td><td><span class="pill work">'+(b.resourceType==='own'?'свой флот':'партнёр')+'</span></td></tr>';
-  }).join('');
+  const newCount = data.leads.filter(x=>x.status==='new').length;
+  const formCount = data.leads.filter(x=>String(x.requestType || x.source || '').toLowerCase().includes('фос') || String(x.source || '').toLowerCase().includes('форма заявки')).length;
+  const callbackCount = data.leads.filter(x=>String(x.requestType || x.type || '').toLowerCase().includes('обратный звонок')).length;
+  const rows = data.leads.slice(0,8).map(l=>'<tr>'
+    + '<td>'+escHTML(l.id)+'</td><td><b>'+escHTML(l.client)+'</b></td><td>'+escHTML(l.phone)+'</td><td>'+escHTML(l.type)+'</td><td>'+escHTML(l.date)+'</td><td>'+escHTML(l.source)+'</td></tr>').join('');
+  const empty = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px">Новых заявок пока нет</td></tr>';
   return '<div class="metric-grid">'
-    + metric('Выручка теста',revenue.toLocaleString('ru-RU')+' ₽','2 связанные заявки')
-    + metric('Рейсов сегодня',String(data.bookings.length),'1 свой / 1 партнёр')
-    + metric('Свободно машин',String(free),'из '+data.vehicles.length)
-    + metric('Новые заявки',String(data.leads.filter(x=>x.status==='new').length),'нужна обработка')
-    + '</div><div class="dashboard-grid"><section class="panel"><h3>Ближайшие рейсы</h3><table class="table"><thead><tr><th>Время</th><th>Клиент</th><th>Ресурс</th><th>Адрес</th><th>Статус</th></tr></thead><tbody>'+rows+'</tbody></table></section>'
-    + '<section class="panel"><h3>Связи</h3><div class="activity-list">'
-    + activity('L-1001 → ООО РемСтрой → КамАЗ МСК-821','свой флот, 16:00')
-    + activity('L-1002 → Анна Петрова → ИП Савельев','партнёрский флот, 18:00')
-    + '</div></section></div>';
+    + metric('Всего заявок',String(data.leads.length),'из Google Sheets')
+    + metric('Новые заявки',String(newCount),'нужна обработка')
+    + metric('ФОС',String(formCount),'форма на сайте')
+    + metric('Обратные звонки',String(callbackCount),'запросы на звонок')
+    + '</div><section class="panel"><h3>Последние заявки</h3><div style="overflow:auto"><table class="table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Источник</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></div></section>';
 }
 
 function filteredLeads(){
@@ -829,8 +954,8 @@ function filteredLeads(){
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
 function setLeadView(mode){ leadViewMode = mode; localStorage.setItem('ecoflot_lead_view',mode); renderView('leads',true); }
 function leadCard(l){
-  const phone = l.phone ? '<br>'+l.phone : '';
-  return '<div class="lead-card"><h4>'+l.client+'</h4><div class="lead-meta"><span class="source-badge">'+(l.source||'Источник не указан')+'</span></div><p>'+l.type+' • '+l.date+'<br>'+l.address+phone+'</p><div class="sum">'+(l.sum?l.sum.toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div></div>';
+  const phone = l.phone ? '<br>'+escHTML(l.phone) : '';
+  return '<div class="lead-card"><h4>'+escHTML(l.client)+'</h4><div class="lead-meta"><span class="source-badge">'+escHTML(l.source||'Источник не указан')+'</span></div><p>'+escHTML(l.type)+' • '+escHTML(l.date)+'<br>'+escHTML(l.address)+phone+'</p><div class="sum">'+(l.sum?Number(l.sum).toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div></div>';
 }
 function leadsHTML(){
   const list = filteredLeads();
@@ -843,33 +968,26 @@ function leadsHTML(){
     + '</div><div class="view-switch">'
     + '<button class="chip '+(leadViewMode==='kanban'?'active':'')+'" onclick="setLeadView(\'kanban\')">Карточки</button>'
     + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
+    + '<button class="btn light small" onclick="syncLeadsFromGoogleSheet(true)">↻ Обновить</button>'
     + '<button class="btn primary small" data-crm-action="new-lead">+ Новая заявка</button></div></div>';
-
   if(leadViewMode==='rows'){
     const rows = list.map(l=>{
       const resource = l.vehicleId ? (data.vehicles.find(v=>v.id===l.vehicleId)?.name || 'Не назначен')
-        : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен')
-        : 'Не назначен';
+        : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен') : 'Не назначен';
       const statusMap = {new:'Новая',work:'В работе',won:'Согласовано',lost:'Закрыто'};
-      return '<tr>'
-        + '<td>'+l.id+'</td>'
-        + '<td><b>'+l.client+'</b></td>'
-        + '<td>'+l.phone+'</td>'
-        + '<td>'+l.type+'</td>'
-        + '<td>'+l.date+'</td>'
-        + '<td>'+l.address+'</td>'
-        + '<td>'+l.source+'</td>'
-        + '<td>'+resource+'</td>'
-        + '<td><span class="pill '+l.status+'">'+(statusMap[l.status]||l.status)+'</span></td>'
-        + '<td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td>'
-        + '</tr>';
+      return '<tr><td>'+escHTML(l.id)+'</td><td><b>'+escHTML(l.client)+'</b></td><td>'+escHTML(l.phone)+'</td><td>'+escHTML(l.type)+'</td><td>'+escHTML(l.date)+'</td><td>'+escHTML(l.address)+'</td><td>'+escHTML(l.source)+'</td><td>'+escHTML(resource)+'</td><td><span class="pill '+escHTML(l.status)+'">'+escHTML(statusMap[l.status]||l.status)+'</span></td><td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td></tr>';
     }).join('');
-    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    const empty = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
+    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
   }
-
-  const kanban = cols.map(([s,t])=>'<div class="kanban-col"><div class="kanban-head"><span>'+t+'</span><span>'+list.filter(l=>l.status===s).length+'</span></div>'+list.filter(l=>l.status===s).map(leadCard).join('')+'</div>').join('');
+  const kanban = cols.map(([status,title])=>{
+    const cards = list.filter(l=>l.status===status);
+    const body = cards.length ? cards.map(leadCard).join('') : '<div style="padding:16px 4px;color:var(--muted);font-size:11px">Нет заявок</div>';
+    return '<div class="kanban-col"><div class="kanban-head"><span>'+title+'</span><span>'+cards.length+'</span></div>'+body+'</div>';
+  }).join('');
   return toolbar + '<div class="kanban">'+kanban+'</div>';
 }
+
 function calendarHTML(){
   const days = [...Array(7)].map((_,i)=>{ const d=new Date(today); d.setDate(today.getDate()+i); return d; });
   const resources = [
@@ -911,37 +1029,32 @@ function fleetHTML(){
 function partnersHTML(){
   const rows = data.partners.map(p=>{
     const l = p.leadId ? data.leads.find(x=>x.id===p.leadId) : null;
-    return '<tr><td><b>'+p.name+'</b></td><td>'+p.type+'</td><td>'+p.rate+'</td><td>★ '+p.rating+'</td><td>'+(l?l.id+' · '+l.client:'Свободен')+'</td></tr>';
+    return '<tr><td><b>'+escHTML(p.name)+'</b></td><td>'+escHTML(p.type)+'</td><td>'+escHTML(p.rate)+'</td><td>'+escHTML(p.rating ? '★ '+p.rating : '')+'</td><td>'+escHTML(l?l.id+' · '+l.client:'Свободен')+'</td></tr>';
   }).join('');
-  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовых партнёра</button></div><button class="btn primary small">+ Добавить партнёра</button></div><section class="panel"><table class="table"><thead><tr><th>Партнёр</th><th>Техника</th><th>Ставка</th><th>Рейтинг</th><th>Связь с заявкой</th></tr></thead><tbody>'+rows+'</tbody></table></section>';
+  const empty = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px">Партнёры пока не добавлены</td></tr>';
+  return '<div class="toolbar"><div class="filters"><button class="chip active">'+data.partners.length+' партнёров</button></div><button class="btn primary small">+ Добавить партнёра</button></div><section class="panel"><table class="table"><thead><tr><th>Партнёр</th><th>Техника</th><th>Ставка</th><th>Рейтинг</th><th>Связь с заявкой</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></section>';
 }
 
 function clientsHTML(){
-  const rows = data.clients.map(cl=>{
-    const l = data.leads.find(x=>x.clientId===cl.id);
-    let resource = 'Не назначен';
-    if(l?.vehicleId) resource = data.vehicles.find(v=>v.id===l.vehicleId)?.name || resource;
-    if(l?.partnerId) resource = data.partners.find(p=>p.id===l.partnerId)?.name || resource;
-    return '<tr><td><b>'+cl.name+'</b></td><td>'+cl.type+'</td><td>'+cl.phone+'</td><td>'+(l?l.id+' · '+l.type:'Нет')+'</td><td>'+resource+'</td></tr>';
+  const seen = new Map();
+  data.leads.forEach(l=>{ const key=String(l.phone||l.client||l.id); if(!seen.has(key)) seen.set(key,l); });
+  const clients = [...seen.values()];
+  const rows = clients.map(l=>{
+    const statusMap = {new:'Новая',work:'В работе',won:'Согласовано',lost:'Закрыто'};
+    return '<tr><td><b>'+escHTML(l.client)+'</b></td><td>'+escHTML(l.phone)+'</td><td>'+escHTML(l.id+' · '+l.type)+'</td><td>'+escHTML(l.source)+'</td><td><span class="pill '+escHTML(l.status)+'">'+escHTML(statusMap[l.status]||l.status)+'</span></td></tr>';
   }).join('');
-  return '<div class="toolbar"><div class="filters"><button class="chip active">2 тестовых клиента</button></div><button class="btn primary small">+ Клиент</button></div><section class="panel"><table class="table"><thead><tr><th>Клиент</th><th>Тип</th><th>Телефон</th><th>Заявка</th><th>Ресурс</th></tr></thead><tbody>'+rows+'</tbody></table></section>';
+  const empty = '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:28px">Клиентов пока нет</td></tr>';
+  return '<div class="toolbar"><div class="filters"><button class="chip active">'+clients.length+' клиентов</button></div></div><section class="panel"><table class="table"><thead><tr><th>Клиент</th><th>Телефон</th><th>Заявка</th><th>Источник</th><th>Статус</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></section>';
 }
 
 function analyticsHTML(){
-  const revenue = data.leads.reduce((s,l)=>s+(Number(l.sum)||0),0);
-  const own = data.leads.filter(l=>l.vehicleId).reduce((s,l)=>s+(Number(l.sum)||0),0);
-  const partner = data.leads.filter(l=>l.partnerId).reduce((s,l)=>s+(Number(l.sum)||0),0);
-  const avg = data.leads.length ? Math.round(revenue/data.leads.length) : 0;
-  const rows = data.leads.map(l=>{
-    const r = l.vehicleId ? data.vehicles.find(v=>v.id===l.vehicleId) : data.partners.find(p=>p.id===l.partnerId);
-    return '<tr><td>'+l.id+'</td><td>'+l.client+'</td><td>'+l.source+'</td><td>'+(r?.name||'Не назначен')+'</td><td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td></tr>';
-  }).join('');
-  return '<div class="metric-grid">'
-    + metric('Выручка теста',revenue.toLocaleString('ru-RU')+' ₽','2 заказа')
-    + metric('Средний чек',avg.toLocaleString('ru-RU')+' ₽','по 2 заявкам')
-    + metric('Свой флот',own.toLocaleString('ru-RU')+' ₽','L-1001')
-    + metric('Партнёрский флот',partner.toLocaleString('ru-RU')+' ₽','L-1002')
-    + '</div><section class="panel"><h3>Связанные тестовые данные</h3><table class="table"><thead><tr><th>Заявка</th><th>Клиент</th><th>Источник</th><th>Исполнитель</th><th>Сумма</th></tr></thead><tbody>'+rows+'</tbody></table></section>';
+  const total = data.leads.length;
+  const forms = data.leads.filter(l=>String(l.requestType || l.source || '').toLowerCase().includes('фос') || String(l.source || '').toLowerCase().includes('форма заявки')).length;
+  const callbacks = data.leads.filter(l=>String(l.requestType || l.type || '').toLowerCase().includes('обратный звонок')).length;
+  const newCount = data.leads.filter(l=>l.status==='new').length;
+  const rows = data.leads.map(l=>'<tr><td>'+escHTML(l.id)+'</td><td>'+escHTML(l.client)+'</td><td>'+escHTML(l.phone)+'</td><td>'+escHTML(l.type)+'</td><td>'+escHTML(l.source)+'</td><td>'+escHTML(l.date)+'</td></tr>').join('');
+  const empty = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:28px">Нет данных для аналитики</td></tr>';
+  return '<div class="metric-grid">'+metric('Всего заявок',String(total),'Google Sheets')+metric('ФОС',String(forms),'форма на сайте')+metric('Обратные звонки',String(callbacks),'запросы на звонок')+metric('Новые',String(newCount),'нужна обработка')+'</div><section class="panel"><h3>Заявки</h3><table class="table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Источник</th><th>Когда</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></section>';
 }
 
 function openCreateLeadModal(){
@@ -1039,7 +1152,8 @@ async function submitLeadForm(){
   if(btn){ btn.disabled=false; btn.textContent='Отправить заявку'; }
   if(ok){
     if(typeof ecoflotGoal==='function') ecoflotGoal('lead_submit',{source:payload.source,type:payload.wasteType,volume:payload.volume});
-    addLeadToCRM({name,client:name,phone,type:payload.volume||payload.wasteType,address,date:payload.when,status:'new',source:payload.source,comment:payload.comment});
+    addLeadToCRM({name,client:name,phone,type:payload.volume||payload.wasteType,address,date:payload.when,status:'new',source:payload.source,comment:payload.comment,requestType:'ФОС'});
+    setTimeout(()=>syncLeadsFromGoogleSheet(true),1800);
     $('#leadForm')?.reset();
     $('#leadSuccess')?.classList.remove('hidden');
     if($('#leadStatus')) $('#leadStatus').textContent='';
@@ -1052,7 +1166,8 @@ async function submitCallbackForm(){
   if(!phone) return false;
   await sendToGoogleSheet({type:'Обратный звонок',phone,when:'Перезвонить',source:detectLeadSource('callback'),status:'Новая'});
   if(typeof ecoflotGoal==='function') ecoflotGoal('callback_submit',{source:detectLeadSource('callback')});
-  addLeadToCRM({client:'Обратный звонок',phone,type:'Обратный звонок',address:'Адрес не указан',date:'Перезвонить',status:'new',source:detectLeadSource('callback')});
+  addLeadToCRM({client:'Обратный звонок',phone,type:'Обратный звонок',address:'Адрес не указан',date:'Перезвонить',status:'new',source:detectLeadSource('callback'),requestType:'Обратный звонок'});
+  setTimeout(()=>syncLeadsFromGoogleSheet(true),1800);
   $('#callbackForm')?.reset();
   closeCallback();
   showToast('Заявка отправлена');
@@ -1074,6 +1189,7 @@ function restoreAppState(){
 }
 
 loadLeads();
+syncLeadsFromGoogleSheet(false);
 try{
   const FLEET_VERSION = '2026-09-26-real-fleet-v1';
   const savedVersion = localStorage.getItem('ecoflot_vehicles_version');
@@ -1087,7 +1203,8 @@ try{
 }catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  $$('.nav-item[data-view]').forEach(btn=>{
+  setInterval(()=>{ if($('#crm')?.classList.contains('active')) syncLeadsFromGoogleSheet(true); },30000);
+  $('.nav-item[data-view]').forEach(btn=>{
     btn.addEventListener('click',()=>renderView(btn.dataset.view));
   });
 
