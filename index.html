@@ -603,6 +603,9 @@ const views = {
 
 let leadFilter = 'all';
 let leadViewMode = localStorage.getItem('ecoflot_lead_view') || 'kanban';
+let leadDateFrom = localStorage.getItem('ecoflot_lead_date_from') || '';
+let leadDateTo = localStorage.getItem('ecoflot_lead_date_to') || '';
+let leadSelectedIds = new Set();
 let tenderFilter = 'all';
 
 function detectLeadSource(kind){
@@ -678,29 +681,59 @@ function updateLeadStatus(id,status){
   showToast('Статус заявки изменён');
 }
 
+function removeLeadIds(ids){
+  const idSet = new Set(ids || []);
+  if(!idSet.size) return 0;
+
+  const deleted = getDeletedLeadIds();
+  idSet.forEach(id=>deleted.add(id));
+  try{ localStorage.setItem(LEAD_DELETED_KEY, JSON.stringify([...deleted])); }catch(e){}
+
+  const overrides = getLeadStatusOverrides();
+  idSet.forEach(id=>{ if(overrides[id]) delete overrides[id]; });
+  try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+
+  data.leads = data.leads.filter(l=>!idSet.has(l.id));
+  data.bookings = data.bookings.filter(b=>!idSet.has(b.leadId));
+  data.vehicles.forEach(v=>{ if(idSet.has(v.leadId)) v.leadId=null; });
+  data.partners.forEach(p=>{ if(idSet.has(p.leadId)) p.leadId=null; });
+  idSet.forEach(id=>leadSelectedIds.delete(id));
+  saveLeads();
+  if(typeof saveVehicles==='function') saveVehicles();
+  return idSet.size;
+}
+
 function deleteLead(id){
   const lead = data.leads.find(l=>l.id===id);
   if(!lead) return;
   if(!confirm('Удалить заявку «' + (lead.client || lead.id || 'Без названия') + '» из CRM?')) return;
-
-  const deleted = getDeletedLeadIds();
-  deleted.add(id);
-  try{ localStorage.setItem(LEAD_DELETED_KEY, JSON.stringify([...deleted])); }catch(e){}
-
-  const overrides = getLeadStatusOverrides();
-  if(overrides[id]){
-    delete overrides[id];
-    try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
-  }
-
-  data.leads = data.leads.filter(l=>l.id!==id);
-  data.bookings = data.bookings.filter(b=>b.leadId!==id);
-  data.vehicles.forEach(v=>{ if(v.leadId===id) v.leadId=null; });
-  data.partners.forEach(p=>{ if(p.leadId===id) p.leadId=null; });
-  saveLeads();
-  if(typeof saveVehicles==='function') saveVehicles();
+  removeLeadIds([id]);
   renderView('leads',true);
   showToast('Заявка удалена');
+}
+
+function deleteSelectedLeads(){
+  const ids = [...leadSelectedIds].filter(id=>data.leads.some(l=>l.id===id));
+  if(!ids.length){
+    showToast('Сначала выберите заявки');
+    return;
+  }
+  if(!confirm('Удалить выбранные заявки: ' + ids.length + '?')) return;
+  const count = removeLeadIds(ids);
+  renderView('leads',true);
+  showToast('Удалено заявок: ' + count);
+}
+
+function toggleLeadSelect(id,checked){
+  if(checked) leadSelectedIds.add(id);
+  else leadSelectedIds.delete(id);
+  renderView('leads',true);
+}
+
+function toggleAllLeads(checked){
+  const ids = filteredLeads().map(l=>l.id);
+  ids.forEach(id=>checked ? leadSelectedIds.add(id) : leadSelectedIds.delete(id));
+  renderView('leads',true);
 }
 
 function leadStatusSelect(lead){
@@ -1237,14 +1270,57 @@ function dashboardHTML(){
     + '</div><section class="panel"><h3>Последние заявки</h3><div style="overflow:auto"><table class="table"><thead><tr><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Источник</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></div></section>';
 }
 
+function parseLeadDate(value){
+  const raw = String(value || '').trim();
+  if(!raw) return null;
+  let m = raw.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})/);
+  if(m) return new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));
+  m = raw.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(m) return new Date(Number(m[1]),Number(m[2])-1,Number(m[3]));
+  const low = raw.toLowerCase();
+  const d = new Date();
+  if(low.includes('сегодня')) return new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  if(low.includes('вчера')){
+    const y = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+    y.setDate(y.getDate()-1);
+    return y;
+  }
+  const parsed = new Date(raw);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function leadMatchesDate(l){
+  if(!leadDateFrom && !leadDateTo) return true;
+  const dt = parseLeadDate(l.createdAt) || parseLeadDate(l.date);
+  if(!dt) return false;
+  const from = leadDateFrom ? new Date(leadDateFrom+'T00:00:00') : null;
+  const to = leadDateTo ? new Date(leadDateTo+'T23:59:59') : null;
+  return (!from || dt>=from) && (!to || dt<=to);
+}
+
 function filteredLeads(){
-  if(leadFilter==='site') return data.leads.filter(l=>String(l.source||'').toLowerCase().includes('сайт') || String(l.source||'').toLowerCase().includes('utm'));
-  if(leadFilter==='manual') return data.leads.filter(l=>String(l.source||'').toLowerCase().includes('crm'));
-  if(leadFilter==='new') return data.leads.filter(l=>l.status==='new');
-  return data.leads;
+  let list = data.leads;
+  if(leadFilter==='site') list = list.filter(l=>String(l.source||'').toLowerCase().includes('сайт') || String(l.source||'').toLowerCase().includes('utm'));
+  if(leadFilter==='manual') list = list.filter(l=>String(l.source||'').toLowerCase().includes('crm'));
+  if(leadFilter==='new') list = list.filter(l=>l.status==='new');
+  return list.filter(leadMatchesDate);
 }
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
 function setLeadView(mode){ leadViewMode = mode; localStorage.setItem('ecoflot_lead_view',mode); renderView('leads',true); }
+function setLeadDateRange(from,to){
+  leadDateFrom = from || '';
+  leadDateTo = to || '';
+  localStorage.setItem('ecoflot_lead_date_from',leadDateFrom);
+  localStorage.setItem('ecoflot_lead_date_to',leadDateTo);
+  renderView('leads',true);
+}
+function clearLeadDateRange(){
+  leadDateFrom = '';
+  leadDateTo = '';
+  localStorage.removeItem('ecoflot_lead_date_from');
+  localStorage.removeItem('ecoflot_lead_date_to');
+  renderView('leads',true);
+}
 function leadCard(l){
   const phone = l.phone ? '<br>'+escHTML(l.phone) : '';
   const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
