@@ -182,6 +182,12 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
 .crm-modal-form label{margin:0}
 .crm-modal-form input,.crm-modal-form select{margin-top:6px}
 .crm-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.tender-table th,.tender-table td{white-space:normal;vertical-align:top}
+.tender-table td:nth-child(2){min-width:340px;max-width:520px}
+.tender-table td:nth-child(3){min-width:220px;max-width:360px}
+.tender-table td:nth-child(4){min-width:170px}
+.tender-table td:nth-child(5){min-width:180px}
+.tender-name{line-height:1.35}.tender-name small{display:block;margin-top:6px;color:var(--muted);font-size:10px;font-weight:500}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","@id":"https://ecoflot.pro/#website","url":"https://ecoflot.pro/","name":"ECOFLOT","inLanguage":"ru-RU","publisher":{"@id":"https://ecoflot.pro/#business"}}</script><script src="/marketing.js?v=20260926-3" defer></script><script src="/analytics.js" defer></script><style id="ecoflot-real-fleet-photos">
 .fleet-photo{background-image:url('/assets/fleet/ecoflot-real-fleet.jpg?v=20260926-6')!important;background-size:300% 200%!important;background-repeat:no-repeat!important;background-color:#dfe8df}
@@ -483,7 +489,8 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       <div class="manager-card"><div class="avatar">ИК</div><div><strong id="managerName">ECOFLOT CRM</strong><span id="managerEmail">Демо-режим</span></div></div>
       <nav class="side-nav">
         <button class="nav-item active" data-view="dashboard">◫ <span>Дашборд</span></button>
-        <button class="nav-item" data-view="leads">◎ <span>Заявки и продажи</span><em id="leadCounter">5</em></button>
+        <button class="nav-item" data-view="leads">◎ <span>Заявки и продажи</span><em id="leadCounter">0</em></button>
+        <button class="nav-item" data-view="tenders">▤ <span>Тендеры</span><em id="tenderCounter">0</em></button>
         <button class="nav-item" data-view="calendar">▦ <span>Календарь флота</span></button>
         <button class="nav-item" data-view="fleetcrm">🚛 <span>Автопарк</span></button>
         <button class="nav-item" data-view="partners">⇄ <span>Привлечённый флот</span></button>
@@ -564,6 +571,7 @@ const CRM_PASSWORD = '3649';
 const data = {
   clients:[],
   leads:[],
+  tenders:[],
   vehicles:[
     {id:'V-001',name:'Мультилифт №1',type:'Мультилифт / крюковой погрузчик',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'Сменные контейнеры, строймусор, демонтаж, грунт, КГО',photo:'/assets/fleet/ecoflot-multilift.webp?v=20260926-4'},
     {id:'V-002',name:'Мультилифт №2',type:'Мультилифт / крюковой погрузчик',driver:'Не назначен',load:0,state:'Свободен',leadId:null,work:'Сменные контейнеры, строймусор, демонтаж, грунт, КГО',photo:'/assets/fleet/ecoflot-multilift.webp?v=20260926-4'},
@@ -585,6 +593,7 @@ const data = {
 const views = {
   dashboard:{title:'Дашборд',sub:'Оперативная картина на сегодня'},
   leads:{title:'Заявки и продажи',sub:'Воронка от обращения до выполненного заказа'},
+  tenders:{title:'Тендеры',sub:'Активные закупки и возможности для ECOFLOT'},
   calendar:{title:'Календарь флота',sub:'Загрузка машин и планирование рейсов'},
   fleetcrm:{title:'Автопарк',sub:'Собственная техника и её загрузка'},
   partners:{title:'Привлечённый флот',sub:'Партнёры, ставки и доступность'},
@@ -594,6 +603,7 @@ const views = {
 
 let leadFilter = 'all';
 let leadViewMode = localStorage.getItem('ecoflot_lead_view') || 'kanban';
+let tenderFilter = 'all';
 
 function detectLeadSource(kind){
   const a = window.ECOFLOT_ATTRIBUTION || {};
@@ -775,6 +785,131 @@ function syncLeadsFromGoogleSheet(rerender=true){
   });
 }
 
+
+function saveTenders(){
+  try { localStorage.setItem('wf_tenders', JSON.stringify(data.tenders)); } catch(e){}
+}
+
+function loadTenders(){
+  try{
+    const raw = localStorage.getItem('wf_tenders');
+    const stored = raw ? JSON.parse(raw) : [];
+    data.tenders = Array.isArray(stored) ? stored : [];
+  }catch(e){
+    data.tenders = [];
+  }
+}
+
+function tenderCommentValue(comment,label){
+  const text = String(comment || '');
+  const lower = text.toLowerCase();
+  const key = String(label || '').toLowerCase() + ':';
+  const start = lower.indexOf(key);
+  if(start < 0) return '';
+  const from = start + key.length;
+  const markers = ['заказчик','начальная цена','цена','объём','закон/тип','регион','срок','категория','скоринг','ссылка'];
+  let end = text.length;
+  markers.filter(x=>x !== String(label||'').toLowerCase()).forEach(m=>{
+    const p1 = lower.indexOf('\n' + m + ':', from);
+    const p2 = lower.indexOf('. ' + m + ':', from);
+    if(p1 >= 0 && p1 < end) end = p1;
+    if(p2 >= 0 && p2 < end) end = p2;
+  });
+  return text.slice(from,end).trim().replace(/[.\s]+$/,'');
+}
+
+function googleSheetRowsToTenders(response){
+  if(!response || response.status === 'error'){
+    throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
+  }
+  const rows = response.table?.rows || [];
+  return rows.map(row=>{
+    const createdAt = sheetCell(row,0);
+    const title = sheetCell(row,2);
+    const work = sheetCell(row,4);
+    const deadline = sheetCell(row,6);
+    const region = sheetCell(row,7);
+    const source = sheetCell(row,8);
+    const status = sheetCell(row,9) || 'Новый тендер';
+    const comment = sheetCell(row,10);
+    const requestId = sheetCell(row,11);
+    const customer = tenderCommentValue(comment,'Заказчик');
+    const price = tenderCommentValue(comment,'Начальная цена') || tenderCommentValue(comment,'Цена');
+    const scoreMatch = String(comment||'').match(/Скоринг:\s*(\d+)\s*\/\s*100/i);
+    const linkMatch = String(comment||'').match(/https?:\/\/[^\s]+/i);
+    const score = scoreMatch ? Number(scoreMatch[1]) : null;
+    const link = linkMatch ? linkMatch[0].replace(/[),.;]+$/,'') : '';
+    return {
+      id:stableLeadId(requestId,[createdAt,title,deadline,region,source].join('|')).replace(/^L-/,'T-'),
+      createdAt,
+      title:title || 'Тендер',
+      work:work || 'Не указано',
+      deadline:deadline || 'Не указан',
+      region:region || 'Не указан',
+      source:source || 'Не указан',
+      status,
+      comment,
+      customer,
+      price,
+      score,
+      link
+    };
+  }).filter(t=>t.title && t.title.toLowerCase() !== 'тест');
+}
+
+let tenderSyncInFlight = false;
+
+function syncTendersFromGoogleSheet(rerender=true){
+  if(tenderSyncInFlight) return Promise.resolve(false);
+  tenderSyncInFlight = true;
+  return new Promise(resolve=>{
+    const callbackName = 'ecoflotTenderResponse_' + Date.now();
+    const script = document.createElement('script');
+    let finished = false;
+    const finish = ok=>{
+      if(finished) return;
+      finished = true;
+      tenderSyncInFlight = false;
+      try{ delete window[callbackName]; }catch(e){}
+      script.remove();
+      resolve(ok);
+    };
+    const timer = setTimeout(()=>{
+      console.warn('ECOFLOT: tender sync timeout');
+      finish(false);
+    },10000);
+    window[callbackName] = response=>{
+      clearTimeout(timer);
+      try{
+        data.tenders = googleSheetRowsToTenders(response);
+        saveTenders();
+        if(rerender && $('#crm')?.classList.contains('active')){
+          const currentView = localStorage.getItem('ecoflot_crm_view') || 'dashboard';
+          if(currentView === 'tenders') renderView('tenders',true);
+          else if($('#tenderCounter')) $('#tenderCounter').textContent = data.tenders.length;
+        }
+        finish(true);
+      }catch(e){
+        console.error('ECOFLOT tender sync:',e);
+        finish(false);
+      }
+    };
+    script.onerror = ()=>{
+      clearTimeout(timer);
+      console.error('ECOFLOT: не удалось загрузить тендеры');
+      finish(false);
+    };
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where B = 'Тендер' order by A desc";
+    const tqx = 'out:json;responseHandler:' + callbackName;
+    script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
+      + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
+      + '&headers=1&tqx=' + encodeURIComponent(tqx)
+      + '&tq=' + encodeURIComponent(tq)
+      + '&_=' + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
 function addLeadToCRM(lead){
   const item = {
     id: lead.id || ('L-' + Date.now().toString().slice(-6)),
@@ -886,6 +1021,7 @@ function openCRM(view){
   if($('#todayChip')) $('#todayChip').textContent = today.toLocaleDateString('ru-RU',{weekday:'short',day:'numeric',month:'long'});
   renderView(target, true);
   syncLeadsFromGoogleSheet(true);
+  syncTendersFromGoogleSheet(true);
   setCrmHash(target);
 }
 
@@ -908,12 +1044,14 @@ function renderView(view, skipHash){
   if($('#viewTitle')) $('#viewTitle').textContent = views[view].title;
   if($('#viewSubtitle')) $('#viewSubtitle').textContent = views[view].sub;
   if($('#leadCounter')) $('#leadCounter').textContent = data.leads.filter(x=>x.status==='new').length;
+  if($('#tenderCounter')) $('#tenderCounter').textContent = data.tenders.length;
 
   const root = $('#viewRoot');
   if(!root) return;
   const map = {
     dashboard: dashboardHTML,
     leads: leadsHTML,
+    tenders: tendersHTML,
     calendar: calendarHTML,
     fleetcrm: fleetHTML,
     partners: partnersHTML,
@@ -986,6 +1124,62 @@ function leadsHTML(){
     return '<div class="kanban-col"><div class="kanban-head"><span>'+title+'</span><span>'+cards.length+'</span></div>'+body+'</div>';
   }).join('');
   return toolbar + '<div class="kanban">'+kanban+'</div>';
+}
+
+
+function filteredTenders(){
+  if(tenderFilter === 'high') return data.tenders.filter(t=>Number(t.score||0) >= 80);
+  if(tenderFilter === 'moscow') return data.tenders.filter(t=>/москв|московск/i.test(String(t.region||'')));
+  if(tenderFilter === 'linked') return data.tenders.filter(t=>t.link);
+  return data.tenders;
+}
+
+function setTenderFilter(filter){
+  tenderFilter = filter;
+  renderView('tenders',true);
+}
+
+function tendersHTML(){
+  const list = filteredTenders();
+  const high = data.tenders.filter(t=>Number(t.score||0) >= 80).length;
+  const moscow = data.tenders.filter(t=>/москв|московск/i.test(String(t.region||''))).length;
+  const linked = data.tenders.filter(t=>t.link).length;
+  const toolbar = '<div class="toolbar"><div class="filters">'
+    + '<button class="chip '+(tenderFilter==='all'?'active':'')+'" onclick="setTenderFilter(\'all\')">Все</button>'
+    + '<button class="chip '+(tenderFilter==='high'?'active':'')+'" onclick="setTenderFilter(\'high\')">Скоринг 80+</button>'
+    + '<button class="chip '+(tenderFilter==='moscow'?'active':'')+'" onclick="setTenderFilter(\'moscow\')">Москва и МО</button>'
+    + '<button class="chip '+(tenderFilter==='linked'?'active':'')+'" onclick="setTenderFilter(\'linked\')">Со ссылкой</button>'
+    + '</div><div class="view-switch"><button class="btn light small" onclick="syncTendersFromGoogleSheet(true)">↻ Обновить</button></div></div>';
+
+  const rows = list.map(t=>{
+    const score = t.score != null ? '<span class="pill '+(t.score>=80?'won':t.score>=60?'work':'new')+'">'+escHTML(t.score)+'/100</span>' : '—';
+    const title = '<div class="tender-name"><b>'+escHTML(t.title)+'</b>'
+      + (t.customer ? '<small>'+escHTML(t.customer)+'</small>' : '') + '</div>';
+    const link = t.link ? '<a class="btn light small" href="'+escHTML(t.link)+'" target="_blank" rel="noopener noreferrer">Открыть</a>' : '—';
+    return '<tr>'
+      + '<td>'+score+'</td>'
+      + '<td>'+title+'</td>'
+      + '<td>'+escHTML(t.work)+'</td>'
+      + '<td>'+escHTML(t.deadline)+'</td>'
+      + '<td>'+escHTML(t.region)+'</td>'
+      + '<td>'+escHTML(t.price || '—')+'</td>'
+      + '<td>'+escHTML(t.source)+'</td>'
+      + '<td>'+escHTML(t.status)+'</td>'
+      + '<td>'+link+'</td>'
+      + '</tr>';
+  }).join('');
+  const empty = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:28px">Тендеров пока нет</td></tr>';
+
+  return '<div class="metric-grid">'
+    + metric('Всего тендеров',String(data.tenders.length),'из Google Sheets')
+    + metric('Скоринг 80+',String(high),'наиболее релевантные')
+    + metric('Москва и МО',String(moscow),'по региону')
+    + metric('Со ссылкой',String(linked),'можно открыть закупку')
+    + '</div>'
+    + toolbar
+    + '<div style="overflow:auto"><table class="lead-list-table tender-table"><thead><tr>'
+    + '<th>Скоринг</th><th>Тендер</th><th>Работы</th><th>Срок</th><th>Регион</th><th>Цена</th><th>Источник</th><th>Статус</th><th>Ссылка</th>'
+    + '</tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
 }
 
 function calendarHTML(){
@@ -1189,7 +1383,9 @@ function restoreAppState(){
 }
 
 loadLeads();
+loadTenders();
 syncLeadsFromGoogleSheet(false);
+syncTendersFromGoogleSheet(false);
 try{
   const FLEET_VERSION = '2026-09-26-real-fleet-v1';
   const savedVersion = localStorage.getItem('ecoflot_vehicles_version');
@@ -1203,8 +1399,13 @@ try{
 }catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
-  setInterval(()=>{ if($('#crm')?.classList.contains('active')) syncLeadsFromGoogleSheet(true); },30000);
-  $('.nav-item[data-view]').forEach(btn=>{
+  setInterval(()=>{ 
+    if($('#crm')?.classList.contains('active')){
+      syncLeadsFromGoogleSheet(true);
+      syncTendersFromGoogleSheet(true);
+    }
+  },30000);
+  document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
     btn.addEventListener('click',()=>renderView(btn.dataset.view));
   });
 
