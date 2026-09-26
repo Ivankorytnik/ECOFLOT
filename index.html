@@ -678,6 +678,22 @@ function updateLeadStatus(id,status){
   overrides[id] = normalized;
   try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
   saveLeads();
+  if(lead.requestId){
+    const label = (LEAD_STATUSES.find(x=>x.value===normalized) || {}).label || 'Новая';
+    sendToGoogleSheet({
+      type:'CRM_ACTION_LEAD',
+      name:'Статус заявки: ' + (lead.client || lead.id),
+      phone:lead.phone || '-',
+      wasteType:lead.type || 'Заявка',
+      volume:'-',
+      when:new Date().toLocaleString('ru-RU'),
+      address:lead.address || '-',
+      source:'ECOFLOT CRM',
+      status:label,
+      comment:'targetRequestId=' + lead.requestId + '\naction=crm_status',
+      requestId:makeRequestId('CRM-ACTION')
+    });
+  }
   renderView('leads',true);
   showToast('Статус заявки изменён');
 }
@@ -801,6 +817,123 @@ function stableLeadId(requestId,seed){
   return 'L-' + String(hash >>> 0).slice(-6).padStart(6,'0');
 }
 
+const ECOFLOT_PUBLIC_URL = 'https://ecoflot.pro/';
+
+function makeRequestId(prefix='ECO'){
+  return prefix + '-' + Date.now() + '-' + Math.random().toString(36).slice(2,8).toUpperCase();
+}
+
+function botActionUrl(action,requestId,extra={}){
+  const url = new URL(ECOFLOT_PUBLIC_URL);
+  url.searchParams.set('botAction',String(action || ''));
+  url.searchParams.set('rid',String(requestId || ''));
+  Object.entries(extra || {}).forEach(([key,value])=>{
+    if(value != null && String(value) !== '') url.searchParams.set(key,String(value));
+  });
+  return url.toString();
+}
+
+function extractActionTarget(comment){
+  const m = String(comment || '').match(/targetRequestId=([^\n|]+)/i);
+  return m ? m[1].trim() : '';
+}
+
+function cleanActionPhone(phone){
+  const raw = String(phone || '').trim();
+  const digits = raw.replace(/\D/g,'');
+  if(!digits) return '';
+  if(raw.startsWith('+')) return '+' + digits;
+  if(digits.length === 11 && digits.startsWith('8')) return '+7' + digits.slice(1);
+  if(digits.length === 10) return '+7' + digits;
+  return '+' + digits;
+}
+
+function buildLeadActionComment(requestId,phone,baseComment=''){
+  const lines = [];
+  const base = String(baseComment || '').trim();
+  if(base) lines.push(base);
+  lines.push('▶ В работу: ' + botActionUrl('lead_work',requestId));
+  const callPhone = cleanActionPhone(phone);
+  if(callPhone) lines.push('☎ Позвонить: ' + botActionUrl('lead_call',requestId,{phone:callPhone}));
+  lines.push('✖ Не подходит: ' + botActionUrl('lead_lost',requestId));
+  lines.push('📂 Открыть CRM: ' + ECOFLOT_PUBLIC_URL + '#crm/leads');
+  return lines.join('\n');
+}
+
+function showBotActionResult(text,view){
+  let box = document.getElementById('botActionResult');
+  if(box) box.remove();
+  box = document.createElement('div');
+  box.id = 'botActionResult';
+  box.style.cssText = 'position:fixed;z-index:99999;left:50%;top:24px;transform:translateX(-50%);width:min(92vw,520px);background:#fff;border:1px solid #dfe6df;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.18);padding:16px 18px;font-family:Arial,sans-serif;color:#142019';
+  box.innerHTML = '<div style="font-weight:800;margin-bottom:6px">ECOFLOT</div>'
+    + '<div style="font-size:14px;line-height:1.45">'+escHTML(text)+'</div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+    + '<button type="button" class="btn primary" id="botActionOpenCrm">Открыть CRM</button>'
+    + '<button type="button" class="btn ghost" id="botActionClose">Закрыть</button></div>';
+  document.body.appendChild(box);
+  box.querySelector('#botActionClose')?.addEventListener('click',()=>box.remove());
+  box.querySelector('#botActionOpenCrm')?.addEventListener('click',()=>{
+    box.remove();
+    openCRM(view || 'dashboard');
+  });
+}
+
+async function handleBotActionFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const action = params.get('botAction') || '';
+  const rid = params.get('rid') || '';
+  if(!action || !rid) return false;
+
+  if(action === 'lead_call'){
+    const phone = cleanActionPhone(params.get('phone') || '');
+    showBotActionResult(phone ? 'Открываю звонок клиенту.' : 'Телефон клиента не передан.','leads');
+    const cleanUrl = new URL(location.href);
+    cleanUrl.searchParams.delete('botAction');
+    cleanUrl.searchParams.delete('rid');
+    cleanUrl.searchParams.delete('phone');
+    history.replaceState(null,'',cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+    if(phone) setTimeout(()=>{ location.href='tel:' + phone; },150);
+    return true;
+  }
+
+  const defs = {
+    lead_work:{type:'CRM_ACTION_LEAD',status:'В работе',label:'Заявка переведена в работу.',view:'leads'},
+    lead_lost:{type:'CRM_ACTION_LEAD',status:'Закрыто',label:'Заявка отмечена как «Не подходит».',view:'leads'},
+    tender_work:{type:'CRM_ACTION_TENDER',status:'В работе',label:'Тендер переведён в работу.',view:'tenders'},
+    tender_defer:{type:'CRM_ACTION_TENDER',status:'Отложен',label:'Тендер отложен.',view:'tenders'},
+    tender_skip:{type:'CRM_ACTION_TENDER',status:'Не участвуем',label:'Тендер отмечен как «Не участвуем».',view:'tenders'},
+    tender_remind:{type:'TENDER_REMINDER',status:'Ожидает',label:'Напоминание установлено: бот напомнит за 2 дня до дедлайна.',view:'tenders'}
+  };
+  const def = defs[action];
+  if(!def) return false;
+
+  const payload = {
+    type:def.type,
+    name:def.label,
+    phone:'-',
+    wasteType:'Telegram / действие',
+    volume:'-',
+    when:action === 'tender_remind' ? 'За 2 дня до дедлайна' : new Date().toLocaleString('ru-RU'),
+    address:'-',
+    source:'Telegram bot',
+    status:def.status,
+    comment:'targetRequestId=' + rid + '\naction=' + action,
+    requestId:makeRequestId('BOT-ACTION')
+  };
+  await sendToGoogleSheet(payload);
+  showBotActionResult(def.label,def.view);
+
+  const cleanUrl = new URL(location.href);
+  ['botAction','rid','phone'].forEach(key=>cleanUrl.searchParams.delete(key));
+  history.replaceState(null,'',cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
+  setTimeout(()=>{
+    if(def.view === 'leads') syncLeadsFromGoogleSheet(true);
+    if(def.view === 'tenders') syncTendersFromGoogleSheet(true);
+  },1800);
+  return true;
+}
+
 function extractLeadApplicationUrl(comment){
   const text = String(comment || '');
   const labeled = text.match(/(?:Ссылка|Заявка|Объявление|Сообщение):\s*(https?:\/\/[^\s]+)/i);
@@ -823,52 +956,78 @@ function googleSheetRowsToLeads(response){
     throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
   }
   const rows = response.table?.rows || [];
-  const leads = rows.map(row=>{
-    const createdAt = sheetCell(row,0);
+  const remoteActions = {};
+  rows.forEach(row=>{
     const requestType = sheetCell(row,1);
-    const name = sheetCell(row,2);
-    const phone = sheetCell(row,3);
-    const wasteType = sheetCell(row,4);
-    const volume = sheetCell(row,5);
-    const when = sheetCell(row,6);
-    const address = sheetCell(row,7);
-    const source = sheetCell(row,8) || 'Сайт ECOFLOT';
-    const status = sheetCell(row,9) || 'Новая';
-    const comment = sheetCell(row,10);
-    const requestId = sheetCell(row,11);
-    const requestTypeLower = requestType.toLowerCase();
-    const callback = requestTypeLower.includes('обратный звонок');
-    const internetLead = requestTypeLower.includes('интернет');
-    const client = name || (callback ? 'Обратный звонок' : phone || 'Новая заявка');
-    const cleanValue = value => {
-      const v = String(value || '').trim();
-      return v && v !== '-' ? v : '';
-    };
-    const type = callback
-      ? 'Обратный звонок'
-      : internetLead
-        ? (cleanValue(wasteType) || cleanValue(volume) || 'Интернет-заявка')
-        : (cleanValue(volume) || cleanValue(wasteType) || 'ФОС');
-    return {
-      id:stableLeadId(requestId,[createdAt,requestType,name,phone,address].join('|')),
-      clientId:null,
-      client,
-      phone,
-      type,
-      address:address || 'Адрес не указан',
-      date:when || createdAt || 'Новая заявка',
-      createdAt,
-      sum:0,
-      status:normalizeStatus(status),
-      source,
-      vehicleId:null,
-      partnerId:null,
-      comment,
-      applicationUrl:extractLeadApplicationUrl(comment),
-      requestType,
-      requestId
-    };
-  }).filter(x=>!isDemoLead(x));
+    if(requestType !== 'CRM_ACTION_LEAD') return;
+    const target = extractActionTarget(sheetCell(row,10));
+    if(target && remoteActions[target] == null){
+      remoteActions[target] = normalizeStatus(sheetCell(row,9));
+    }
+  });
+
+  const leads = rows
+    .filter(row=>sheetCell(row,1) !== 'CRM_ACTION_LEAD')
+    .map(row=>{
+      const createdAt = sheetCell(row,0);
+      const requestType = sheetCell(row,1);
+      const name = sheetCell(row,2);
+      const phone = sheetCell(row,3);
+      const wasteType = sheetCell(row,4);
+      const volume = sheetCell(row,5);
+      const when = sheetCell(row,6);
+      const address = sheetCell(row,7);
+      const source = sheetCell(row,8) || 'Сайт ECOFLOT';
+      const status = sheetCell(row,9) || 'Новая';
+      const comment = sheetCell(row,10);
+      const requestId = sheetCell(row,11);
+      const requestTypeLower = requestType.toLowerCase();
+      const callback = requestTypeLower.includes('обратный звонок');
+      const internetLead = requestTypeLower.includes('интернет');
+      const client = name || (callback ? 'Обратный звонок' : phone || 'Новая заявка');
+      const cleanValue = value => {
+        const v = String(value || '').trim();
+        return v && v !== '-' ? v : '';
+      };
+      const type = callback
+        ? 'Обратный звонок'
+        : internetLead
+          ? (cleanValue(wasteType) || cleanValue(volume) || 'Интернет-заявка')
+          : (cleanValue(volume) || cleanValue(wasteType) || 'ФОС');
+      const id = stableLeadId(requestId,[createdAt,requestType,name,phone,address].join('|'));
+      return {
+        id,
+        clientId:null,
+        client,
+        phone,
+        type,
+        address:address || 'Адрес не указан',
+        date:when || createdAt || 'Новая заявка',
+        createdAt,
+        sum:0,
+        status:remoteActions[requestId] != null ? remoteActions[requestId] : normalizeStatus(status),
+        source,
+        vehicleId:null,
+        partnerId:null,
+        comment,
+        applicationUrl:extractLeadApplicationUrl(comment),
+        requestType,
+        requestId
+      };
+    })
+    .filter(x=>!isDemoLead(x));
+
+  const overrides = getLeadStatusOverrides();
+  let overridesChanged = false;
+  leads.forEach(lead=>{
+    if(lead.requestId && remoteActions[lead.requestId] != null && overrides[lead.id] !== remoteActions[lead.requestId]){
+      overrides[lead.id] = remoteActions[lead.requestId];
+      overridesChanged = true;
+    }
+  });
+  if(overridesChanged){
+    try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  }
   return applyLeadLocalState(leads);
 }
 
@@ -915,7 +1074,7 @@ function syncLeadsFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить Google Sheets');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет') order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет' or B = 'CRM_ACTION_LEAD') order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
@@ -941,7 +1100,7 @@ function loadTenders(){
   }
 }
 
-const TENDER_STATUSES = ['Новый тендер','В работе','Подготовка заявки','Подано','Выигран','Проигран','Не участвуем'];
+const TENDER_STATUSES = ['Новый тендер','В работе','Отложен','Подготовка заявки','Подано','Выигран','Проигран','Не участвуем'];
 const TENDER_OVERRIDES_KEY = 'wf_tender_status_overrides';
 const TENDER_DELETED_KEY = 'wf_tender_deleted_ids';
 
@@ -975,6 +1134,21 @@ function updateTenderStatus(id,status){
   overrides[id] = status;
   try{ localStorage.setItem(TENDER_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
   saveTenders();
+  if(tender.requestId){
+    sendToGoogleSheet({
+      type:'CRM_ACTION_TENDER',
+      name:'Статус тендера: ' + (tender.title || tender.id),
+      phone:'-',
+      wasteType:tender.work || 'Тендер',
+      volume:'-',
+      when:new Date().toLocaleString('ru-RU'),
+      address:tender.region || '-',
+      source:'ECOFLOT CRM',
+      status:status,
+      comment:'targetRequestId=' + tender.requestId + '\naction=crm_status',
+      requestId:makeRequestId('CRM-ACTION')
+    });
+  }
   renderView('tenders',true);
   showToast('Статус тендера изменён');
 }
@@ -1028,38 +1202,65 @@ function googleSheetRowsToTenders(response){
     throw new Error(response?.errors?.[0]?.detailed_message || 'Google Sheets вернул ошибку');
   }
   const rows = response.table?.rows || [];
-  const tenders = rows.map(row=>{
-    const createdAt = sheetCell(row,0);
-    const title = sheetCell(row,2);
-    const work = sheetCell(row,4);
-    const deadline = sheetCell(row,6);
-    const region = sheetCell(row,7);
-    const source = sheetCell(row,8);
-    const status = sheetCell(row,9) || 'Новый тендер';
-    const comment = sheetCell(row,10);
-    const requestId = sheetCell(row,11);
-    const customer = tenderCommentValue(comment,'Заказчик');
-    const price = tenderCommentValue(comment,'Начальная цена') || tenderCommentValue(comment,'Цена');
-    const scoreMatch = String(comment||'').match(/Скоринг:\s*(\d+)\s*\/\s*100/i);
-    const linkMatch = String(comment||'').match(/https?:\/\/[^\s]+/i);
-    const score = scoreMatch ? Number(scoreMatch[1]) : null;
-    const link = linkMatch ? linkMatch[0].replace(/[),.;]+$/,'') : '';
-    return {
-      id:stableLeadId(requestId,[createdAt,title,deadline,region,source].join('|')).replace(/^L-/,'T-'),
-      createdAt,
-      title:title || 'Тендер',
-      work:work || 'Не указано',
-      deadline:deadline || 'Не указан',
-      region:region || 'Не указан',
-      source:source || 'Не указан',
-      status,
-      comment,
-      customer,
-      price,
-      score,
-      link
-    };
-  }).filter(t=>t.title && t.title.toLowerCase() !== 'тест');
+  const remoteActions = {};
+  rows.forEach(row=>{
+    const requestType = sheetCell(row,1);
+    if(requestType !== 'CRM_ACTION_TENDER') return;
+    const target = extractActionTarget(sheetCell(row,10));
+    if(target && remoteActions[target] == null){
+      remoteActions[target] = sheetCell(row,9) || 'Новый тендер';
+    }
+  });
+
+  const tenders = rows
+    .filter(row=>sheetCell(row,1) === 'Тендер')
+    .map(row=>{
+      const createdAt = sheetCell(row,0);
+      const title = sheetCell(row,2);
+      const work = sheetCell(row,4);
+      const deadline = sheetCell(row,6);
+      const region = sheetCell(row,7);
+      const source = sheetCell(row,8);
+      const status = sheetCell(row,9) || 'Новый тендер';
+      const comment = sheetCell(row,10);
+      const requestId = sheetCell(row,11);
+      const customer = tenderCommentValue(comment,'Заказчик');
+      const price = tenderCommentValue(comment,'Начальная цена') || tenderCommentValue(comment,'Цена');
+      const scoreMatch = String(comment||'').match(/Скоринг:\s*(\d+)\s*\/\s*100/i);
+      const linkMatch = String(comment||'').match(/https?:\/\/[^\s]+/i);
+      const score = scoreMatch ? Number(scoreMatch[1]) : null;
+      const link = linkMatch ? linkMatch[0].replace(/[),.;]+$/,'') : '';
+      const id = stableLeadId(requestId,[createdAt,title,deadline,region,source].join('|')).replace(/^L-/,'T-');
+      return {
+        id,
+        requestId,
+        createdAt,
+        title:title || 'Тендер',
+        work:work || 'Не указано',
+        deadline:deadline || 'Не указан',
+        region:region || 'Не указан',
+        source:source || 'Не указан',
+        status:remoteActions[requestId] != null ? remoteActions[requestId] : status,
+        comment,
+        customer,
+        price,
+        score,
+        link
+      };
+    })
+    .filter(t=>t.title && t.title.toLowerCase() !== 'тест');
+
+  const overrides = getTenderStatusOverrides();
+  let overridesChanged = false;
+  tenders.forEach(tender=>{
+    if(tender.requestId && remoteActions[tender.requestId] != null && overrides[tender.id] !== remoteActions[tender.requestId]){
+      overrides[tender.id] = remoteActions[tender.requestId];
+      overridesChanged = true;
+    }
+  });
+  if(overridesChanged){
+    try{ localStorage.setItem(TENDER_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  }
   return applyTenderLocalState(tenders);
 }
 
@@ -1105,7 +1306,7 @@ function syncTendersFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить тендеры');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where B = 'Тендер' order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'Тендер' or B = 'CRM_ACTION_TENDER') order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
@@ -1130,7 +1331,9 @@ function addLeadToCRM(lead){
     source: lead.source || 'CRM / вручную',
     vehicleId: lead.vehicleId || null,
     partnerId: lead.partnerId || null,
-    comment: lead.comment || ''
+    comment: lead.comment || '',
+    requestType: lead.requestType || '',
+    requestId: lead.requestId || ''
   };
   data.leads.unshift(item);
   saveLeads();
@@ -1139,6 +1342,8 @@ function addLeadToCRM(lead){
 
 async function sendToGoogleSheet(payload){
   try{
+    const outgoing = {...(payload || {})};
+    if(!outgoing.requestId) outgoing.requestId = makeRequestId('ECO');
     let frame = $('#ecoflotSubmitFrame');
     if(!frame){
       frame = document.createElement('iframe');
@@ -1152,22 +1357,17 @@ async function sendToGoogleSheet(payload){
     form.action = ECOFLOT_SHEET_WEBHOOK;
     form.target = 'ecoflotSubmitFrame';
     form.style.display = 'none';
-    Object.entries(payload).forEach(([key,val])=>{
+    Object.entries(outgoing).forEach(([key,val])=>{
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = key;
       input.value = val == null ? '' : String(val);
       form.appendChild(input);
     });
-    const req = document.createElement('input');
-    req.type = 'hidden';
-    req.name = 'requestId';
-    req.value = 'ECO-' + Date.now();
-    form.appendChild(req);
     document.body.appendChild(form);
     form.submit();
     setTimeout(()=>form.remove(),1500);
-    return true;
+    return outgoing.requestId;
   }catch(e){
     console.error(e);
     return false;
@@ -1662,6 +1862,8 @@ async function submitLeadForm(){
     if($('#leadStatus')) $('#leadStatus').textContent = 'Заполните имя, телефон и адрес.';
     return false;
   }
+  const requestId = makeRequestId('ECO-FORM');
+  const userComment = $('#comment')?.value.trim() || '';
   const payload = {
     type:'ФОС',
     name,
@@ -1672,7 +1874,8 @@ async function submitLeadForm(){
     address,
     source:detectLeadSource('form'),
     status:'Новая',
-    comment:$('#comment')?.value.trim() || ''
+    comment:buildLeadActionComment(requestId,phone,userComment),
+    requestId
   };
   const btn = $('#leadSubmitBtn');
   if(btn){ btn.disabled=true; btn.textContent='Отправляем...'; }
@@ -1680,7 +1883,7 @@ async function submitLeadForm(){
   if(btn){ btn.disabled=false; btn.textContent='Отправить заявку'; }
   if(ok){
     if(typeof ecoflotGoal==='function') ecoflotGoal('lead_submit',{source:payload.source,type:payload.wasteType,volume:payload.volume});
-    addLeadToCRM({name,client:name,phone,type:payload.volume||payload.wasteType,address,date:payload.when,status:'new',source:payload.source,comment:payload.comment,requestType:'ФОС'});
+    addLeadToCRM({name,client:name,phone,type:payload.volume||payload.wasteType,address,date:payload.when,status:'new',source:payload.source,comment:payload.comment,requestType:'ФОС',requestId});
     setTimeout(()=>syncLeadsFromGoogleSheet(true),1800);
     $('#leadForm')?.reset();
     $('#leadSuccess')?.classList.remove('hidden');
@@ -1692,9 +1895,19 @@ async function submitLeadForm(){
 async function submitCallbackForm(){
   const phone = $('#callbackPhone')?.value.trim() || '';
   if(!phone) return false;
-  await sendToGoogleSheet({type:'Обратный звонок',phone,when:'Перезвонить',source:detectLeadSource('callback'),status:'Новая'});
+  const requestId = makeRequestId('ECO-CALLBACK');
+  const comment = buildLeadActionComment(requestId,phone,'');
+  await sendToGoogleSheet({
+    type:'Обратный звонок',
+    phone,
+    when:'Перезвонить',
+    source:detectLeadSource('callback'),
+    status:'Новая',
+    comment,
+    requestId
+  });
   if(typeof ecoflotGoal==='function') ecoflotGoal('callback_submit',{source:detectLeadSource('callback')});
-  addLeadToCRM({client:'Обратный звонок',phone,type:'Обратный звонок',address:'Адрес не указан',date:'Перезвонить',status:'new',source:detectLeadSource('callback'),requestType:'Обратный звонок'});
+  addLeadToCRM({client:'Обратный звонок',phone,type:'Обратный звонок',address:'Адрес не указан',date:'Перезвонить',status:'new',source:detectLeadSource('callback'),requestType:'Обратный звонок',comment,requestId});
   setTimeout(()=>syncLeadsFromGoogleSheet(true),1800);
   $('#callbackForm')?.reset();
   closeCallback();
@@ -1792,6 +2005,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(action==='close-password') closeCrmPassword();
   });
 
+  handleBotActionFromUrl();
   restoreAppState();
 });
 
