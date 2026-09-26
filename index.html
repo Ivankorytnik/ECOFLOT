@@ -1324,7 +1324,10 @@ function clearLeadDateRange(){
 function leadCard(l){
   const phone = l.phone ? '<br>'+escHTML(l.phone) : '';
   const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
-  return '<div class="lead-card"><h4>'+escHTML(l.client)+'</h4>'
+  const checked = leadSelectedIds.has(l.id) ? 'checked' : '';
+  return '<div class="lead-card">'
+    + '<label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:var(--muted)"><input type="checkbox" '+checked+' onchange="toggleLeadSelect(\''+escHTML(l.id)+'\',this.checked)"> Выбрать</label>'
+    + '<h4>'+escHTML(l.client)+'</h4>'
     + '<div class="lead-meta"><span class="source-badge">'+escHTML(l.source||'Источник не указан')+'</span></div>'
     + '<p>'+escHTML(l.type)+' • '+escHTML(l.date)+'<br>'+escHTML(l.address)+phone+'</p>'
     + '<div class="sum">'+(l.sum?Number(l.sum).toLocaleString('ru-RU')+' ₽':'Расчёт')+'</div>'
@@ -1335,12 +1338,22 @@ function leadCard(l){
 function leadsHTML(){
   const list = filteredLeads();
   const cols = [['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
-  const toolbar = '<div class="toolbar"><div class="filters">'
+  const visibleIds = list.map(l=>l.id);
+  const allVisibleSelected = visibleIds.length>0 && visibleIds.every(id=>leadSelectedIds.has(id));
+  const selectedCount = [...leadSelectedIds].filter(id=>data.leads.some(l=>l.id===id)).length;
+  const toolbar = '<div class="toolbar" style="align-items:flex-end;gap:12px;flex-wrap:wrap"><div class="filters">'
     + '<button class="chip '+(leadFilter==='all'?'active':'')+'" onclick="setLeadFilter(\'all\')">Все</button>'
     + '<button class="chip '+(leadFilter==='new'?'active':'')+'" onclick="setLeadFilter(\'new\')">Новые</button>'
     + '<button class="chip '+(leadFilter==='site'?'active':'')+'" onclick="setLeadFilter(\'site\')">С сайта</button>'
     + '<button class="chip '+(leadFilter==='manual'?'active':'')+'" onclick="setLeadFilter(\'manual\')">Вручную</button>'
+    + '</div>'
+    + '<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">'
+    + '<label style="font-size:12px;color:var(--muted)">С<br><input type="date" value="'+escHTML(leadDateFrom)+'" onchange="setLeadDateRange(this.value,leadDateTo)" style="padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff"></label>'
+    + '<label style="font-size:12px;color:var(--muted)">По<br><input type="date" value="'+escHTML(leadDateTo)+'" onchange="setLeadDateRange(leadDateFrom,this.value)" style="padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff"></label>'
+    + '<button class="btn light small" type="button" onclick="clearLeadDateRange()">Сбросить даты</button>'
     + '</div><div class="view-switch">'
+    + '<label class="chip" style="display:flex;align-items:center;gap:6px"><input type="checkbox" '+(allVisibleSelected?'checked':'')+' onchange="toggleAllLeads(this.checked)"> Выбрать все</label>'
+    + '<button class="btn light small" type="button" onclick="deleteSelectedLeads()" style="color:#a94a4a">Удалить выбранные ('+selectedCount+')</button>'
     + '<button class="chip '+(leadViewMode==='kanban'?'active':'')+'" onclick="setLeadView(\'kanban\')">Карточки</button>'
     + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
     + '<button class="btn light small" onclick="syncLeadsFromGoogleSheet(true)">↻ Обновить</button>'
@@ -1351,7 +1364,9 @@ function leadsHTML(){
       const resource = l.vehicleId ? (data.vehicles.find(v=>v.id===l.vehicleId)?.name || 'Не назначен')
         : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен') : 'Не назначен';
       const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
+      const checked = leadSelectedIds.has(l.id) ? 'checked' : '';
       return '<tr>'
+        + '<td><input type="checkbox" '+checked+' onchange="toggleLeadSelect(\''+escHTML(l.id)+'\',this.checked)"></td>'
         + '<td>'+escHTML(l.id)+'</td>'
         + '<td><b>'+escHTML(l.client)+'</b></td>'
         + '<td>'+escHTML(l.phone)+'</td>'
@@ -1365,9 +1380,9 @@ function leadsHTML(){
         + '<td>'+remove+'</td>'
         + '</tr>';
     }).join('');
-    const empty = '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
+    const empty = '<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
     return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr>'
-      + '<th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th><th>Действия</th>'
+      + '<th>Выбор</th><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th><th>Действия</th>'
       + '</tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
   }
 
