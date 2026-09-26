@@ -1268,23 +1268,62 @@ function calendarHTML(){
   return '<div class="toolbar"><div class="filters"><button class="chip active">Неделя</button></div><button class="btn light small">Экспорт</button></div>'+out+'</div>';
 }
 
+function saveVehicles(){
+  try{
+    localStorage.setItem('ecoflot_vehicles',JSON.stringify(data.vehicles));
+    localStorage.setItem('ecoflot_vehicles_version','2026-09-26-real-fleet-v1');
+  }catch(e){}
+}
+
+function updateVehicleState(id,state){
+  const vehicle = data.vehicles.find(v=>v.id===id);
+  if(!vehicle) return;
+  vehicle.state = state;
+  saveVehicles();
+  renderView('fleetcrm',true);
+  showToast('Статус автомобиля изменён');
+}
+
+function deleteVehicle(id){
+  const vehicle = data.vehicles.find(v=>v.id===id);
+  if(!vehicle) return;
+  if(!confirm('Удалить строку «' + (vehicle.name || 'Автомобиль') + '» из автопарка?')) return;
+  data.vehicles = data.vehicles.filter(v=>v.id!==id);
+  data.bookings = data.bookings.filter(b=>b.resourceId!==id);
+  saveVehicles();
+  renderView('fleetcrm',true);
+  showToast('Строка удалена');
+}
+
+function vehicleStateSelect(vehicle){
+  const base = ['Свободен','В рейсе','ТО'];
+  const current = String(vehicle.state || 'Свободен');
+  const states = base.includes(current) ? base : [current,...base];
+  return '<select aria-label="Статус автомобиля" onchange="updateVehicleState(\''+escHTML(vehicle.id)+'\',this.value)" style="min-width:130px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
+    + states.map(s=>'<option value="'+escHTML(s)+'" '+(s===current?'selected':'')+'>'+escHTML(s)+'</option>').join('')
+    + '</select>';
+}
+
 function fleetHTML(){
   const rows = data.vehicles.map(v=>{
     const l = v.leadId ? data.leads.find(x=>x.id===v.leadId) : null;
+    const remove = '<button class="btn light small" type="button" onclick="deleteVehicle(\''+escHTML(v.id)+'\')" style="color:#a94a4a">Удалить</button>';
     return '<tr>'
-      + '<td>'+(v.photo?'<img src="'+v.photo+'" alt="" style="width:72px;height:48px;object-fit:cover;border-radius:8px;display:block">':'')+'</td>'
-      + '<td><b>'+v.name+'</b></td>'
-      + '<td>'+v.type+'</td>'
-      + '<td>'+(v.work||'')+'</td>'
-      + '<td>'+v.driver+'</td>'
-      + '<td><span class="pill '+(v.state==='Свободен'?'won':'work')+'">'+v.state+'</span></td>'
-      + '<td>'+(l ? l.id+' · '+l.client : 'Нет назначенной заявки')+'</td>'
-      + '<td>'+v.load+'%</td>'
+      + '<td><b>'+escHTML(v.name)+'</b></td>'
+      + '<td>'+escHTML(v.type)+'</td>'
+      + '<td>'+escHTML(v.work||'')+'</td>'
+      + '<td>'+escHTML(v.driver)+'</td>'
+      + '<td>'+vehicleStateSelect(v)+'</td>'
+      + '<td>'+escHTML(l ? l.id+' · '+l.client : 'Нет назначенной заявки')+'</td>'
+      + '<td>'+Number(v.load||0)+'%</td>'
+      + '<td>'+remove+'</td>'
       + '</tr>';
   }).join('');
+  const empty = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:28px">Автопарк пуст</td></tr>';
   return '<div class="toolbar"><div class="filters"><button class="chip active">Собственный парк ECOFLOT · '+data.vehicles.length+' ед.</button></div><button class="btn primary small" data-crm-action="new-vehicle">+ Автомобиль</button></div>'
-    + '<div style="overflow:auto"><table class="fleet-list-table"><thead><tr><th>Фото</th><th>Автомобиль</th><th>Тип</th><th>Какие работы выполняет</th><th>Водитель</th><th>Статус</th><th>Заявка</th><th>Загрузка недели</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    + '<div style="overflow:auto"><table class="fleet-list-table"><thead><tr><th>Автомобиль</th><th>Тип</th><th>Какие работы выполняет</th><th>Водитель</th><th>Статус</th><th>Заявка</th><th>Загрузка недели</th><th>Действия</th></tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
 }
+
 function partnersHTML(){
   const rows = data.partners.map(p=>{
     const l = p.leadId ? data.leads.find(x=>x.id===p.leadId) : null;
@@ -1374,7 +1413,7 @@ function openCreateVehicleModal(){
       state:$('#crmVehicleState').value,
       leadId:null
     });
-    try{ localStorage.setItem('ecoflot_vehicles',JSON.stringify(data.vehicles)); localStorage.setItem('ecoflot_vehicles_version','2026-09-26-real-fleet-v1'); }catch(e){}
+    saveVehicles();
     closeCreateModal();
     renderView('fleetcrm');
     showToast('Автомобиль создан');
