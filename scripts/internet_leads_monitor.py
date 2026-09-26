@@ -20,6 +20,7 @@ SHEET_NAME = "Заявки"
 STATE_PATH = Path("internet_leads_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
 RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "21"))
+MIN_RELEVANCE_SCORE = 80
 
 NPD_SOURCES = [
     ("Одинцово", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-odincovo"),
