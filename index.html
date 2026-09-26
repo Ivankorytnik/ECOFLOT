@@ -602,7 +602,7 @@ const views = {
 };
 
 let leadFilter = 'all';
-let leadViewMode = localStorage.getItem('ecoflot_lead_view') || 'kanban';
+let leadViewMode = 'rows';
 let leadDateFrom = localStorage.getItem('ecoflot_lead_date_from') || '';
 let leadDateTo = localStorage.getItem('ecoflot_lead_date_to') || '';
 let leadSelectedIds = new Set();
@@ -1306,7 +1306,7 @@ function filteredLeads(){
   return list.filter(leadMatchesDate);
 }
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
-function setLeadView(mode){ leadViewMode = mode; localStorage.setItem('ecoflot_lead_view',mode); renderView('leads',true); }
+function setLeadView(){ leadViewMode = 'rows'; localStorage.setItem('ecoflot_lead_view','rows'); renderView('leads',true); }
 function setLeadDateRange(from,to){
   leadDateFrom = from || '';
   leadDateTo = to || '';
@@ -1354,8 +1354,7 @@ function leadsHTML(){
     + '</div><div class="view-switch">'
     + '<label class="chip" style="display:flex;align-items:center;gap:6px"><input type="checkbox" '+(allVisibleSelected?'checked':'')+' onchange="toggleAllLeads(this.checked)"> Выбрать все</label>'
     + '<button class="btn light small" type="button" onclick="deleteSelectedLeads()" style="color:#a94a4a">Удалить выбранные ('+selectedCount+')</button>'
-    + '<button class="chip '+(leadViewMode==='kanban'?'active':'')+'" onclick="setLeadView(\'kanban\')">Карточки</button>'
-    + '<button class="chip '+(leadViewMode==='rows'?'active':'')+'" onclick="setLeadView(\'rows\')">Строки</button>'
+    + '<button class="chip active" type="button">Строки</button>'
     + '<button class="btn light small" onclick="syncLeadsFromGoogleSheet(true)">↻ Обновить</button>'
     + '<button class="btn primary small" data-crm-action="new-lead">+ Новая заявка</button></div></div>';
 
