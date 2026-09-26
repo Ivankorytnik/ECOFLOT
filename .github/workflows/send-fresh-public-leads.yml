@@ -1,0 +1,81 @@
+name: ECOFLOT send fresh public leads
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/send-fresh-public-leads.yml"
+
+jobs:
+  send:
+    if: contains(github.event.head_commit.message, 'Send fresh public leads now')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Podlipki lead
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Интернет-заявка" \
+            --data-urlencode "name=Вывоз демонтированного окна, рамы и подоконника" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Строительный мусор / окно / рама" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=5 часов назад" \
+            --data-urlencode "address=Подлипки, Московская область" \
+            --data-urlencode "source=Профи.ру" \
+            --data-urlencode "status=Новая" \
+            --data-urlencode "comment=Актуальный заказ клиента: нужно аккуратно вынести и утилизировать демонтированное окно, раму и подоконник. Лифта нет. Ссылка: https://profi.ru/registration/remont/musor/" \
+            --data-urlencode "requestId=WEB-PROFI-PODLIPKI-20260926-01" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send Preobrazhenskaya lead
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Интернет-заявка" \
+            --data-urlencode "name=Вывоз строительного мусора" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Строительный мусор" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=вчера" \
+            --data-urlencode "address=Москва, Преображенская площадь" \
+            --data-urlencode "source=Профи.ру" \
+            --data-urlencode "status=Новая" \
+            --data-urlencode "comment=Строительный мусор. Спускать не нужно. Ограничений по габаритам машины нет. Ссылка: https://profi.ru/registration/remont/musor/" \
+            --data-urlencode "requestId=WEB-PROFI-PREOBRAZH-20260926-01" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send Pavshino lead
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Интернет-заявка" \
+            --data-urlencode "name=Вывоз мусора после ремонта балкона" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Строительный мусор" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=23.09.2026" \
+            --data-urlencode "address=Павшино, Московская область" \
+            --data-urlencode "source=Профи.ру" \
+            --data-urlencode "status=Новая" \
+            --data-urlencode "comment=Объект на 3 этаже, лифта нет. Мусор после ремонта балкона. Нужна машина, погрузка и вынос. Ссылка: https://profi.ru/registration/remont/musor/" \
+            --data-urlencode "requestId=WEB-PROFI-PAVSHINO-20260923-01" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+      - name: Send Khimki lead
+        run: |
+          set -euo pipefail
+          curl -sS -L -X POST \
+            --data-urlencode "type=Интернет-заявка" \
+            --data-urlencode "name=Вывоз строительного и бытового мусора" \
+            --data-urlencode "phone=-" \
+            --data-urlencode "wasteType=Строительный мусор / бытовой мусор" \
+            --data-urlencode "volume=-" \
+            --data-urlencode "when=23.09.2026" \
+            --data-urlencode "address=Химки, Московская область" \
+            --data-urlencode "source=Профи.ру" \
+            --data-urlencode "status=Новая" \
+            --data-urlencode "comment=Бюджет до 4000 ₽. Спустить с 2 этажа, лифта нет. Нужно загрузить и вывезти мусор. Ссылка: https://profi.ru/registration/remont/musor/" \
+            --data-urlencode "requestId=WEB-PROFI-KHIMKI-20260923-01" \
+            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
