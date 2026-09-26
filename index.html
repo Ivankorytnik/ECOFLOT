@@ -785,9 +785,19 @@ function googleSheetRowsToLeads(response){
     const status = sheetCell(row,9) || 'Новая';
     const comment = sheetCell(row,10);
     const requestId = sheetCell(row,11);
-    const callback = requestType.toLowerCase().includes('обратный звонок');
+    const requestTypeLower = requestType.toLowerCase();
+    const callback = requestTypeLower.includes('обратный звонок');
+    const internetLead = requestTypeLower.includes('интернет');
     const client = name || (callback ? 'Обратный звонок' : phone || 'Новая заявка');
-    const type = callback ? 'Обратный звонок' : (volume || wasteType || 'ФОС');
+    const cleanValue = value => {
+      const v = String(value || '').trim();
+      return v && v !== '-' ? v : '';
+    };
+    const type = callback
+      ? 'Обратный звонок'
+      : internetLead
+        ? (cleanValue(wasteType) || cleanValue(volume) || 'Интернет-заявка')
+        : (cleanValue(volume) || cleanValue(wasteType) || 'ФОС');
     return {
       id:stableLeadId(requestId,[createdAt,requestType,name,phone,address].join('|')),
       clientId:null,
@@ -853,7 +863,7 @@ function syncLeadsFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить Google Sheets');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок') order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет') order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
