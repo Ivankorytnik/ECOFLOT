@@ -7,8 +7,42 @@ body{margin:0;font-family:Arial,sans-serif;color:#17201a;background:#fff}.wrap{w
 </style><script src="/marketing.js" defer></script><script src="/analytics.js" defer></script></head><body>
 <header class="wrap top"><a class="brand" href="/">ECOFLOT</a><a class="cta" href="/#leadform">Оставить заявку</a></header>
 <main><section class="wrap hero"><div class="eyebrow">Подбор техники</div><h1>Калькулятор вывоза мусора</h1><p>Укажите примерный объём. Калькулятор подскажет, какой формат стоит рассмотреть. Финальный выбор зависит от типа и веса отходов, подъезда и условий погрузки.</p></section>
-<section class="section alt"><div class="wrap"><div class="calc"><div class="row"><div class="field"><label>Примерный объём, м³<input id="vol" type="number" min="0.5" max="60" step="0.5" value="6"></label></div><div class="field"><label>Тип задачи<select id="task"><option>Ремонт</option><option>Мебель и хлам</option><option>Стройка / демонтаж</option><option>Регулярный вывоз</option></select></label></div></div><button class="cta" type="button" onclick="calc()">Подобрать технику</button><div class="result" id="result"><strong>Контейнер 8 м³</strong><span>Подходит для ориентировочного объёма около 6 м³.</span></div></div></div></section>
+<section class="section alt"><div class="wrap"><div class="calc"><div class="row"><div class="field"><label>Примерный объём, м³<input id="vol" type="number" min="0.5" max="60" step="0.5" value="6"></label></div><div class="field"><label>Тип задачи<select id="task"><option>Ремонт</option><option>Мебель и хлам</option><option>Стройка / демонтаж</option><option>Регулярный вывоз</option></select></label></div></div><button class="cta" type="button" onclick="calc()">Подобрать технику</button><div class="result" id="result"><strong>Контейнер 8 м³</strong><span>Подходит для ориентировочного объёма около 6 м³.</span></div><div class="row" style="margin-top:16px"><div class="field"><label>Адрес<input id="calcAddress" type="text" placeholder="Одинцово, улица, дом"></label></div><div class="field"><label>Телефон<input id="calcPhone" type="tel" placeholder="+7 999 000-00-00"></label></div></div><button class="cta" type="button" onclick="sendCalc()">Отправить расчёт менеджеру</button><p id="calcSendStatus" style="margin:10px 0 0"></p></div></div></section>
 <section class="section"><div class="wrap"><h2>Как читается результат</h2><div class="grid"><div class="card"><h2>До 3 м³</h2><p>Чаще всего стоит рассмотреть Газель.</p></div><div class="card"><h2>3–8 м³</h2><p>Обычно подходит контейнер 8 м³.</p></div><div class="card"><h2>Более 8 м³</h2><p>Рассматривают 20 или 27 м³, иногда несколько рейсов.</p></div></div></div></section>
 <section class="section alt"><div class="wrap"><h2>Нужен точный расчёт?</h2><p>Оставьте адрес, вид отходов и примерный объём. Менеджер ECOFLOT подтвердит вариант техники и стоимость до подачи.</p><a class="cta" href="/#leadform">Получить расчёт</a></div></section>
 <section class="section"><div class="wrap links"><a href="/kak-vybrat-konteyner/">Как выбрать контейнер</a><a href="/ceny/">Цены</a><a href="/uslugi/">Все услуги</a></div></section></main><footer class="footer"><div class="wrap">ECOFLOT · вывоз мусора и аренда контейнеров</div></footer>
-<script>function calc(){const v=Number(document.getElementById('vol').value||0);let t='Газель',d='Подходит для небольшого объёма.';if(v>3&&v<=8){t='Контейнер 8 м³';d='Часто подходит для ремонта и умеренного объёма.'}else if(v>8&&v<=20){t='Контейнер 20 м³';d='Подходит для среднего и крупного строительного объёма.'}else if(v>20){t='Контейнер 27 м³ или несколько рейсов';d='Для крупных объёмов нужен дополнительный расчёт по типу и весу отходов.'}document.getElementById('result').innerHTML='<strong>'+t+'</strong><span>'+d+'</span>'}</script></body></html>
+<script>
+function calc(){
+  const v=Number(document.getElementById('vol').value||0);
+  let t='Газель',d='Подходит для небольшого объёма.';
+  if(v>3&&v<=8){t='Контейнер 8 м³';d='Часто подходит для ремонта и умеренного объёма.'}
+  else if(v>8&&v<=20){t='Контейнер 20 м³';d='Подходит для среднего и крупного строительного объёма.'}
+  else if(v>20){t='Контейнер 27 м³ или несколько рейсов';d='Для крупных объёмов нужен дополнительный расчёт по типу и весу отходов.'}
+  document.getElementById('result').innerHTML='<strong>'+t+'</strong><span>'+d+'</span>';
+  return t;
+}
+async function sendCalc(){
+  const phone=document.getElementById('calcPhone').value.trim();
+  const address=document.getElementById('calcAddress').value.trim();
+  const volume=Number(document.getElementById('vol').value||0);
+  const task=document.getElementById('task').value;
+  const recommendation=calc();
+  const status=document.getElementById('calcSendStatus');
+  if(!phone||!address){status.textContent='Укажите телефон и адрес.';return;}
+  const payload={type:'Калькулятор',phone:phone,address:address,wasteType:task,volume:String(volume)+' м³',when:'Уточнить',source:'Сайт / калькулятор',status:'Новая',comment:'Рекомендация: '+recommendation};
+  try{
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action='https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec';
+    form.target='calcFrame';
+    form.style.display='none';
+    Object.entries(payload).forEach(([k,v])=>{const i=document.createElement('input');i.type='hidden';i.name=k;i.value=v;form.appendChild(i);});
+    const req=document.createElement('input');req.type='hidden';req.name='requestId';req.value='CALC-'+Date.now();form.appendChild(req);
+    let frame=document.getElementById('calcFrame');
+    if(!frame){frame=document.createElement('iframe');frame.id='calcFrame';frame.name='calcFrame';frame.style.display='none';document.body.appendChild(frame);}
+    document.body.appendChild(form);form.submit();setTimeout(()=>form.remove(),1200);
+    if(typeof ecoflotGoal==='function') ecoflotGoal('calculator_submit',{task:task,volume:volume,recommendation:recommendation});
+    status.textContent='Расчёт отправлен менеджеру ECOFLOT.';
+  }catch(e){status.textContent='Не удалось отправить. Оставьте заявку на главной странице.';}
+}
+</script></body></html>
