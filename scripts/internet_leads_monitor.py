@@ -1325,10 +1325,17 @@ def send_webhook(item):
         f"Ссылка: {item['url']}\n"
         f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws/export?format=xlsx"
     )
+    rid = urllib.parse.quote(item["request_id"])
     action_lines = [
         comment,
-        f"▶ В работу: https://ecoflot.pro/?botAction=lead_work&rid={urllib.parse.quote(item['request_id'])}",
-        f"✖ Не подходит: https://ecoflot.pro/?botAction=lead_lost&rid={urllib.parse.quote(item['request_id'])}",
+        f"🆕 Новая: https://ecoflot.pro/?botAction=lead_new&rid={rid}",
+        f"▶ В работе: https://ecoflot.pro/?botAction=lead_work&rid={rid}",
+        f"🧮 Расчёт / КП: https://ecoflot.pro/?botAction=lead_quote&rid={rid}",
+        f"🤝 Согласование: https://ecoflot.pro/?botAction=lead_approval&rid={rid}",
+        f"📅 Запланирована: https://ecoflot.pro/?botAction=lead_scheduled&rid={rid}",
+        f"🚛 Выполняется: https://ecoflot.pro/?botAction=lead_executing&rid={rid}",
+        f"✅ Выполнена: https://ecoflot.pro/?botAction=lead_done&rid={rid}",
+        f"✖ Отказ: https://ecoflot.pro/?botAction=lead_lost&rid={rid}",
         "📂 Открыть CRM: https://ecoflot.pro/#crm/leads",
     ]
     payload = {
