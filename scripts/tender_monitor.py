@@ -32,6 +32,15 @@ SOURCES = [
     ("Москва / спецтехника", "https://gentender.ru/tenders/spetstehnika/moskva"),
 ]
 
+DIRECT_SOURCES = [
+    ("ЕАСУЗ / Электронный магазин МО", "https://market.mosreg.ru/", "Московская область"),
+    ("Портал поставщиков Москвы", "https://zakupki.mos.ru/", "Москва"),
+    ("ПИК ETP", "https://etp.pik.ru/trades", "Москва / Московская область"),
+    ("А101", "https://a101.ru/company/partnership/tenders", "Новая Москва / Московская область"),
+    ("Самолёт S.Tender", "https://partner.samolet.ru/", "Москва / Московская область"),
+    ("Sminex", "https://corp.sminex.com/sotrudnichestvo/tendery-developera", "Москва / Московская область"),
+]
+
 POSITIVE = (
     "вывоз", "транспортирован", "транспортировк", "сбор отход",
     "тко", "кгм", "мусор", "свалк", "навал", "шлам", "фильтрат",
@@ -156,6 +165,72 @@ def extract_cards(page: str, source_region: str):
         })
     return out
 
+def direct_relevant(text):
+    hay = (text or "").lower().replace("ё", "е")
+    include = (
+        "вывоз", "мусор", "отход", "грунт", "землян", "котлован",
+        "демонтаж", "снос", "благоустрой", "расчист", "погруз",
+        "самосвал", "спецтех", "экскаватор", "погрузчик", "контейнер",
+        "свалк", "уборк", "содержан", "строительн", "снег",
+    )
+    exclude = (
+        "ваканси", "резюме", "обучение", "новост", "пресс-релиз",
+        "политик", "конфиденциаль", "пользовательское соглашение",
+    )
+    return any(x in hay for x in include) and not any(x in hay for x in exclude)
+
+
+def extract_direct_cards(page: str, source_label: str, source_url: str, source_region: str):
+    out = []
+    seen_links = set()
+    for m in re.finditer(r'(?is)<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', page):
+        href = html.unescape(m.group(1)).strip()
+        title = clean(m.group(2))
+        if not href or href.startswith(("#", "javascript:", "mailto:", "tel:")):
+            continue
+        link = urllib.parse.urljoin(source_url, href).split("#", 1)[0]
+        if link in seen_links:
+            continue
+        seen_links.add(link)
+
+        start = max(0, m.start() - 500)
+        end = min(len(page), m.end() + 1200)
+        context = clean(page[start:end])
+        combined = (title + " " + context).strip()
+        if len(title) < 6 and len(context) < 30:
+            continue
+        if not direct_relevant(combined):
+            continue
+
+        low = combined.lower().replace("ё", "е")
+        if any(x in low for x in ("завершен", "завершён", "архив", "закрыт", "итоги подведены")):
+            continue
+
+        deadline = ""
+        dm = re.search(r"(?i)(?:до|окончани\w*|срок\w*)[^0-9]{0,20}(\d{1,2}[./]\d{1,2}[./]20\d{2})", combined)
+        if dm:
+            deadline = dm.group(1)
+
+        price = ""
+        pm = re.search(r"(?i)(\d[\d\s]{3,}\s*(?:руб\.?|₽))", combined)
+        if pm:
+            price = clean(pm.group(1))
+
+        item_id = hashlib.sha1((source_label + "|" + link + "|" + title).encode("utf-8")).hexdigest()[:24]
+        out.append({
+            "id": "direct-" + item_id,
+            "title": (title or combined[:220])[:250],
+            "law": "Корпоративная / малая закупка",
+            "region": source_region,
+            "customer": source_label,
+            "price": price,
+            "deadline": deadline,
+            "link": link,
+            "source": source_label,
+        })
+    return out[:150]
+
+
 def relevant(entry):
     hay = entry["title"].lower()
     if any(x in hay for x in EXCLUDE):
@@ -221,7 +296,7 @@ def send_webhook(entry):
         "volume": "-",
         "when": entry["deadline"] or "Активная закупка",
         "address": entry["region"],
-        "source": f"GenTender / данные ЕИС | {entry['link']}",
+        "source": f"{entry.get('source') or 'GenTender / данные ЕИС'} | {entry['link']}",
         "link": entry["link"],
         "status": "Новый тендер",
         "comment": comment[:1800],
@@ -294,6 +369,23 @@ def main():
         except Exception as exc:
             errors.append(f"{source_region}: {exc}")
 
+    for source_label, url, source_region in DIRECT_SOURCES:
+        try:
+            page = fetch(url)
+            cards = extract_direct_cards(page, source_label, url, source_region)
+            print(f"DIRECT_SOURCE {source_label}: {len(cards)} candidate cards")
+            for entry in cards:
+                key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+                request_id = request_id_for(entry)
+                if request_id in sheet_request_ids:
+                    continue
+                if key in sent or key in seen:
+                    continue
+                seen.add(key)
+                candidates.append((entry, key))
+        except Exception as exc:
+            errors.append(f"{source_label}: {exc}")
+
     sent_count = 0
     for entry, key in candidates[:MAX_SEND]:
         try:
@@ -305,7 +397,7 @@ def main():
         except Exception as exc:
             errors.append(f"send {entry['id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < len(SOURCES):
+    if sent_count == 0 and len(errors) < (len(SOURCES) + len(DIRECT_SOURCES)):
         try:
             send_no_results_message()
             print("NO_RESULTS_NOTICE_SENT")
@@ -317,7 +409,7 @@ def main():
     for e in errors:
         print("ERROR:", e, file=sys.stderr)
 
-    if errors and len(errors) >= len(SOURCES) and sent_count == 0:
+    if errors and len(errors) >= (len(SOURCES) + len(DIRECT_SOURCES)) and sent_count == 0:
         sys.exit(1)
 
 if __name__ == "__main__":
