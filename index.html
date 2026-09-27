@@ -205,6 +205,9 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   }
 }
 .view-switch{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lead-column-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0 12px}
+.lead-column-controls>span{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-right:2px}
+.lead-column-controls .chip{padding:7px 9px}
 .crm-modal-form{display:grid;gap:12px;margin-top:14px}
 .crm-modal-form label{margin:0}
 .crm-modal-form input,.crm-modal-form select{margin-top:6px}
@@ -1277,6 +1280,28 @@ let leadDateFrom = localStorage.getItem('ecoflot_lead_date_from') || '';
 let leadDateTo = localStorage.getItem('ecoflot_lead_date_to') || '';
 let leadTypeFilter = localStorage.getItem('ecoflot_lead_type_filter') || 'all';
 let leadSelectedIds = new Set();
+
+const LEAD_COLLAPSIBLE_COLUMNS = [
+  {key:'phone',label:'Телефон'},
+  {key:'type',label:'Тип'},
+  {key:'date',label:'Когда'},
+  {key:'address',label:'Адрес'},
+  {key:'source',label:'Источник'},
+  {key:'resource',label:'Ресурс'}
+];
+
+function loadLeadColumnVisibility(){
+  const defaults = Object.fromEntries(LEAD_COLLAPSIBLE_COLUMNS.map(col=>[col.key,false]));
+  try{
+    const saved = JSON.parse(localStorage.getItem('ecoflot_lead_column_visibility') || '{}');
+    LEAD_COLLAPSIBLE_COLUMNS.forEach(col=>{
+      if(typeof saved[col.key] === 'boolean') defaults[col.key] = saved[col.key];
+    });
+  }catch(e){}
+  return defaults;
+}
+
+let leadColumnVisibility = loadLeadColumnVisibility();
 let tenderFilter = 'all';
 
 function detectLeadSource(kind){
@@ -2257,6 +2282,24 @@ function filteredLeads(){
   return list.filter(leadMatchesDate);
 }
 function setLeadFilter(filter){ leadFilter = filter; renderView('leads',true); }
+
+function toggleLeadColumn(key){
+  if(!Object.prototype.hasOwnProperty.call(leadColumnVisibility,key)) return;
+  leadColumnVisibility[key] = !leadColumnVisibility[key];
+  try{ localStorage.setItem('ecoflot_lead_column_visibility',JSON.stringify(leadColumnVisibility)); }catch(e){}
+  renderView('leads',true);
+}
+
+function leadColumnToggleHTML(){
+  return '<div class="lead-column-controls"><span>Поля:</span>'
+    + LEAD_COLLAPSIBLE_COLUMNS.map(col=>{
+      const open = !!leadColumnVisibility[col.key];
+      return '<button type="button" class="chip '+(open?'active':'')+'" onclick="toggleLeadColumn(\''+col.key+'\')" title="'+(open?'Свернуть':'Развернуть')+' колонку '+col.label+'">'
+        + (open?'▼ ':'▶ ') + col.label + '</button>';
+    }).join('')
+    + '</div>';
+}
+
 function setLeadTypeFilter(value){
   leadTypeFilter = value || 'all';
   localStorage.setItem('ecoflot_lead_type_filter',leadTypeFilter);
@@ -2323,29 +2366,42 @@ function leadsHTML(){
     + '<button class="btn primary small" data-crm-action="new-lead">+ Новая заявка</button></div></div>';
 
   if(leadViewMode==='rows'){
+    const optionalHeader = [
+      ['phone','Телефон'],
+      ['type','Тип'],
+      ['date','Когда'],
+      ['address','Адрес'],
+      ['source','Источник'],
+      ['resource','Ресурс']
+    ].filter(([key])=>leadColumnVisibility[key]).map(([,label])=>'<th>'+label+'</th>').join('');
+
+    const visibleColumnCount = 6 + LEAD_COLLAPSIBLE_COLUMNS.filter(col=>leadColumnVisibility[col.key]).length;
+
     const rows = list.map(l=>{
       const resource = l.vehicleId ? (data.vehicles.find(v=>v.id===l.vehicleId)?.name || 'Не назначен')
         : l.partnerId ? (data.partners.find(p=>p.id===l.partnerId)?.name || 'Не назначен') : 'Не назначен';
       const remove = '<button class="btn light small" type="button" onclick="deleteLead(\''+escHTML(l.id)+'\')" style="color:#a94a4a">Удалить</button>';
       const checked = leadSelectedIds.has(l.id) ? 'checked' : '';
+      const optionalCells = ''
+        + (leadColumnVisibility.phone ? '<td>'+escHTML(l.phone)+'</td>' : '')
+        + (leadColumnVisibility.type ? '<td>'+escHTML(l.type)+'</td>' : '')
+        + (leadColumnVisibility.date ? '<td>'+escHTML(l.date)+'</td>' : '')
+        + (leadColumnVisibility.address ? '<td>'+escHTML(l.address)+'</td>' : '')
+        + (leadColumnVisibility.source ? '<td>'+escHTML(l.source)+'</td>' : '')
+        + (leadColumnVisibility.resource ? '<td>'+escHTML(resource)+'</td>' : '');
       return '<tr>'
         + '<td><input type="checkbox" '+checked+' onchange="toggleLeadSelect(\''+escHTML(l.id)+'\',this.checked)"></td>'
         + '<td>'+escHTML(l.id)+'</td>'
         + '<td>'+leadClientHTML(l)+'</td>'
-        + '<td>'+escHTML(l.phone)+'</td>'
-        + '<td>'+escHTML(l.type)+'</td>'
-        + '<td>'+escHTML(l.date)+'</td>'
-        + '<td>'+escHTML(l.address)+'</td>'
-        + '<td>'+escHTML(l.source)+'</td>'
-        + '<td>'+escHTML(resource)+'</td>'
+        + optionalCells
         + '<td>'+leadStatusSelect(l)+'</td>'
         + '<td>'+Number(l.sum||0).toLocaleString('ru-RU')+' ₽</td>'
         + '<td>'+remove+'</td>'
         + '</tr>';
     }).join('');
-    const empty = '<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
-    return toolbar + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr>'
-      + '<th>Выбор</th><th>ID</th><th>Клиент</th><th>Телефон</th><th>Тип</th><th>Когда</th><th>Адрес</th><th>Источник</th><th>Ресурс</th><th>Статус</th><th>Сумма</th><th>Действия</th>'
+    const empty = '<tr><td colspan="'+visibleColumnCount+'" style="text-align:center;color:var(--muted);padding:28px">Заявок пока нет. ФОС и обратные звонки с сайта появятся здесь автоматически.</td></tr>';
+    return toolbar + leadColumnToggleHTML() + '<div style="overflow:auto"><table class="lead-list-table"><thead><tr>'
+      + '<th>Выбор</th><th>ID</th><th>Клиент</th>' + optionalHeader + '<th>Статус</th><th>Сумма</th><th>Действия</th>'
       + '</tr></thead><tbody>'+(rows||empty)+'</tbody></table></div>';
   }
 
