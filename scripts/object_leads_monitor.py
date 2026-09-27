@@ -19,7 +19,7 @@ WEBHOOK = os.environ.get(
 STATE_PATH = Path("object_leads_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "20"))
 RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "5"))
-MIN_SCORE = int(os.environ.get("MIN_SCORE", "65"))
+MIN_SCORE = int(os.environ.get("MIN_SCORE", "70"))
 
 GEOS = {
     "Одинцово": ("одинцово", "одинцовский"),
@@ -59,6 +59,9 @@ SIGNALS = {
 EXCLUDE = (
     "продажа квартир", "купить квартиру", "ипотека", "ваканс",
     "выставка", "форум", "конференц", "прогноз", "обзор рынка",
+    "завершили ремонт", "работы завершены", "благоустройство завершено",
+    "строительство завершено", "объект введен", "объект введён",
+    "санкт-петербург", "петербург", "ленинградская область",
 )
 
 def fetch(url, timeout=20):
@@ -157,7 +160,9 @@ def parse_feed(xml_text, query_geo):
         if published and datetime.now(timezone.utc) - published > timedelta(days=RECENT_DAYS):
             continue
         text = title + " " + desc
-        geo = detect_geo(text) or query_geo
+        geo = detect_geo(text)
+        if not geo:
+            continue
         signal = detect_signal(text)
         score = score_item(title, desc, geo, signal, published)
         if score < MIN_SCORE or not signal:
