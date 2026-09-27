@@ -33,7 +33,7 @@ SOURCES = [
 ]
 
 DIRECT_SOURCES = [
-    ("ЕАСУЗ / Электронный магазин МО", "https://market.mosreg.ru/", "Московская область"),
+    ("ЕАСУЗ / Электронный магазин МО", "https://easuz.mosreg.ru/torgi", "Московская область"),
     ("Портал поставщиков Москвы", "https://zakupki.mos.ru/", "Москва"),
     ("ПИК ETP", "https://etp.pik.ru/trades", "Москва / Московская область"),
     ("А101", "https://a101.ru/company/partnership/tenders", "Новая Москва / Московская область"),
@@ -198,6 +198,13 @@ def extract_direct_cards(page: str, source_label: str, source_url: str, source_r
         context = clean(page[start:end])
         combined = (title + " " + context).strip()
         if len(title) < 6 and len(context) < 30:
+            continue
+        generic_titles = (
+            "перейти в тендерную систему", "подробнее", "узнать больше",
+            "войти", "регистрация", "личный кабинет", "все тендеры",
+            "смотреть все", "открыть", "перейти",
+        )
+        if title.lower().strip() in generic_titles:
             continue
         if not direct_relevant(combined):
             continue
