@@ -595,7 +595,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
       <h2>Вход в CRM</h2>
       <p>Введите пароль доступа.</p>
-      <form id="crmPasswordForm" onsubmit="event.preventDefault();var p=document.getElementById('crmPasswordInput');var e=document.getElementById('crmPasswordError');if(p&&p.value.trim()===CRM_PASSWORD){sessionStorage.setItem('ecoflot_crm_unlocked','1');document.getElementById('crmPasswordModal')?.classList.add('hidden');var v=localStorage.getItem('ecoflot_pending_crm_view')||localStorage.getItem('ecoflot_crm_view')||'dashboard';localStorage.removeItem('ecoflot_pending_crm_view');openCRM(v);}else if(e){e.textContent='Неверный пароль';}return false;">
+      <form id="crmPasswordForm">
         <label>Пароль<input id="crmPasswordInput" type="password" inputmode="numeric" autocomplete="current-password" required /></label>
         <div id="crmPasswordError" class="form-status error"></div>
         <button class="btn primary full" type="submit">Войти</button>
@@ -620,7 +620,8 @@ const today = new Date();
 const ECOFLOT_SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec';
 const ECOFLOT_SHEET_ID = '1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws';
 const ECOFLOT_SHEET_NAME = 'Заявки';
-const CRM_PASSWORD = '3649';
+const CRM_PASSWORD_HASH = 'dc4aa707636ec734bb22a822b62592c85c668c511f10e98da810420c8d5d2181';
+const CRM_PASSWORD_LENGTH = 4;
 
 const data = {
   clients:[],
@@ -2075,10 +2076,18 @@ document.addEventListener('DOMContentLoaded',()=>{
     submitCallbackForm();
   });
 
-  function unlockCrmIfValid(){
+  async function sha256Hex(value){
+    const data = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest('SHA-256', data);
+    return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function unlockCrmIfValid(){
     const input = $('#crmPasswordInput');
-    const val = input?.value || '';
-    if(val === CRM_PASSWORD){
+    const val = (input?.value || '').trim();
+    if(!val) return false;
+    const hash = await sha256Hex(val);
+    if(hash === CRM_PASSWORD_HASH){
       sessionStorage.setItem('ecoflot_crm_unlocked','1');
       closeCrmPassword();
       const pending = localStorage.getItem('ecoflot_pending_crm_view') || localStorage.getItem('ecoflot_crm_view') || 'dashboard';
@@ -2089,19 +2098,22 @@ document.addEventListener('DOMContentLoaded',()=>{
     return false;
   }
 
-  $('#crmPasswordForm')?.addEventListener('submit',e=>{
+  $('#crmPasswordForm')?.addEventListener('submit',async e=>{
     e.preventDefault();
-    if(!unlockCrmIfValid()){
+    if(!await unlockCrmIfValid()){
       $('#crmPasswordError').textContent = 'Неверный пароль';
     }
   });
 
-  $('#crmPasswordInput')?.addEventListener('input',()=>{
-    $('#crmPasswordError').textContent = '';
-    if(($('#crmPasswordInput')?.value || '').length >= CRM_PASSWORD.length){
-      if(!unlockCrmIfValid() && ($('#crmPasswordInput')?.value || '').length > CRM_PASSWORD.length){
-        $('#crmPasswordError').textContent = 'Неверный пароль';
-      }
+  $('#crmPasswordInput')?.addEventListener('input',async ()=>{
+    const el = $('#crmPasswordInput');
+    const err = $('#crmPasswordError');
+    if(err) err.textContent = '';
+    const value = (el?.value || '').trim();
+    if(value.length === CRM_PASSWORD_LENGTH){
+      if(!await unlockCrmIfValid() && err) err.textContent = 'Неверный пароль';
+    }else if(value.length > CRM_PASSWORD_LENGTH && err){
+      err.textContent = 'Неверный пароль';
     }
   });
 
