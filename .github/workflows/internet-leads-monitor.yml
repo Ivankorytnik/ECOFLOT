@@ -6,10 +6,6 @@ on:
     - cron: "0 7 * * *"   # 10:00 Moscow (UTC+3)
     - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
-  push:
-    paths:
-      - "scripts/internet_leads_monitor.py"
-      - ".github/workflows/internet-leads-monitor.yml"
 
 permissions:
   contents: write
