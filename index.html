@@ -574,21 +574,6 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
     </div>
   </div>
 
-  <div id="loginModal" class="modal-backdrop hidden" data-nosnippet>
-    <div class="modal login-modal">
-      <button class="modal-close" onclick="closeLogin()">×</button>
-      <div class="brand"><span class="brand-mark">E</span><span>ECOFLOT CRM</span></div>
-      <h2>Вход для менеджеров</h2><p>Введите рабочую почту компании.</p>
-      <form id="loginForm">
-        <label>Рабочая почта<input id="loginEmail" type="email" placeholder="manager@company.ru" required /></label>
-        <button class="btn primary full" type="submit">Войти</button>
-      </form>
-      <small>Демо-версия: подойдёт любой корректный email. Для продакшена подключается Supabase/Auth.</small>
-    </div>
-  </div>
-
-
-
   <div id="crmPasswordModal" class="modal-backdrop hidden" data-nosnippet>
     <div class="modal login-modal">
       <button class="modal-close" type="button" data-crm-action="close-password">×</button>
@@ -1445,11 +1430,6 @@ function closeCallback(){
   const m = $('#callbackModal');
   if(m) m.classList.add('hidden');
 }
-function closeLogin(){
-  const m = $('#loginModal');
-  if(m) m.classList.add('hidden');
-}
-
 function setCrmHash(view){
   history.replaceState(null,'',location.pathname + location.search + '#crm/' + view);
 }
@@ -2064,11 +2044,6 @@ document.addEventListener('DOMContentLoaded',()=>{
   },30000);
   document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
     btn.addEventListener('click',()=>renderView(btn.dataset.view));
-  });
-
-  $('#loginForm')?.addEventListener('submit',e=>{
-    e.preventDefault();
-    openCRM('dashboard');
   });
 
   $('#callbackForm')?.addEventListener('submit',e=>{
