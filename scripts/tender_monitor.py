@@ -42,6 +42,10 @@ DIRECT_SOURCES = [
     ("Level Group ETP", "https://etp.level.ru/trades", "Москва / Московская область"),
 ]
 
+TELEGRAM_TENDER_SOURCES = [
+    ("ФСК тендеры", "fsk_tenders", "Москва / Московская область"),
+]
+
 POSITIVE = (
     "вывоз", "транспортирован", "транспортировк", "сбор отход",
     "тко", "кгм", "мусор", "свалк", "навал", "шлам", "фильтрат",
@@ -239,6 +243,46 @@ def extract_direct_cards(page: str, source_label: str, source_url: str, source_r
     return out[:150]
 
 
+def extract_telegram_tenders(page: str, source_label: str, channel: str, source_region: str):
+    out = []
+    marks = list(re.finditer(r'data-post="([^"]+)/(\d+)"', page, re.I))
+    for i, m in enumerate(marks):
+        start = m.start()
+        end = marks[i + 1].start() if i + 1 < len(marks) else min(len(page), start + 18000)
+        block = page[start:end]
+        tm = re.search(r'(?is)<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', block)
+        if not tm:
+            continue
+        text = clean(re.sub(r'(?i)<br\s*/?>', '\n', tm.group(1)))
+        low = text.lower().replace("ё","е")
+        if not any(x in low for x in ("тендер", "закуп", "котлован", "земляные работы", "снос", "благоустройство", "подготовительные работы")):
+            continue
+        if not any(x in low for x in ("москва", "московск", "химки", "видное", "одинцов", "красногор", "новая москва")):
+            continue
+        if not any(x in low for x in ("котлован", "землян", "снос", "благоустрой", "подготовительн", "расчист", "вывоз", "грунт", "мусор", "отход")):
+            continue
+        deadline = ""
+        dm = re.search(r'(?i)до\s+(\d{1,2}\s+[а-яё]+|\d{1,2}[./]\d{1,2}(?:[./]20\d{2})?)', text)
+        if dm:
+            deadline = clean(dm.group(1))
+        post_channel = m.group(1)
+        post_id = m.group(2)
+        link = f"https://t.me/{post_channel}/{post_id}"
+        item_id = "telegram-" + post_channel + "-" + post_id
+        title = next((x.strip("🔸📍⚡️✅ ") for x in text.splitlines() if any(k in x.lower().replace("ё","е") for k in ("котлован","землян","снос","благоустрой","подготовительн","расчист","вывоз","грунт","мусор","отход"))), text[:220])
+        out.append({
+            "id": item_id,
+            "title": title[:250],
+            "law": "Корпоративная закупка / Telegram-анонс",
+            "region": source_region,
+            "customer": source_label,
+            "price": "",
+            "deadline": deadline,
+            "link": link,
+            "source": source_label,
+        })
+    return out
+
 def relevant(entry):
     hay = entry["title"].lower()
     if any(x in hay for x in EXCLUDE):
@@ -394,6 +438,24 @@ def main():
         except Exception as exc:
             errors.append(f"{source_label}: {exc}")
 
+    for source_label, channel, source_region in TELEGRAM_TENDER_SOURCES:
+        try:
+            url = f"https://t.me/s/{channel}"
+            page = fetch(url)
+            cards = extract_telegram_tenders(page, source_label, channel, source_region)
+            print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
+            for entry in cards:
+                key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+                request_id = request_id_for(entry)
+                if request_id in sheet_request_ids:
+                    continue
+                if key in sent or key in seen:
+                    continue
+                seen.add(key)
+                candidates.append((entry, key))
+        except Exception as exc:
+            errors.append(f"{source_label}: {exc}")
+
     sent_count = 0
     for entry, key in candidates[:MAX_SEND]:
         try:
@@ -405,7 +467,7 @@ def main():
         except Exception as exc:
             errors.append(f"send {entry['id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < (len(SOURCES) + len(DIRECT_SOURCES)):
+    if sent_count == 0 and len(errors) < (len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)):
         try:
             send_no_results_message()
             print("NO_RESULTS_NOTICE_SENT")
@@ -417,7 +479,7 @@ def main():
     for e in errors:
         print("ERROR:", e, file=sys.stderr)
 
-    if errors and len(errors) >= (len(SOURCES) + len(DIRECT_SOURCES)) and sent_count == 0:
+    if errors and len(errors) >= (len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)) and sent_count == 0:
         sys.exit(1)
 
 if __name__ == "__main__":
