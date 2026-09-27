@@ -74,6 +74,10 @@ def main():
         sent_now += 1
         print("SENT:", rid, item.get("kind", "lead"), item.get("title", ""))
 
+    if sent_now == 0:
+        send_notify("Поиск Telegram/MAX проведён, новых заявок не обнаружено")
+        print("NO_RESULTS_NOTICE_SENT")
+
     save_state(state)
     print(f"Social queue: {len(queue.get('items', []))}, sent now: {sent_now}")
 
