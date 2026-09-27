@@ -33,6 +33,9 @@ CHANNELS = [
     ("Всем Подряд", "vsem_podryad"),
     ("Работа для самосвалов", "samosvalam_rabota"),
     ("Горячие заказы МСК МО", "Goryachie_Zakazy"),
+    ("Спецтехника аренда Москва и МО", "spetctechnika_arenda_uslugi"),
+    ("Аренда спецтехники Заявки", "spectehnikfree"),
+    ("Аренда Спецтехники Москва МО", "spetstekhnika_arenda"),
 ]
 
 DEMAND_MARKERS = (
