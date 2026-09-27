@@ -19,8 +19,8 @@ SHEET_ID = "1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws"
 SHEET_NAME = "Заявки"
 STATE_PATH = Path("internet_leads_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
-RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "21"))
-MIN_RELEVANCE_SCORE = 80
+RECENT_DAYS = 7
+MIN_RELEVANCE_SCORE = 60
 
 NPD_SOURCES = [
     ("Одинцово", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-odincovo"),
@@ -51,7 +51,9 @@ GEO_ALLOW = (
     "новоивановск", "новоивановский", "лесной городок", "внуково",
     "кубинк", "голицыно", "большие вяземы", "малые вяземы",
     "краснознаменск", "звенигород", "красногорск", "нахабино",
-    "истра", "дедовск", "апрелевка", "наро-фоминск", "наро фоминск"
+    "истра", "дедовск", "апрелевка", "наро-фоминск", "наро фоминск",
+    "новая москва", "троицк", "московский", "коммунарка", "щербинка",
+    "кокошкино", "первомайское", "марушкинское", "филимонковское"
 )
 
 POSITIVE = (
