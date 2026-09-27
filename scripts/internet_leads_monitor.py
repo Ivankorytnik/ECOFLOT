@@ -96,6 +96,10 @@ RENTAG_SOURCES = [
     ("Rentag / биржа заявок", "https://rentag.ru/arenda-spectehniki/zayavki"),
 ]
 
+SAMOSVAL_INFO_SOURCES = [
+    ("Samosval.info / Москва и МО", "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/"),
+]
+
 PROMINDEX_SOURCES = [
     ("Promindex / Москва / заявки", "https://promindex.ru/msk/orders"),
     ("Promindex / Московская область / заявки", "https://promindex.ru/moskovskaya-oblast/orders"),
@@ -653,6 +657,36 @@ def parse_dozzr(page, source_url):
         if item:
             out.append(item)
     return out
+
+def parse_samosval_info(page, source_url):
+    out = []
+    for m in re.finditer(r'(?is)<a[^>]+href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', page):
+        href = html.unescape(m.group(1))
+        title = clean(m.group(2))
+        if len(title) < 12:
+            continue
+        start = max(0, m.start() - 800)
+        end = min(len(page), m.end() + 2200)
+        context = clean(page[start:end])
+        combined = (title + " " + context).strip()
+        low = normalize(combined)
+        if not any(x in low for x in ("требуются самосвалы","требуется самосвал","тонар","самосвал","вывоз грунта","перевозка грунта","песок","щебень","грунт")):
+            continue
+        if not geo_allowed("", title, context):
+            continue
+        until_m = re.search(r'(?i)(?:актуал[^0-9]{0,20}до|до)\s*(\d{1,2}\.\d{1,2}(?:\.20\d{2})?)', combined)
+        date_text = until_m.group(1) if until_m else "актуальная заявка"
+        link = urllib.parse.urljoin(source_url, href)
+        key = hashlib.sha1(link.encode("utf-8")).hexdigest()[:16]
+        item = build_open_feed_item(
+            "Samosval.info", source_url, key, title[:180], combined[:1800], date_text,
+            location=matched_geo(combined),
+            url=link,
+        )
+        if item:
+            out.append(item)
+    unique = {x["request_id"]: x for x in out}
+    return list(unique.values())
 
 def parse_yellty(page, source_url):
     out = []
@@ -1224,6 +1258,15 @@ def collect_candidates():
         except Exception as exc:
             errors.append(f"Spectex {source_label}: {exc}")
 
+    for source_label, source_url in SAMOSVAL_INFO_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_samosval_info(page, source_url)
+            print(f"SAMOSVAL_INFO_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Samosval.info {source_label}: {exc}")
+
     for source_label, source_url in YELLTY_SOURCES:
         try:
             page = fetch(source_url, timeout=15)
@@ -1442,7 +1485,7 @@ def main():
         + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
         + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
         + len(VSEMPODRYAD_SOURCES) + len(SPCTEH_RU_SOURCES)
-        + len(RENTAG_SOURCES) + len(PROMINDEX_SOURCES)
+        + len(RENTAG_SOURCES) + len(PROMINDEX_SOURCES) + len(SAMOSVAL_INFO_SOURCES)
     ):
         try:
             send_no_results_message()
