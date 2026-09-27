@@ -3,7 +3,8 @@ name: ECOFLOT internet leads monitor
 
 on:
   schedule:
-    - cron: "0 9 * * *"   # 12:00 Moscow (UTC+3)
+    - cron: "0 7 * * *"   # 10:00 Moscow (UTC+3)
+    - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
   push:
     paths:
@@ -27,7 +28,7 @@ jobs:
       - name: Scan public internet requests
         env:
           MAX_SEND: "50"
-          RECENT_DAYS: "21"
+          RECENT_DAYS: "7"
         run: python3 scripts/internet_leads_monitor.py
 
       - name: Save processed request IDs
