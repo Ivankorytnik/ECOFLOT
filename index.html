@@ -1922,11 +1922,14 @@ function restoreAppState(){
     openCRM(m[1]);
     return;
   }
-  if(localStorage.getItem('ecoflot_mode')==='crm'){
-    const saved = localStorage.getItem('ecoflot_crm_view') || 'dashboard';
-    localStorage.setItem('ecoflot_pending_crm_view',saved);
-    openCRM(saved);
-  }
+
+  // Обычный вход на сайт всегда открывает публичную часть.
+  // CRM больше не восстанавливается автоматически из прошлого сеанса.
+  localStorage.removeItem('ecoflot_mode');
+  localStorage.removeItem('ecoflot_pending_crm_view');
+  sessionStorage.removeItem('ecoflot_crm_unlocked');
+  $('#crm')?.classList.remove('active');
+  $('#landing')?.classList.add('active');
 }
 
 loadLeads();
