@@ -4,7 +4,8 @@ name: ECOFLOT internet leads monitor
 
 on:
   schedule:
-    - cron: "0 7 * * *"   # 10:00 Moscow (UTC+3)
+    - cron: "0 5 * * *"   # 08:00 Moscow (UTC+3)
+    - cron: "0 11 * * *"  # 14:00 Moscow (UTC+3)
     - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
   push:
