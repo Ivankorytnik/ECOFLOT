@@ -12,4 +12,32 @@ jobs:
     steps:
       - name: Send test lead
         run: |
-          curl -fsSL -X POST 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec'             --data-urlencode 'type=Интернет-заявка'             --data-urlencode 'name=ТЕСТ кнопок статуса ECOFLOT'             --data-urlencode 'phone=+7 999 000-00-00'             --data-urlencode 'wasteType=Вывоз строительного мусора'             --data-urlencode 'volume=8 м³'             --data-urlencode 'when=Сейчас'             --data-urlencode 'address=Одинцово, Московская область'             --data-urlencode 'source=Тест Telegram статусов'             --data-urlencode 'status=Новая'             --data-urlencode 'comment=Тест 8 inline-кнопок после обновления Apps Script'             --data-urlencode 'requestId=TEST-LEAD-BUTTONS-20260927-001'
+          python3 - <<'PY'
+          import json, urllib.parse, urllib.request
+          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          payload = {
+              "type": "Интернет-заявка",
+              "name": "ТЕСТ кнопок статуса ECOFLOT",
+              "phone": "+7 999 000-00-00",
+              "wasteType": "Вывоз строительного мусора",
+              "volume": "8 м³",
+              "when": "Сейчас",
+              "address": "Одинцово, Московская область",
+              "source": "Тест Telegram статусов",
+              "status": "Новая",
+              "comment": "Тест 8 inline-кнопок после обновления Apps Script",
+              "requestId": "TEST-LEAD-BUTTONS-20260927-002",
+          }
+          req = urllib.request.Request(
+              url,
+              data=urllib.parse.urlencode(payload).encode("utf-8"),
+              method="POST",
+              headers={"User-Agent":"ECOFLOT-Test/1.0"},
+          )
+          with urllib.request.urlopen(req, timeout=30) as r:
+              body = r.read().decode("utf-8","replace")
+              print(body)
+              parsed = json.loads(body)
+              if not parsed.get("ok"):
+                  raise SystemExit("Webhook returned ok=false")
+          PY
