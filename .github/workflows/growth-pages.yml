@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/generate_growth_pages.py'
+      - '.github/workflows/growth-pages.yml'
 
 permissions:
   contents: write
