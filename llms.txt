@@ -1,8 +1,13 @@
 # ECOFLOT
 
-ECOFLOT provides waste, soil and construction debris removal using its own and partner special-purpose fleet in Moscow, Odintsovo and the Moscow Region.
+ECOFLOT provides waste removal, soil removal, construction debris removal, container rental and special-equipment services in Odintsovo, Moscow and the western Moscow region.
+
+Official website: https://ecoflot.pro/
+Language: Russian
+Primary service area: Odintsovo, Moscow, Moscow Region, including Krasnogorsk, Zvenigorod, Aprelevka, Istra, Naro-Fominsk, New Moscow, Rublyovo-Uspenskoye and Minskoye directions.
 
 ## Main services
+- All services: https://ecoflot.pro/uslugi/
 - Waste removal in Odintsovo: https://ecoflot.pro/vyvoz-musora-odincovo/
 - Waste removal in Moscow: https://ecoflot.pro/vyvoz-musora-moskva/
 - Waste removal in Moscow Region: https://ecoflot.pro/vyvoz-musora-moskovskaya-oblast/
@@ -24,7 +29,6 @@ ECOFLOT provides waste, soil and construction debris removal using its own and p
 - Prices: https://ecoflot.pro/ceny/
 
 ## Helpful pages
-- All services: https://ecoflot.pro/uslugi/
 - Service areas: https://ecoflot.pro/zony-raboty/
 - Calculator: https://ecoflot.pro/kalkulyator/
 - How to choose a container: https://ecoflot.pro/kak-vybrat-konteyner/
@@ -32,6 +36,13 @@ ECOFLOT provides waste, soil and construction debris removal using its own and p
 - FAQ: https://ecoflot.pro/faq/
 - HTML sitemap: https://ecoflot.pro/karta-saita/
 
-## Contact / lead form
-Use the lead form on the home page:
+## Equipment
+ECOFLOT uses its own and partner fleet for waste and material handling, including multilifts, bunker trucks, dump trucks, loaders and grapple-equipped vehicles.
+
+## Indexing
+Sitemap: https://ecoflot.pro/sitemap.xml
+Robots: https://ecoflot.pro/robots.txt
+
+## Contact
+Use the lead form on the official website for current availability, pricing and order details:
 https://ecoflot.pro/#leadform
