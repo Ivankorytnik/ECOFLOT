@@ -1916,20 +1916,20 @@ async function submitCallbackForm(){
 }
 
 function restoreAppState(){
-  const m = location.hash.match(/^#crm\/([a-z]+)$/i);
-  if(m && views[m[1]]){
-    localStorage.setItem('ecoflot_pending_crm_view',m[1]);
-    openCRM(m[1]);
-    return;
-  }
-
-  // Обычный вход на сайт всегда открывает публичную часть.
-  // CRM больше не восстанавливается автоматически из прошлого сеанса.
+  // При любом открытии или обновлении сайта показываем только публичную часть.
+  // CRM открывается исключительно по явному нажатию кнопки CRM.
   localStorage.removeItem('ecoflot_mode');
   localStorage.removeItem('ecoflot_pending_crm_view');
   sessionStorage.removeItem('ecoflot_crm_unlocked');
+  $('#crmPasswordModal')?.classList.add('hidden');
   $('#crm')?.classList.remove('active');
   $('#landing')?.classList.add('active');
+
+  // Убираем старый сохранённый CRM-hash, чтобы обновление страницы
+  // больше не вызывало окно пароля автоматически.
+  if(/^#crm\//i.test(location.hash)){
+    history.replaceState(null,'',location.pathname + location.search + '#hero');
+  }
 }
 
 loadLeads();
@@ -2014,7 +2014,10 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 window.addEventListener('hashchange',()=>{
   const m = location.hash.match(/^#crm\/([a-z]+)$/i);
-  if(m && views[m[1]]) renderView(m[1],true);
+  // Переключать CRM по hash можно только когда CRM уже открыта и разблокирована.
+  if(m && views[m[1]] && isCrmUnlocked() && $('#crm')?.classList.contains('active')){
+    renderView(m[1],true);
+  }
 });
 </script>
 <script>
