@@ -201,12 +201,22 @@ def send(item):
         "Благоустройство": "Погрузка, вывоз грунта/отходов, расчистка",
         "Дороги": "Самосвалы, вывоз грунта, погрузка",
     }.get(item["signal"], "Техника ECOFLOT")
+    rid = urllib.parse.quote(item["request_id"])
     comment = (
         f"Сигнал объекта: {item['signal']}\n"
         f"Релевантность: {item['score']}\n"
         f"Что предложить: {suggested}\n"
         f"Источник: {item['url']}\n"
-        f"Описание: {item['description'][:1200]}"
+        f"Описание: {item['description'][:1200]}\n"
+        f"🆕 Новая: https://ecoflot.pro/?botAction=lead_new&rid={rid}\n"
+        f"▶ В работе: https://ecoflot.pro/?botAction=lead_work&rid={rid}\n"
+        f"🧮 Расчёт / КП: https://ecoflot.pro/?botAction=lead_quote&rid={rid}\n"
+        f"🤝 Согласование: https://ecoflot.pro/?botAction=lead_approval&rid={rid}\n"
+        f"📅 Запланирована: https://ecoflot.pro/?botAction=lead_scheduled&rid={rid}\n"
+        f"🚛 Выполняется: https://ecoflot.pro/?botAction=lead_executing&rid={rid}\n"
+        f"✅ Выполнена: https://ecoflot.pro/?botAction=lead_done&rid={rid}\n"
+        f"✖ Отказ: https://ecoflot.pro/?botAction=lead_lost&rid={rid}\n"
+        f"📂 Открыть CRM: https://ecoflot.pro/#crm/leads"
     )
     payload = {
         "type": "Потенциальный объект",
