@@ -12,19 +12,49 @@ jobs:
     if: contains(github.event.head_commit.message, 'Send fresh public leads now')
     runs-on: ubuntu-latest
     steps:
-      - name: Send Krasnogorsk soil transport lead
+      - name: Send fresh leads to ECOFLOT webhook
         run: |
           set -euo pipefail
-          curl -sS -L -X POST \
-            --data-urlencode "type=Интернет-заявка" \
-            --data-urlencode "name=Перевозка грунта Красногорск → Онуфриево" \
-            --data-urlencode "phone=8 905 718-83-00" \
-            --data-urlencode "wasteType=Перевозка грунта" \
-            --data-urlencode "volume=-" \
-            --data-urlencode "when=Актуальная заявка" \
-            --data-urlencode "address=Красногорск → Онуфриево, Московская область" \
-            --data-urlencode "source=Telegram / Самосвалам работа" \
-            --data-urlencode "status=Новая" \
-            --data-urlencode "comment=Релевантность: 90/100. Нужны самосвалы для перевозки грунта. Работа заявлена как долгосрочная и постоянная. Погрузка в Красногорске, направление Онуфриево. Оплата раз в неделю, возможен аванс на топливо. Подходящая техника ECOFLOT: самосвалы. Источник: https://t.me/s/samosvalam_rabota" \
-            --data-urlencode "requestId=SOCIAL-TG-KRASNOGORSK-GRUNT-20260926-01" \
-            "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+          send_lead () {
+            curl -sS -L -X POST \
+              --data-urlencode "type=Интернет-заявка" \
+              --data-urlencode "name=$1" \
+              --data-urlencode "phone=-" \
+              --data-urlencode "wasteType=$2" \
+              --data-urlencode "volume=$3" \
+              --data-urlencode "when=$4" \
+              --data-urlencode "address=$5" \
+              --data-urlencode "source=НаПодработку" \
+              --data-urlencode "status=Новая" \
+              --data-urlencode "comment=$6" \
+              --data-urlencode "requestId=$7" \
+              "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          }
+
+          send_lead \
+            "Вывоз строительного мусора — Истра" \
+            "Вывоз строительного мусора" \
+            "-" \
+            "2026-09-25" \
+            "Истра, Московская область" \
+            "Релевантность: 93/100. Битый кирпич, бетон, дерево и мелкий строительный мусор после устройства бетонной площадки. Всё на участке, нужен вывоз. Подходящая техника ECOFLOT: бункеровоз / мультилифт / самосвал. Ссылка: https://www.napodrabotku.ru/order/94341856" \
+            "WEB-NPD-94341856"
+
+          send_lead \
+            "Строительный мусор с участка — Истра" \
+            "Расчистка / погрузка и вывоз" \
+            "-" \
+            "2026-09-25" \
+            "Истра, Московская область" \
+            "Релевантность: 91/100. Строительный мусор вокруг дома. Требуется вынести к дороге, загрузить и вывезти. Подходящая техника ECOFLOT: экскаватор-погрузчик + самосвал / контейнер. Ссылка: https://www.napodrabotku.ru/order/94351957" \
+            "WEB-NPD-94351957"
+
+          send_lead \
+            "Бетон и поддоны — Красногорск" \
+            "Вывоз строительного мусора" \
+            "15-20 мешков + 17 поддонов" \
+            "2026-09-22" \
+            "Красногорск, Московская область" \
+            "Релевантность: 83/100. 15-20 мешков с бетоном и 17 поддонов. Требуется забрать с погрузкой и вывозом. Заказчик просит предложить цену. Подходящая техника ECOFLOT: Газель / бункеровоз / мультилифт. Ссылка: https://www.napodrabotku.ru/order/94248164" \
+            "WEB-NPD-94248164"
