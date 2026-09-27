@@ -45,6 +45,15 @@ PROFI_SOURCES = [
 # order feed or authenticated API.
 YOUDO_SOURCES = []
 
+P24_SOURCES = [
+    ("Перевозка24 / все заказы спецтехники", "https://perevozka24.ru/dolgosrochnaya-arenda"),
+]
+
+VEZETVSEM_SOURCES = [
+    ("Везёт Всем / вывоз мусора", "https://www.vezetvsem.ru/listing/all/vyvoz_musora"),
+    ("Везёт Всем / строительные грузы", "https://www.vezetvsem.ru/listing/moskva/stroitelnye_gruzy_i_oborudovanie"),
+]
+
 GEO_ALLOW = (
     "одинцов", "барвиха", "горки-2", "горки 2", "горки-10", "горки 10",
     "рублев", "рублёв", "усово", "жуковка", "николина гора", "раздоры",
@@ -66,6 +75,8 @@ POSITIVE = (
     "погрузка мусора", "погрузка грунта", "расчистка территории",
     "очистка строительной площадки", "земляные работы",
     "погрузка самосвалов", "перевозка песка", "перевозка щебня",
+    "вывоз мусора", "самосвал", "тонар", "экскаватор-погрузчик",
+    "экскаватор погрузчик", "мусоровоз", "ломовоз", "бункеровоз", "мультилифт",
 )
 EXCLUDE = (
     "откачка", "септик", "канализац", "медицинск", "ртут", "ламп",
@@ -168,7 +179,11 @@ def relevant(title, description):
 
 def infer_work_equipment(title, description):
     hay = normalize((title or "") + " " + (description or ""))
-    if any(x in hay for x in ("контейнер 8","контейнер 20","контейнер 27","бункер")):
+    if any(x in hay for x in ("экскаватор-погрузчик","экскаватор погрузчик")):
+        return "Погрузка / земляные работы", "Экскаватор-погрузчик"
+    if any(x in hay for x in ("мусоровоз","регулярный вывоз тко")):
+        return "Регулярный вывоз ТКО / обслуживание площадок", "Мусоровоз"
+    if any(x in hay for x in ("бункеровоз","мультилифт","контейнер 8","контейнер 20","контейнер 27","бункер")):
         return "Контейнерный вывоз", "Бункеровоз / мультилифт"
     if any(x in hay for x in ("грунт","котлован","земляные работы")):
         return "Вывоз / погрузка грунта", "Самосвал / экскаватор-погрузчик"
@@ -184,8 +199,8 @@ def infer_work_equipment(title, description):
         return "Вывоз строительного мусора", "Бункеровоз / мультилифт / самосвал"
     if any(x in hay for x in ("расчистка территории","очистка стройплощадки","погрузка мусора","погрузка отходов")):
         return "Расчистка / погрузка и вывоз", "Экскаватор-погрузчик + самосвал / контейнер"
-    if any(x in hay for x in ("перевозка песка","перевозка щебня","сыпучие материалы")):
-        return "Перевозка сыпучих материалов", "Самосвал"
+    if any(x in hay for x in ("перевозка песка","перевозка щебня","сыпучие материалы","самосвал","тонар")):
+        return "Работа самосвала / перевозка сыпучих материалов", "Самосвал"
     if any(x in hay for x in ("производственные отходы","смешанные отходы")):
         return "Вывоз производственных / смешанных отходов", "Мультилифт / бункеровоз"
     return "", ""
@@ -342,6 +357,133 @@ def parse_npd_order(url, source_label):
         "volume": volume or "-",
         "url": url,
         "source": "НаПодработку",
+        "priority": priority_for(title + " " + description),
+    }
+
+def parse_day_month(text):
+    m = re.search(r"\b(\d{1,2})\.(\d{1,2})\b", text or "")
+    if not m:
+        return None
+    now = datetime.now(timezone.utc)
+    try:
+        dt = datetime(now.year, int(m.group(2)), int(m.group(1)), tzinfo=timezone.utc)
+        if dt - now > timedelta(days=30):
+            dt = dt.replace(year=now.year - 1)
+        return dt
+    except ValueError:
+        return None
+
+def matched_geo(text):
+    hay = normalize(text or "")
+    for term in GEO_ALLOW:
+        if normalize(term) in hay:
+            return term
+    return ""
+
+def parse_p24_orders(page, source_label, source_url):
+    lines = lines_from_html(page)
+    out = []
+    starts = [i for i, line in enumerate(lines) if re.search(r"\b№\d+\b", line)]
+    for pos, start in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else min(len(lines), start + 16)
+        block_lines = lines[start:end]
+        block = " ".join(block_lines)
+        m_id = re.search(r"\b№(\d+)\b", block_lines[0])
+        m_order = re.search(r"Заказ\s+([^:]{2,90}):\s*(.*)", block, re.I)
+        if not m_id or not m_order:
+            continue
+        order_id = m_id.group(1)
+        order_type = clean(m_order.group(1))
+        desc = re.split(
+            r"Адрес объекта:|Способ оплаты:|Бюджет:|Посмотреть контакты|Получать уведомления|Заказ просматривает",
+            m_order.group(2),
+            maxsplit=1,
+            flags=re.I,
+        )[0].strip()
+        if not desc:
+            continue
+        addr_m = re.search(
+            r"Адрес объекта:\s*(.*?)(?:Способ оплаты:|Бюджет:|Посмотреть контакты|Получать уведомления|$)",
+            block,
+            re.I,
+        )
+        header_loc = re.sub(r"^\d{1,2}\.\d{1,2}\s+\d{1,2}:\d{2}\s*", "", block_lines[0])
+        header_loc = re.split(r"\s+№\d+", header_loc, maxsplit=1)[0].strip()
+        location = clean(addr_m.group(1)) if addr_m else header_loc
+        if not geo_allowed(location, order_type, desc):
+            continue
+        title = f"Заказ {order_type}: {desc[:140]}"
+        if not relevant(title, desc):
+            continue
+        dt = parse_day_month(block_lines[0])
+        if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+            continue
+        budget_m = re.search(r"Бюджет:\s*([\d\s]+\s*руб\.?)", block, re.I)
+        out.append({
+            "request_id": "WEB-P24-" + order_id,
+            "title": title[:250],
+            "description": desc[:1800],
+            "price": clean(budget_m.group(1)) if budget_m else "договорная",
+            "date": dt.strftime("%Y-%m-%d") if dt else "актуальная заявка",
+            "location": location[:250],
+            "volume": extract_volume(desc) or "-",
+            "url": source_url + "#order-" + order_id,
+            "source": "Перевозка24",
+            "priority": priority_for(title + " " + desc),
+        })
+    return out
+
+def vezetvsem_listing_links(page, source_url):
+    links = set()
+    for href in re.findall(r'href=["\']([^"\']+)["\']', page, re.I):
+        url = urllib.parse.urljoin(source_url, html.unescape(href))
+        if "vezetvsem.ru/" not in url:
+            continue
+        if re.search(r"_\d{6,}/?$", url) or re.search(r"/\d{6,}(?:[/?#]|$)", url):
+            links.add(url.split("#", 1)[0])
+    return sorted(links)[:80]
+
+def parse_vezetvsem_order(url, source_label):
+    page = fetch(url)
+    lines = lines_from_html(page)
+    text = " ".join(lines)
+    low = text.lower()
+    if "заказ не актуален" in low or "торги завершены" in low:
+        return None
+    h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
+    title = clean(h1.group(1)) if h1 else (lines[0] if lines else "Грузовой заказ")
+    if not relevant(title, text):
+        return None
+    geo = matched_geo(text)
+    if not geo:
+        return None
+    m_date = re.search(r"Дата размещения:\s*(\d{1,2}\.\d{1,2}\.20\d{2})", text, re.I)
+    dt = None
+    if m_date:
+        try:
+            dt = datetime.strptime(m_date.group(1), "%d.%m.%Y").replace(tzinfo=timezone.utc)
+        except ValueError:
+            dt = None
+    if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+        return None
+    desc_m = re.search(
+        r"Информация о грузе(?:\s*№\s*\d+)?:?\s*(.*?)(?:Погрузка|Выгрузка|Ценовые предложения|Вопросы и обсуждения|$)",
+        text,
+        re.I,
+    )
+    description = clean(desc_m.group(1)) if desc_m else clean(text[:1800])
+    m_id = re.search(r"(\d{6,})(?:/?$|[?#])", url)
+    order_id = m_id.group(1) if m_id else hashlib.sha1(url.encode("utf-8")).hexdigest()[:16]
+    return {
+        "request_id": "WEB-VV-" + order_id,
+        "title": title[:250],
+        "description": description[:1800],
+        "price": "договорная",
+        "date": dt.strftime("%Y-%m-%d") if dt else "актуальная заявка",
+        "location": geo[:250],
+        "volume": extract_volume(description) or "-",
+        "url": url,
+        "source": "Везёт Всем",
         "priority": priority_for(title + " " + description),
     }
 
@@ -554,6 +696,41 @@ def collect_candidates():
         except Exception as exc:
             errors.append(f"YouDo {source_label}: {exc}")
 
+    for source_label, source_url in P24_SOURCES:
+        try:
+            page = fetch(source_url, timeout=12)
+            found = parse_p24_orders(page, source_label, source_url)
+            print(f"P24_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Perevozka24 {source_label}: {exc}")
+
+    vv_links = {}
+    for source_label, source_url in VEZETVSEM_SOURCES:
+        try:
+            page = fetch(source_url, timeout=12)
+            links = vezetvsem_listing_links(page, source_url)
+            print(f"VEZETVSEM_SOURCE {source_label}: {len(links)} order links")
+            for link in links:
+                vv_links.setdefault(link, source_label)
+        except Exception as exc:
+            errors.append(f"VezetVsem listing {source_label}: {exc}")
+
+    def fetch_vv_order(args):
+        link, source_label = args
+        return link, parse_vezetvsem_order(link, source_label)
+
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(fetch_vv_order, item): item for item in vv_links.items()}
+        for future in as_completed(futures):
+            link, source_label = futures[future]
+            try:
+                _, item = future.result()
+                if item:
+                    candidates.append(item)
+            except Exception as exc:
+                errors.append(f"VezetVsem order {link}: {exc}")
+
     unique = {}
     for item in candidates:
         unique[item["request_id"]] = item
@@ -673,7 +850,10 @@ def main():
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < (len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)):
+    if sent_count == 0 and len(errors) < (
+        len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)
+        + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
+    ):
         try:
             send_no_results_message()
             print("NO_RESULTS_NOTICE_SENT")
