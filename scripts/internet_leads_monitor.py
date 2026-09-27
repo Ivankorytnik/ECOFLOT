@@ -87,6 +87,19 @@ VSEMPODRYAD_SOURCES = [
     ("Всем Подряд / МО / демонтаж", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Московская область") + "/" + urllib.parse.quote("Демонтажные работы, разборка и снос зданий") + "/"),
 ]
 
+SPCTEH_RU_SOURCES = [
+    ("SPCTEH / заявки аренды", "https://spcteh.ru/bids/arenda/"),
+]
+
+RENTAG_SOURCES = [
+    ("Rentag / биржа заявок", "https://rentag.ru/arenda-spectehniki/zayavki"),
+]
+
+PROMINDEX_SOURCES = [
+    ("Promindex / Москва / заявки", "https://promindex.ru/msk/orders"),
+    ("Promindex / Московская область / заявки", "https://promindex.ru/moskovskaya-oblast/orders"),
+]
+
 GEO_ALLOW = (
     "одинцов", "барвиха", "горки-2", "горки 2", "горки-10", "горки 10",
     "рублев", "рублёв", "усово", "жуковка", "николина гора", "раздоры",
@@ -113,7 +126,9 @@ POSITIVE = (
     "демонтаж", "снос здания", "снос строения", "разбор здания", "разбор строения",
     "гидромолот", "выемка грунта", "разработка грунта", "выборка грунта",
     "котлован", "расчистка участка", "очистка участка", "уборка территории",
-    "порубочные остатки", "подготовка площадки",
+    "порубочные остатки", "подготовка площадки", "аренда спецтехники",
+    "разработка котлована", "благоустройство", "ликвидация свалки",
+    "погрузка и вывоз", "содержание территории", "экскаватор", "погрузчик",
 )
 EXCLUDE = (
     "откачка", "септик", "канализац", "медицинск", "ртут", "ламп",
@@ -227,7 +242,7 @@ def lead_class(title, description):
         "вывоз", "контейнер", "самосвал", "тонар", "мусоровоз", "ломовоз",
         "бункеровоз", "мультилифт", "погрузка мусора", "погрузка грунта",
         "нужен экскаватор", "требуется экскаватор", "требуются самосвалы",
-        "требуется самосвал",
+        "требуется самосвал", "нужен погрузчик", "требуется погрузчик",
     )
     if any(x in hay for x in hot):
         return "HOT"
@@ -244,6 +259,8 @@ def infer_work_equipment(title, description):
     hay = normalize((title or "") + " " + (description or ""))
     if any(x in hay for x in ("экскаватор-погрузчик","экскаватор погрузчик")):
         return "Погрузка / земляные работы", "Экскаватор-погрузчик"
+    if any(x in hay for x in ("экскаватор", "погрузчик")):
+        return "Земляные / погрузочные работы", "Экскаватор / погрузчик / экскаватор-погрузчик"
     if any(x in hay for x in ("мусоровоз","регулярный вывоз тко")):
         return "Регулярный вывоз ТКО / обслуживание площадок", "Мусоровоз"
     if any(x in hay for x in ("бункеровоз","мультилифт","контейнер 8","контейнер 20","контейнер 27","бункер")):
@@ -668,6 +685,117 @@ def parse_spectex(page, source_url):
             out.append(item)
     return out
 
+def parse_spcteh_ru(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    starts = [i for i, line in enumerate(lines) if normalize(line).startswith("требуется ")]
+    for pos, start in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else min(len(lines), start + 18)
+        block_lines = lines[start:end]
+        block = " ".join(block_lines)
+        title = block_lines[0]
+        submitted = ""
+        m_date = re.search(r"Подана:\s*(\d{1,2}\.\d{1,2}\.20\d{2})", block, re.I)
+        if m_date:
+            submitted = m_date.group(1)
+            dt = parse_ddmmyy(submitted)
+            if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+                continue
+        location = matched_geo(block)
+        if not location:
+            continue
+        key = hashlib.sha1((title + "|" + location + "|" + submitted + "|" + block[:600]).encode("utf-8")).hexdigest()[:16]
+        item = build_open_feed_item(
+            "SPCTEH", source_url, key, title, block, submitted or "актуальная заявка",
+            location=location, url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out
+
+
+def parse_rentag(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    starts = [i for i, line in enumerate(lines) if normalize(line).startswith("заявка на аренду спецтехники в ")]
+    for pos, start in enumerate(starts):
+        end = starts[pos + 1] if pos + 1 < len(starts) else min(len(lines), start + 45)
+        block_lines = lines[start:end]
+        block = " ".join(block_lines)
+        low = normalize(block)
+        if "не активна" in low or "завершена" in low or "закрыта" in low:
+            continue
+        location = matched_geo(block)
+        if not location:
+            continue
+        date_m = re.search(r"\b(\d{1,2}\.\d{1,2}\.\d{2,4})(?:,?\s+\d{1,2}:\d{2})?\b", block)
+        date_text = date_m.group(1) if date_m else ""
+        dt = parse_ddmmyy(date_text)
+        if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+            continue
+        id_m = re.search(r"(?<!\d)(\d{5,9})(?!\d)", block)
+        order_id = id_m.group(1) if id_m else hashlib.sha1(block.encode("utf-8")).hexdigest()[:16]
+        title = block_lines[0]
+        item = build_open_feed_item(
+            "Rentag", source_url, order_id, title, block, date_text or "актуальная заявка",
+            location=location, url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out
+
+
+def parse_promindex(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    seen = set()
+    months = {
+        "января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
+        "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12,
+    }
+    for i, line in enumerate(lines):
+        id_m = re.search(r"№\s*(\d{6,})", line)
+        if not id_m:
+            continue
+        order_id = id_m.group(1)
+        if order_id in seen:
+            continue
+        seen.add(order_id)
+        block_lines = lines[max(0, i - 3):min(len(lines), i + 8)]
+        block = " ".join(block_lines)
+        if not relevant(line, block):
+            continue
+        location = matched_geo(block)
+        if not location:
+            continue
+        dt = None
+        date_text = ""
+        dm = re.search(r"\b(\d{1,2})\s+([а-яё]+)\s+(20\d{2})\b", block.lower())
+        if dm and dm.group(2) in months:
+            try:
+                dt = datetime(int(dm.group(3)), months[dm.group(2)], int(dm.group(1)), tzinfo=timezone.utc)
+                date_text = dt.strftime("%Y-%m-%d")
+            except ValueError:
+                dt = None
+        if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+            continue
+        title = line
+        item = {
+            "request_id": "WEB-PROMINDEX-" + order_id,
+            "title": clean(title)[:250],
+            "description": clean(block)[:1800],
+            "price": "договорная",
+            "date": date_text or "актуальная заявка",
+            "location": location[:250],
+            "volume": extract_volume(block) or "-",
+            "url": source_url,
+            "source": "Promindex",
+            "priority": priority_for(block),
+        }
+        out.append(item)
+    return out[:100]
+
+
 def parse_beton24(page, source_url):
     lines = lines_from_html(page)
     out = []
@@ -1089,6 +1217,33 @@ def collect_candidates():
         except Exception as exc:
             errors.append(f"Yellty {source_label}: {exc}")
 
+    for source_label, source_url in SPCTEH_RU_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_spcteh_ru(page, source_url)
+            print(f"SPCTEH_RU_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"SPCTEH {source_label}: {exc}")
+
+    for source_label, source_url in RENTAG_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_rentag(page, source_url)
+            print(f"RENTAG_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Rentag {source_label}: {exc}")
+
+    for source_label, source_url in PROMINDEX_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_promindex(page, source_url)
+            print(f"PROMINDEX_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Promindex {source_label}: {exc}")
+
     for source_label, source_url in BETON24_SOURCES:
         try:
             page = fetch(source_url, timeout=15)
@@ -1259,7 +1414,8 @@ def main():
         + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
         + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
         + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
-        + len(VSEMPODRYAD_SOURCES)
+        + len(VSEMPODRYAD_SOURCES) + len(SPCTEH_RU_SOURCES)
+        + len(RENTAG_SOURCES) + len(PROMINDEX_SOURCES)
     ):
         try:
             send_no_results_message()
