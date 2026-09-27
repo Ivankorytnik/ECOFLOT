@@ -1,0 +1,26 @@
+name: Repository audit
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/repo_audit.py'
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.py'
+      - '.github/workflows/*.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run repository audit
+        run: python3 scripts/repo_audit.py
