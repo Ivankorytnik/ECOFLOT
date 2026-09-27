@@ -607,6 +607,29 @@ def send_webhook(item):
         except json.JSONDecodeError:
             pass
 
+def send_no_results_message():
+    payload = {
+        "mode": "notify-only",
+        "message": "Поиск интернет-заявок проведён, новых заявок не обнаружено",
+    }
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    req = urllib.request.Request(
+        WEBHOOK,
+        data=data,
+        method="POST",
+        headers={
+            "User-Agent": "ECOFLOT-Internet-Leads/1.0",
+            "Content-Type": "application/json; charset=utf-8",
+        },
+    )
+    with urllib.request.urlopen(req, timeout=30) as r:
+        body = r.read().decode("utf-8", "replace")
+        if not (200 <= r.status < 300):
+            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
+        resp = json.loads(body)
+        if not resp.get("ok"):
+            raise RuntimeError(f"Webhook error: {body[:300]}")
+
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
@@ -649,6 +672,13 @@ def main():
             print("SENT:", item["source"], item["request_id"], item["title"][:140], item["location"])
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
+
+    if sent_count == 0 and len(errors) < (len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)):
+        try:
+            send_no_results_message()
+            print("NO_RESULTS_NOTICE_SENT")
+        except Exception as exc:
+            errors.append(f"send no-results notice: {exc}")
 
     save_state(state)
     print(
