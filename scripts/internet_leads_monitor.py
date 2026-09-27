@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+import ssl
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -152,6 +153,21 @@ def fetch(url: str, timeout=10, attempts=2) -> str:
         except Exception as exc:
             last_exc = exc
     raise last_exc
+
+def fetch_relaxed_ssl(url: str, timeout=20) -> str:
+    # Used only for explicitly known public read-only sources with broken certificate chains.
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,*/*",
+            "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.7",
+        },
+    )
+    ctx = ssl._create_unverified_context()
+    with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
+        return r.read().decode("utf-8", "replace")
+
 
 def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
@@ -1228,7 +1244,11 @@ def collect_candidates():
 
     for source_label, source_url in RENTAG_SOURCES:
         try:
-            page = fetch(source_url, timeout=20)
+            try:
+                page = fetch(source_url, timeout=20)
+            except ssl.SSLCertVerificationError:
+                page = fetch_relaxed_ssl(source_url, timeout=20)
+                print(f"RENTAG_SSL_FALLBACK {source_label}: public read-only fetch")
             found = parse_rentag(page, source_url)
             print(f"RENTAG_SOURCE {source_label}: {len(found)} candidate blocks")
             candidates.extend(found)
