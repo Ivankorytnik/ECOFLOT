@@ -245,33 +245,26 @@ def send_webhook(entry):
 
 def send_no_results_message():
     payload = {
-        "type": "Тендеры",
-        "name": "Поиск тендеров ECOFLOT",
-        "phone": "-",
-        "wasteType": "Мониторинг тендеров",
-        "volume": "-",
-        "when": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
-        "address": "Одинцово / Москва / Московская область",
-        "source": "ECOFLOT tender monitor",
-        "status": "Поиск завершен",
-        "comment": "Поиск проведён, новых тендеров не обнаружено",
-        "requestId": "TENDER-CHECK-" + datetime.now(timezone.utc).strftime("%Y%m%d"),
+        "mode": "notify-only",
+        "message": "Поиск проведён, новых тендеров не обнаружено",
     }
-    data = urllib.parse.urlencode(payload).encode("utf-8")
+    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
-        WEBHOOK, data=data, method="POST",
-        headers={"User-Agent": "ECOFLOT-Tender-Monitor/2.0"},
+        WEBHOOK,
+        data=data,
+        method="POST",
+        headers={
+            "User-Agent": "ECOFLOT-Tender-Monitor/2.0",
+            "Content-Type": "application/json; charset=utf-8",
+        },
     )
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
         if not (200 <= r.status < 300):
             raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        try:
-            resp = json.loads(body)
-            if not resp.get("ok"):
-                raise RuntimeError(f"Webhook error: {body[:300]}")
-        except json.JSONDecodeError:
-            pass
+        resp = json.loads(body)
+        if not resp.get("ok"):
+            raise RuntimeError(f"Webhook error: {body[:300]}")
 
 def main():
     state = load_state()
