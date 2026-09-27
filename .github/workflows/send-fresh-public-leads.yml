@@ -1,4 +1,4 @@
-name: ECOFLOT send fresh public leads
+name: ECOFLOT notify fresh public leads
 
 on:
   push:
@@ -8,53 +8,42 @@ on:
       - ".github/workflows/send-fresh-public-leads.yml"
 
 jobs:
-  send:
-    if: contains(github.event.head_commit.message, 'Send fresh public leads now')
+  notify:
+    if: contains(github.event.head_commit.message, 'Notify fresh public leads now')
     runs-on: ubuntu-latest
     steps:
-      - name: Send fresh leads to ECOFLOT webhook
+      - name: Notify Telegram without creating duplicate rows
         run: |
           set -euo pipefail
+          WEBHOOK="https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
 
-          send_lead () {
-            curl -sS -L -X POST \
-              --data-urlencode "type=Интернет-заявка" \
-              --data-urlencode "name=$1" \
-              --data-urlencode "phone=-" \
-              --data-urlencode "wasteType=$2" \
-              --data-urlencode "volume=$3" \
-              --data-urlencode "when=$4" \
-              --data-urlencode "address=$5" \
-              --data-urlencode "source=НаПодработку" \
-              --data-urlencode "status=Новая" \
-              --data-urlencode "comment=$6" \
-              --data-urlencode "requestId=$7" \
-              "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          notify () {
+            payload="$(python3 -c 'import json,sys; print(json.dumps({"mode":"notify-only","message":sys.argv[1]}, ensure_ascii=False))' "$1")"
+            response="$(curl -sS -L -H "Content-Type: application/json" -X POST -d "$payload" "$WEBHOOK")"
+            echo "$response"
+            echo "$response" | grep -Eq '"ok"[[:space:]]*:[[:space:]]*true|ok'
           }
 
-          send_lead \
-            "Вывоз строительного мусора — Истра" \
-            "Вывоз строительного мусора" \
-            "-" \
-            "2026-09-25" \
-            "Истра, Московская область" \
-            "Релевантность: 93/100. Битый кирпич, бетон, дерево и мелкий строительный мусор после устройства бетонной площадки. Всё на участке, нужен вывоз. Подходящая техника ECOFLOT: бункеровоз / мультилифт / самосвал. Ссылка: https://www.napodrabotku.ru/order/94341856" \
-            "WEB-NPD-94341856"
+          notify "🟢 Новая заявка ECOFLOT | 93/100
+📍 Истра, Московская область
+🚛 Вывоз строительного мусора
+Битый кирпич, бетон, дерево и мелкий строительный мусор после устройства бетонной площадки. Всё на участке, нужен вывоз.
+Техника: бункеровоз / мультилифт / самосвал.
+🔗 https://www.napodrabotku.ru/order/94341856
+CRM: https://ecoflot.pro/#crm/leads"
 
-          send_lead \
-            "Строительный мусор с участка — Истра" \
-            "Расчистка / погрузка и вывоз" \
-            "-" \
-            "2026-09-25" \
-            "Истра, Московская область" \
-            "Релевантность: 91/100. Строительный мусор вокруг дома. Требуется вынести к дороге, загрузить и вывезти. Подходящая техника ECOFLOT: экскаватор-погрузчик + самосвал / контейнер. Ссылка: https://www.napodrabotku.ru/order/94351957" \
-            "WEB-NPD-94351957"
+          notify "🟢 Новая заявка ECOFLOT | 91/100
+📍 Истра, Московская область
+🚛 Расчистка / погрузка и вывоз
+Строительный мусор вокруг дома. Требуется вынести к дороге, загрузить и вывезти.
+Техника: экскаватор-погрузчик + самосвал / контейнер.
+🔗 https://www.napodrabotku.ru/order/94351957
+CRM: https://ecoflot.pro/#crm/leads"
 
-          send_lead \
-            "Бетон и поддоны — Красногорск" \
-            "Вывоз строительного мусора" \
-            "15-20 мешков + 17 поддонов" \
-            "2026-09-22" \
-            "Красногорск, Московская область" \
-            "Релевантность: 83/100. 15-20 мешков с бетоном и 17 поддонов. Требуется забрать с погрузкой и вывозом. Заказчик просит предложить цену. Подходящая техника ECOFLOT: Газель / бункеровоз / мультилифт. Ссылка: https://www.napodrabotku.ru/order/94248164" \
-            "WEB-NPD-94248164"
+          notify "🟢 Новая заявка ECOFLOT | 83/100
+📍 Красногорск, Московская область
+🚛 Вывоз строительного мусора
+15-20 мешков с бетоном и 17 поддонов. Требуется забрать с погрузкой и вывозом. Заказчик просит предложить цену.
+Техника: Газель / бункеровоз / мультилифт.
+🔗 https://www.napodrabotku.ru/order/94248164
+CRM: https://ecoflot.pro/#crm/leads"
