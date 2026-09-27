@@ -26,6 +26,11 @@
           "addressRegion":"Московская область",
           "addressCountry":"RU"
         },
+        "geo":{
+          "@type":"GeoCoordinates",
+          "latitude":55.674433,
+          "longitude":37.304411
+        },
         "openingHoursSpecification":[{
           "@type":"OpeningHoursSpecification",
           "dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
