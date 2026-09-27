@@ -1,0 +1,41 @@
+name: ECOFLOT growth pages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/generate_growth_pages.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecoflot-growth-pages
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate service x geography pages
+        run: |
+          python3 scripts/generate_growth_pages.py
+          python3 scripts/generate_sitemap.py
+
+      - name: Commit generated pages and sitemap
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add .
+            git commit -m "SEO: generate service geography pages"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "No changes"
+          fi
