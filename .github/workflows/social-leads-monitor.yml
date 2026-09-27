@@ -4,11 +4,6 @@ on:
   schedule:
     - cron: "0 6 * * *"
   workflow_dispatch:
-  push:
-    paths:
-      - "scripts/social_leads_monitor.py"
-      - "scripts/max_leads_monitor.py"
-      - ".github/workflows/social-leads-monitor.yml"
 
 permissions:
   contents: write
