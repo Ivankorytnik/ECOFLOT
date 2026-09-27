@@ -54,6 +54,32 @@ VEZETVSEM_SOURCES = [
     ("Везёт Всем / строительные грузы", "https://www.vezetvsem.ru/listing/moskva/stroitelnye_gruzy_i_oborudovanie"),
 ]
 
+DOZZR_SOURCES = [
+    ("Dozzr / самосвалы и тонары", "https://dozzr.ru/catalog/28"),
+    ("Dozzr / общая лента", "https://dozzr.ru/"),
+]
+
+NERUDONLINE_SOURCES = [
+    ("НерудОнлайн / работа для самосвалов", "https://nerudonline.ru/rabota/samosvaly"),
+]
+
+SPECTEX_SOURCES = [
+    ("Spectex / заявки спецтехники", "https://www.spectex.su/"),
+]
+
+YELLTY_SOURCES = [
+    ("Yellty / свежие заказы", "https://yellty.ru/zakazy"),
+]
+
+BETON24_SOURCES = [
+    ("Бетон24 / заявки спецтехники МО", "https://beton24.ru/moskovskaya-oblast/orders/arenda-spectehniki-368/"),
+    ("Бетон24 / заявки спецтехники", "https://beton24.ru/orders/arenda-spectehniki-368/"),
+]
+
+EXKAVATOR_SOURCES = [
+    ("Экскаватор Ру / заявки на аренду", "https://exkavator.ru/exchange/rent/main.html"),
+]
+
 GEO_ALLOW = (
     "одинцов", "барвиха", "горки-2", "горки 2", "горки-10", "горки 10",
     "рублев", "рублёв", "усово", "жуковка", "николина гора", "раздоры",
@@ -83,16 +109,23 @@ EXCLUDE = (
     "аккумулятор", "шины", "пищев", "реактив",
 )
 
-def fetch(url: str, timeout=8) -> str:
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (compatible; ECOFLOT-Internet-Leads/1.0)",
-            "Accept": "text/html,application/xhtml+xml,*/*",
-        },
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", "replace")
+def fetch(url: str, timeout=10, attempts=2) -> str:
+    last_exc = None
+    for attempt in range(attempts):
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,*/*",
+                    "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.7",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=timeout + attempt * 4) as r:
+                return r.read().decode("utf-8", "replace")
+        except Exception as exc:
+            last_exc = exc
+    raise last_exc
 
 def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
@@ -487,6 +520,197 @@ def parse_vezetvsem_order(url, source_label):
         "priority": priority_for(title + " " + description),
     }
 
+def parse_ddmmyy(text):
+    m = re.search(r"\b(\d{1,2})\.(\d{1,2})\.(20\d{2}|\d{2})\b", text or "")
+    if not m:
+        return None
+    year = int(m.group(3))
+    if year < 100:
+        year += 2000
+    try:
+        return datetime(year, int(m.group(2)), int(m.group(1)), tzinfo=timezone.utc)
+    except ValueError:
+        return None
+
+def relative_age_ok(text):
+    t = normalize(text)
+    m = re.search(r"\b(\d+)\s*дн", t)
+    if m:
+        return int(m.group(1)) <= RECENT_DAYS
+    return True
+
+def build_open_feed_item(source, source_url, key, title, description, date_text, location="", price="договорная", url=None):
+    description = clean(description)[:1800]
+    title = clean(title)[:250] or "Заявка на технику / перевозку"
+    if not description:
+        return None
+    if not relevant(title, description):
+        return None
+    location = clean(location) or matched_geo(title + " " + description)
+    if not geo_allowed(location, title, description):
+        return None
+    dt = parse_ddmmyy(date_text)
+    if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+        return None
+    if not relative_age_ok(date_text + " " + description):
+        return None
+    req_key = key or hashlib.sha1((source + "|" + title + "|" + description[:500]).encode("utf-8")).hexdigest()[:20]
+    return {
+        "request_id": "WEB-" + re.sub(r"[^A-Z0-9]+", "", source.upper().replace("Ё","Е"))[:10] + "-" + req_key,
+        "title": title,
+        "description": description,
+        "price": clean(price)[:120] or "договорная",
+        "date": dt.strftime("%Y-%m-%d") if dt else (clean(date_text) or "актуальная заявка"),
+        "location": location[:250],
+        "volume": extract_volume(description) or "-",
+        "url": url or source_url,
+        "source": source,
+        "priority": priority_for(title + " " + description),
+    }
+
+def parse_dozzr(page, source_url):
+    out = []
+    for m in re.finditer(r'(?is)<a[^>]+href=["\']([^"\']*/catalog/item/(\d+)[^"\']*)["\'][^>]*>(.*?)</a>', page):
+        href, item_id, raw = m.group(1), m.group(2), m.group(3)
+        text = clean(raw)
+        if len(text) < 20:
+            continue
+        text = re.sub(r"\s*Показать номер\s*$", "", text, flags=re.I)
+        age_m = re.search(r"(\d+\s*(?:мин\.?|ч\.?|дн\.?)\s*назад)", text, re.I)
+        age = age_m.group(1) if age_m else "свежая заявка"
+        if age_m:
+            text = text[:age_m.start()].strip()
+        item = build_open_feed_item(
+            "Dozzr", source_url, item_id, text[:180], text, age,
+            location=matched_geo(text),
+            url=urllib.parse.urljoin(source_url, href),
+        )
+        if item:
+            out.append(item)
+    return out
+
+def parse_yellty(page, source_url):
+    out = []
+    for m in re.finditer(r'(?is)<a[^>]+href=["\']([^"\']*/zakazy/[^"\']+)["\'][^>]*>(.*?)</a>', page):
+        href = html.unescape(m.group(1))
+        title = clean(m.group(2))
+        if "заказ" not in title.lower():
+            continue
+        start = m.start()
+        end = min(len(page), start + 2600)
+        context = clean(page[start:end])
+        next_card = re.search(r"Свежие заказы|Заказ на ", context[80:], re.I)
+        if next_card:
+            context = context[:80 + next_card.start()]
+        date_m = re.search(r"\b\d{1,2}\.\d{1,2}\.20\d{2}\b", context)
+        date_text = date_m.group(0) if date_m else ""
+        desc_m = re.search(r"Заказ на\s+[^.]{1,100}\.\s*Регион:\s*[^.]{1,100}\.\s*(.*?)(?:Договорная|\d{1,2}\.\d{1,2}\.20\d{2}|$)", context, re.I)
+        description = clean(desc_m.group(1)) if desc_m else context
+        key_m = re.search(r"([a-f0-9]{8})(?:[/?#]|$)", href, re.I)
+        key = key_m.group(1) if key_m else hashlib.sha1(href.encode("utf-8")).hexdigest()[:16]
+        item = build_open_feed_item(
+            "Yellty", source_url, key, title, description, date_text,
+            location=matched_geo(context),
+            url=urllib.parse.urljoin(source_url, href),
+        )
+        if item:
+            out.append(item)
+    return out
+
+def parse_spectex(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    for i, line in enumerate(lines):
+        m = re.search(r"(.+?)\s*•\s*(.+?)\s*•\s*(\d{1,2}\.\d{1,2}\.20\d{2})", line)
+        if not m:
+            continue
+        title, location, date_text = m.group(1), m.group(2), m.group(3)
+        block = " ".join(lines[i:i+28])
+        if "открыта" not in block.lower() and "контакт" not in block.lower():
+            continue
+        item = build_open_feed_item(
+            "Spectex", source_url, hashlib.sha1(block.encode("utf-8")).hexdigest()[:16],
+            title, block, date_text, location=location, url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out
+
+def parse_beton24(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    for i, line in enumerate(lines):
+        if not line.lower().startswith("требуется:"):
+            continue
+        block_lines = lines[max(0, i-2):min(len(lines), i+10)]
+        block = " ".join(block_lines)
+        date_m = re.search(r"\b\d{1,2}\.\d{1,2}\.20\d{2}\b", block)
+        date_text = date_m.group(0) if date_m else ""
+        location = ""
+        if date_m:
+            for x in block_lines:
+                if x == date_text:
+                    continue
+                if geo_allowed(x):
+                    location = x
+                    break
+        title = lines[i-1] if i > 0 else "Заявка Бетон24"
+        item = build_open_feed_item(
+            "Бетон24", source_url, hashlib.sha1(block.encode("utf-8")).hexdigest()[:16],
+            title, block, date_text, location=location, url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out
+
+def parse_exkavator(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    for i, line in enumerate(lines):
+        if not re.fullmatch(r"\d{1,2}\.\d{1,2}\.\d{2}", line):
+            continue
+        block_lines = lines[max(0, i-5):min(len(lines), i+8)]
+        block = " ".join(block_lines)
+        title = ""
+        for x in lines[i+1:min(len(lines), i+6)]:
+            if len(x) > 12 and not re.fullmatch(r"[\d\s₽.,]+", x):
+                title = x
+                break
+        if not title:
+            title = "Заявка на аренду техники"
+        location = ""
+        for x in block_lines:
+            if geo_allowed(x):
+                location = x
+                break
+        item = build_open_feed_item(
+            "Экскаватор Ру", source_url, hashlib.sha1(block.encode("utf-8")).hexdigest()[:16],
+            title, block, line, location=location, url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out
+
+def parse_nerudonline(page, source_url):
+    lines = lines_from_html(page)
+    out = []
+    for i, line in enumerate(lines):
+        low = normalize(line)
+        if not any(k in low for k in ("самосвал","перевоз","прием грунта","приемка грунта","грунт","песок","щебень")):
+            continue
+        block = " ".join(lines[max(0,i-3):min(len(lines),i+8)])
+        if len(block) < 40:
+            continue
+        date_m = re.search(r"\b\d{1,2}\.\d{1,2}\.(?:20\d{2}|\d{2})\b", block)
+        date_text = date_m.group(0) if date_m else "актуальная заявка"
+        item = build_open_feed_item(
+            "НерудОнлайн", source_url, hashlib.sha1(block.encode("utf-8")).hexdigest()[:16],
+            line, block, date_text, location=matched_geo(block), url=source_url,
+        )
+        if item:
+            out.append(item)
+    return out[:80]
+
 def parse_profi_relative_date(text):
     t = (text or "").strip().lower()
     now = datetime.now(timezone.utc)
@@ -731,6 +955,60 @@ def collect_candidates():
             except Exception as exc:
                 errors.append(f"VezetVsem order {link}: {exc}")
 
+    for source_label, source_url in DOZZR_SOURCES:
+        try:
+            page = fetch(source_url, timeout=15)
+            found = parse_dozzr(page, source_url)
+            print(f"DOZZR_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Dozzr {source_label}: {exc}")
+
+    for source_label, source_url in NERUDONLINE_SOURCES:
+        try:
+            page = fetch(source_url, timeout=15)
+            found = parse_nerudonline(page, source_url)
+            print(f"NERUDONLINE_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"NerudOnline {source_label}: {exc}")
+
+    for source_label, source_url in SPECTEX_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_spectex(page, source_url)
+            print(f"SPECTEX_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Spectex {source_label}: {exc}")
+
+    for source_label, source_url in YELLTY_SOURCES:
+        try:
+            page = fetch(source_url, timeout=15)
+            found = parse_yellty(page, source_url)
+            print(f"YELLTY_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Yellty {source_label}: {exc}")
+
+    for source_label, source_url in BETON24_SOURCES:
+        try:
+            page = fetch(source_url, timeout=15)
+            found = parse_beton24(page, source_url)
+            print(f"BETON24_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Beton24 {source_label}: {exc}")
+
+    for source_label, source_url in EXKAVATOR_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_exkavator(page, source_url)
+            print(f"EXKAVATOR_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Exkavator {source_label}: {exc}")
+
     unique = {}
     for item in candidates:
         unique[item["request_id"]] = item
@@ -853,6 +1131,8 @@ def main():
     if sent_count == 0 and len(errors) < (
         len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)
         + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
+        + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
+        + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
     ):
         try:
             send_no_results_message()
