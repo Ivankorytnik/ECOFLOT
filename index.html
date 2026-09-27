@@ -299,7 +299,15 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   .hero-card .field-phone,
   .hero-card .field-comment{grid-column:1}
 }
-</style></head>
+<style id="ecoflot-growth-20260927">
+.urgent-box{margin:22px 0 26px;padding:16px;border:1px solid #d8e8dc;border-radius:16px;background:#f7fbf8;box-shadow:0 10px 30px rgba(31,143,95,.07)}
+.urgent-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.urgent-head strong{font-size:15px}.urgent-head span{font-size:11px;color:var(--brand);font-weight:800}
+.urgent-types{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}.urgent-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:700;cursor:pointer}.urgent-chip.active{background:#e4f5e9;border-color:#a9d7b8;color:#1f7a4a}
+.urgent-fields{display:grid;grid-template-columns:1.2fr 1fr auto;gap:8px}.urgent-fields input{margin:0;min-height:42px}.urgent-status{margin-top:8px;font-size:11px;font-weight:700;color:var(--muted)}
+.capability-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.capability-card{display:flex;flex-direction:column;gap:6px;padding:18px;border:1px solid var(--line);border-radius:15px;background:#fff;color:var(--ink);text-decoration:none;transition:.15s}.capability-card:hover{transform:translateY(-1px);border-color:#b9d9c3;box-shadow:0 10px 28px rgba(31,143,95,.07)}.capability-card b{font-size:14px}.capability-card span{font-size:12px;line-height:1.45;color:var(--muted)}
+@media(max-width:760px){.urgent-fields{grid-template-columns:1fr 1fr}.urgent-fields .btn{grid-column:1/-1}.capability-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.urgent-head{align-items:flex-start;flex-direction:column}.urgent-fields,.capability-grid{grid-template-columns:1fr}}
+</style></style></head>
 <body>
   <div id="landing" class="page active">
     <header class="topbar container">
@@ -320,7 +328,23 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
         <div class="hero-copy">
           <div class="eyebrow">ECOFLOT • собственный парк спецтехники</div>
           <h1>Вывоз мусора, грунта и отходов своей техникой</h1>
-          <p>Мультилифты, бункеровозы, самосвалы, ломовозы с грейфером, мусоровозы и экскаватор-погрузчик. Подбираем технику под задачу, объём и условия площадки.</p>
+          <p>Мультилифты, бункеровозы, самосвалы, ломовозы с грейфером, мусоровозы и экскаватор-погрузчик. Вывозим отходы и грунт, выполняем погрузку, расчистку, земляные и демонтажные работы.</p>
+          <div class="urgent-box" id="urgent">
+            <div class="urgent-head"><strong>Срочно нужна машина сегодня?</strong><span>Заявка за 30 секунд</span></div>
+            <div class="urgent-types" id="urgentTypes">
+              <button type="button" class="urgent-chip active" data-urgent-type="Самосвал">Самосвал</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Контейнер / мультилифт">Контейнер</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Экскаватор-погрузчик">Экскаватор</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Вывоз мусора">Вывоз мусора</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Другое">Другое</button>
+            </div>
+            <div class="urgent-fields">
+              <input id="urgentAddress" type="text" placeholder="Адрес подачи" aria-label="Адрес подачи техники">
+              <input id="urgentPhone" type="tel" placeholder="+7 999 000-00-00" aria-label="Телефон">
+              <button type="button" id="urgentSubmitBtn" class="btn primary" onclick="submitUrgentLead()">Нужна машина</button>
+            </div>
+            <div id="urgentStatus" class="urgent-status"></div>
+          </div>
           <div class="trust-row">
             <div><strong>6 типов техники</strong><span>под разные задачи</span></div>
             <div><strong>Свой парк</strong><span>реальная техника ECOFLOT</span></div>
@@ -339,10 +363,20 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
             <label class="lead-field field-waste">Что вывозим
               <select id="wasteType" required>
                 <option value="Строительный мусор">Строительный мусор</option>
+                <option value="Вывоз грунта">Вывоз грунта</option>
+                <option value="Самосвал">Самосвал</option>
+                <option value="Экскаватор-погрузчик">Экскаватор-погрузчик</option>
+                <option value="Мультилифт / контейнер">Мультилифт / контейнер</option>
+                <option value="Бункеровоз">Бункеровоз</option>
+                <option value="Ломовоз с грейфером">Ломовоз с грейфером</option>
+                <option value="Демонтаж и вывоз">Демонтаж и вывоз</option>
+                <option value="Расчистка территории">Расчистка территории</option>
+                <option value="Земляные работы">Земляные работы</option>
                 <option value="Мебель и хлам">Мебель и хлам</option>
-                <option value="Грунт">Грунт</option>
+                <option value="КГМ">Крупногабаритный мусор</option>
                 <option value="Ветки и древесина">Ветки и древесина</option>
                 <option value="Смешанные отходы">Смешанные отходы</option>
+                <option value="Регулярный вывоз ТКО">Регулярный вывоз ТКО</option>
               </select>
             </label>
             <label class="lead-field field-volume">Объём
@@ -403,6 +437,26 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
             <img src="/assets/fleet/ecoflot-story-excavator.webp?v=20260926-10" alt="Экскаватор-погрузчик ECOFLOT на площадке" loading="lazy" decoding="async" />
             <div class="photo-copy"><span>Под ключ</span><h3>Подача, погрузка и вывоз</h3><p>Для частных клиентов, ремонта, строительных компаний и регулярных B2B-заказов.</p></div>
           </article>
+        </div>
+      </section>
+
+      <section id="capabilities" class="section alt">
+        <div class="container">
+          <div class="section-head"><span>Что можем выполнить</span><h2>Используем весь парк ECOFLOT</h2><p>Не ограничиваемся вывозом мусора. Берём задачи, где нужна собственная тяжёлая техника, погрузка и транспортировка.</p></div>
+          <div class="capability-grid">
+            <a href="/vyvoz-stroitelnogo-musora/" class="capability-card"><b>Строительные отходы</b><span>Контейнеры, бункеровозы, мультилифты</span></a>
+            <a href="/vyvoz-grunta/" class="capability-card"><b>Вывоз грунта</b><span>Самосвалы + механизированная погрузка</span></a>
+            <a href="/arenda-samosvala-odincovo/" class="capability-card"><b>Самосвалы</b><span>Грунт, песок, щебень, бой бетона</span></a>
+            <a href="/ekskavator-pogruzchik-odincovo/" class="capability-card"><b>Экскаватор-погрузчик</b><span>Котлованы, погрузка, планировка</span></a>
+            <a href="/arenda-multilifta-odincovo/" class="capability-card"><b>Мультилифт</b><span>Контейнеры 20-27 м³ и крупные объёмы</span></a>
+            <a href="/arenda-bunkerovoza-odincovo/" class="capability-card"><b>Бункеровоз</b><span>Контейнеры 8 м³, ремонт и демонтаж</span></a>
+            <a href="/lomovoz-s-greiferom-odincovo/" class="capability-card"><b>Ломовоз с грейфером</b><span>Металл, древесина, КГМ, погрузка</span></a>
+            <a href="/raschistka-territorii-odincovo/" class="capability-card"><b>Расчистка территории</b><span>Погрузка, вывоз, подготовка площадки</span></a>
+            <a href="/demontazh-i-vyvoz-odincovo/" class="capability-card"><b>Демонтаж и вывоз</b><span>Разбор, погрузка и удаление отходов</span></a>
+            <a href="/vyvoz-kgm-odincovo/" class="capability-card"><b>КГМ и мебель</b><span>Крупногабарит, хлам, производственные отходы</span></a>
+            <a href="/uslugi/" class="capability-card"><b>Регулярный вывоз</b><span>Объекты, предприятия и контейнерные площадки</span></a>
+            <a href="/uslugi/" class="capability-card"><b>Комплексная работа</b><span>Техника + погрузка + вывоз одной заявкой</span></a>
+          </div>
         </div>
       </section>
 
@@ -1892,6 +1946,57 @@ async function submitLeadForm(){
   return false;
 }
 
+let urgentLeadType = 'Самосвал';
+
+function bindUrgentLeadTypes(){
+  document.querySelectorAll('[data-urgent-type]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      urgentLeadType = btn.dataset.urgentType || 'Другое';
+      document.querySelectorAll('[data-urgent-type]').forEach(x=>x.classList.toggle('active',x===btn));
+    });
+  });
+}
+
+async function submitUrgentLead(){
+  const phone = $('#urgentPhone')?.value.trim() || '';
+  const address = $('#urgentAddress')?.value.trim() || '';
+  const status = $('#urgentStatus');
+  if(!phone || !address){
+    if(status) status.textContent = 'Укажите телефон и адрес.';
+    return false;
+  }
+  const requestId = makeRequestId('ECO-URGENT');
+  const payload = {
+    type:'Срочная заявка',
+    name:'Срочная заявка с сайта',
+    phone,
+    wasteType:urgentLeadType,
+    volume:'Подобрать технику',
+    when:'Сегодня / срочно',
+    address,
+    source:detectLeadSource('form') + ' | срочная машина',
+    status:'Новая',
+    comment:buildLeadActionComment(requestId,phone,'Срочно нужна машина: ' + urgentLeadType),
+    requestId
+  };
+  const btn = $('#urgentSubmitBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Отправляем...'; }
+  if(status) status.textContent='Отправляем заявку...';
+  const ok = await sendToGoogleSheet(payload);
+  if(btn){ btn.disabled=false; btn.textContent='Нужна машина'; }
+  if(ok){
+    addLeadToCRM({name:payload.name,client:payload.name,phone,type:urgentLeadType,address,date:'Сегодня / срочно',status:'new',source:payload.source,comment:payload.comment,requestType:'Срочная заявка',requestId});
+    setTimeout(()=>syncLeadsFromGoogleSheet(true),1800);
+    if($('#urgentPhone')) $('#urgentPhone').value='';
+    if($('#urgentAddress')) $('#urgentAddress').value='';
+    if(status) status.textContent='Заявка отправлена. Менеджер ECOFLOT получит её сразу.';
+    if(typeof ecoflotGoal==='function') ecoflotGoal('urgent_lead_submit',{type:urgentLeadType});
+  }else if(status){
+    status.textContent='Не удалось отправить. Попробуйте ещё раз.';
+  }
+  return false;
+}
+
 async function submitCallbackForm(){
   const phone = $('#callbackPhone')?.value.trim() || '';
   if(!phone) return false;
@@ -1949,6 +2054,7 @@ try{
 }catch(e){}
 
 document.addEventListener('DOMContentLoaded',()=>{
+  bindUrgentLeadTypes();
   setInterval(()=>{ 
     if($('#crm')?.classList.contains('active')){
       syncLeadsFromGoogleSheet(true);
