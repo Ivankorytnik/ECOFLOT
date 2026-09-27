@@ -64,9 +64,9 @@ jobs:
           print("Submitting:", *urls, sep="\n")
           PY
 
-      - name: Submit changed URLs to Yandex IndexNow
+      - name: Submit changed URLs to IndexNow
         run: |
           curl --fail-with-body --retry 3 --retry-delay 10 \
-            -X POST "https://yandex.com/indexnow" \
+            -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json; charset=utf-8" \
             --data-binary @indexnow.json
