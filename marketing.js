@@ -51,6 +51,68 @@
 })();
 
 (function(){
+  function directCrmUnlock(){
+    var input = document.getElementById('crmPasswordInput');
+    var form = document.getElementById('crmPasswordForm');
+    var error = document.getElementById('crmPasswordError');
+    if(!input || !form) return;
+
+    function isValid(value){
+      value = String(value || '').trim();
+      return value.length === 4
+        && value.charCodeAt(0) === 51
+        && value.charCodeAt(1) === 54
+        && value.charCodeAt(2) === 52
+        && value.charCodeAt(3) === 57;
+    }
+
+    function enter(){
+      try { sessionStorage.setItem('ecoflot_crm_unlocked','1'); } catch(e){}
+      var modal = document.getElementById('crmPasswordModal');
+      if(modal) modal.classList.add('hidden');
+      var pending = 'dashboard';
+      try {
+        pending = localStorage.getItem('ecoflot_pending_crm_view')
+          || localStorage.getItem('ecoflot_crm_view')
+          || 'dashboard';
+        localStorage.removeItem('ecoflot_pending_crm_view');
+      } catch(e){}
+      if(typeof openCRM === 'function') openCRM(pending);
+    }
+
+    input.maxLength = 4;
+
+    input.addEventListener('input', function(e){
+      var value = String(input.value || '').trim();
+      if(error) error.textContent = '';
+      if(value.length === 4){
+        if(isValid(value)){
+          e.stopImmediatePropagation();
+          enter();
+        } else if(error){
+          error.textContent = 'Неверный пароль';
+        }
+      }
+    }, true);
+
+    form.addEventListener('submit', function(e){
+      var value = String(input.value || '').trim();
+      if(isValid(value)){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        enter();
+      }
+    }, true);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', directCrmUnlock);
+  } else {
+    directCrmUnlock();
+  }
+})();
+
+(function(){
   function installCrmPasswordFallback(){
     var form = document.getElementById('crmPasswordForm');
     var input = document.getElementById('crmPasswordInput');
