@@ -81,10 +81,10 @@ EXKAVATOR_SOURCES = [
 ]
 
 VSEMPODRYAD_SOURCES = [
-    ("Всем Подряд / свежие заявки", "https://vsem-podryad.ru/request/"),
-    ("Всем Подряд / спецтехника", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Аренда спецтехники") + "/"),
-    ("Всем Подряд / транспорт", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Транспортные услуги, дорожная техника") + "/"),
-    ("Всем Подряд / демонтаж", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Демонтажные работы, разборка и снос зданий") + "/"),
+    ("Всем Подряд / Москва / земляные работы", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Москва") + "/" + urllib.parse.quote("Дорожные, земляные работы, благоустройство") + "/"),
+    ("Всем Подряд / МО / земляные работы", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Московская область") + "/" + urllib.parse.quote("Дорожные, земляные работы, благоустройство") + "/"),
+    ("Всем Подряд / Москва / демонтаж", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Москва") + "/" + urllib.parse.quote("Демонтажные работы, разборка и снос зданий") + "/"),
+    ("Всем Подряд / МО / демонтаж", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Московская область") + "/" + urllib.parse.quote("Демонтажные работы, разборка и снос зданий") + "/"),
 ]
 
 GEO_ALLOW = (
