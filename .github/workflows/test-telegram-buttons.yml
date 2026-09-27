@@ -1,0 +1,15 @@
+name: Test Telegram status buttons
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/test-telegram-buttons.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send test lead
+        run: |
+          curl -fsSL -X POST 'https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec'             --data-urlencode 'type=Интернет-заявка'             --data-urlencode 'name=ТЕСТ кнопок статуса ECOFLOT'             --data-urlencode 'phone=+7 999 000-00-00'             --data-urlencode 'wasteType=Вывоз строительного мусора'             --data-urlencode 'volume=8 м³'             --data-urlencode 'when=Сейчас'             --data-urlencode 'address=Одинцово, Московская область'             --data-urlencode 'source=Тест Telegram статусов'             --data-urlencode 'status=Новая'             --data-urlencode 'comment=Тест 8 inline-кнопок после обновления Apps Script'             --data-urlencode 'requestId=TEST-LEAD-BUTTONS-20260927-001'
