@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/object-leads-monitor.yml'
+      - 'scripts/object_leads_monitor.py'
 
 permissions:
   contents: write
@@ -26,7 +27,7 @@ jobs:
         env:
           MAX_SEND: "20"
           RECENT_DAYS: "5"
-          MIN_SCORE: "65"
+          MIN_SCORE: "70"
         run: python3 scripts/object_leads_monitor.py
 
       - name: Save processed object IDs
