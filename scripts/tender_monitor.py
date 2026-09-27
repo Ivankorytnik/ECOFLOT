@@ -39,6 +39,7 @@ DIRECT_SOURCES = [
     ("А101", "https://a101.ru/company/partnership/tenders", "Новая Москва / Московская область"),
     ("Самолёт S.Tender", "https://partner.samolet.ru/", "Москва / Московская область"),
     ("Sminex", "https://corp.sminex.com/sotrudnichestvo/tendery-developera", "Москва / Московская область"),
+    ("Level Group ETP", "https://etp.level.ru/trades", "Москва / Московская область"),
 ]
 
 POSITIVE = (
