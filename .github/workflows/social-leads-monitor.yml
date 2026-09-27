@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - "scripts/social_leads_monitor.py"
+      - "scripts/max_leads_monitor.py"
       - ".github/workflows/social-leads-monitor.yml"
 
 permissions:
@@ -26,15 +27,50 @@ jobs:
       - name: Scan public Telegram demand feeds
         env:
           MAX_SEND: "50"
+          SUPPRESS_NO_RESULTS: "1"
         run: python3 scripts/social_leads_monitor.py
+
+      - name: Scan public MAX demand feeds
+        env:
+          MAX_SEND: "50"
+          SUPPRESS_NO_RESULTS: "1"
+        run: python3 scripts/max_leads_monitor.py
+
+      - name: Send combined no-results notice
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.request
+          from pathlib import Path
+
+          def sent(path):
+              try:
+                  data = json.loads(Path(path).read_text("utf-8"))
+                  return int((data.get("last_run") or {}).get("sent", 0))
+              except Exception:
+                  return 0
+
+          if sent("social_public_leads_state.json") == 0 and sent("max_public_leads_state.json") == 0:
+              url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+              payload = json.dumps({
+                  "mode": "notify-only",
+                  "message": "Поиск Telegram/MAX проведён, новых заявок не обнаружено"
+              }, ensure_ascii=False).encode("utf-8")
+              req = urllib.request.Request(
+                  url, data=payload, method="POST",
+                  headers={"Content-Type":"application/json; charset=utf-8"}
+              )
+              urllib.request.urlopen(req, timeout=30).read()
+              print("COMBINED_NO_RESULTS_NOTICE_SENT")
+          PY
 
       - name: Save processed social IDs
         run: |
-          if [ -n "$(git status --porcelain social_public_leads_state.json)" ]; then
+          if [ -n "$(git status --porcelain social_public_leads_state.json max_public_leads_state.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add social_public_leads_state.json
-            git commit -m "Update public social leads monitor state"
+            git add social_public_leads_state.json max_public_leads_state.json
+            git commit -m "Update Telegram and MAX lead monitor state"
             git pull --rebase origin main
             git push origin main
           fi
