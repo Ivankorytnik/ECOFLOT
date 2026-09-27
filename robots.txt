@@ -1,3 +1,28 @@
+# ECOFLOT robots.txt
+# Search and AI discovery
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Search visibility is allowed, model-training crawlers are kept separate.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
 User-agent: *
 Allow: /
 Disallow: /404.html
