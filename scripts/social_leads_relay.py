@@ -18,6 +18,8 @@ def save_state(state):
     STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
 def message_for(item):
+    if item.get("kind") == "notice":
+        return str(item.get("message") or "Поиск Telegram/MAX проведён, новых заявок не обнаружено")
     return (
         "🔥 ECOFLOT Social Lead\n"
         f"Релевантность: {item.get('score', 0)}/100\n"
@@ -44,7 +46,7 @@ def send_notify(message):
         data=payload,
         method="POST",
         headers={
-            "User-Agent": "ECOFLOT-Social-Leads/1.0",
+            "User-Agent": "ECOFLOT-Social-Leads/1.1",
             "Content-Type": "application/json; charset=utf-8",
         },
     )
@@ -70,7 +72,7 @@ def main():
         send_notify(message_for(item))
         sent[rid] = datetime.now(timezone.utc).isoformat()
         sent_now += 1
-        print("SENT:", rid, item.get("title", ""))
+        print("SENT:", rid, item.get("kind", "lead"), item.get("title", ""))
 
     save_state(state)
     print(f"Social queue: {len(queue.get('items', []))}, sent now: {sent_now}")
