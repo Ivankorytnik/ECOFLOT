@@ -1616,10 +1616,16 @@ function buildLeadActionComment(requestId,phone,baseComment=''){
   const lines = [];
   const base = String(baseComment || '').trim();
   if(base) lines.push(base);
-  lines.push('▶ В работу: ' + botActionUrl('lead_work',requestId));
+  lines.push('🆕 Новая: ' + botActionUrl('lead_new',requestId));
+  lines.push('▶ В работе: ' + botActionUrl('lead_work',requestId));
+  lines.push('🧮 Расчёт / КП: ' + botActionUrl('lead_quote',requestId));
+  lines.push('🤝 Согласование: ' + botActionUrl('lead_approval',requestId));
+  lines.push('📅 Запланирована: ' + botActionUrl('lead_scheduled',requestId));
+  lines.push('🚛 Выполняется: ' + botActionUrl('lead_executing',requestId));
+  lines.push('✅ Выполнена: ' + botActionUrl('lead_done',requestId));
+  lines.push('✖ Отказ: ' + botActionUrl('lead_lost',requestId));
   const callPhone = cleanActionPhone(phone);
   if(callPhone) lines.push('☎ Позвонить: ' + botActionUrl('lead_call',requestId,{phone:callPhone}));
-  lines.push('✖ Не подходит: ' + botActionUrl('lead_lost',requestId));
   lines.push('📂 Открыть CRM: ' + ECOFLOT_PUBLIC_URL + '#crm/leads');
   return lines.join('\n');
 }
@@ -1662,8 +1668,14 @@ async function handleBotActionFromUrl(){
   }
 
   const defs = {
-    lead_work:{type:'CRM_ACTION_LEAD',status:'В работе',label:'Заявка переведена в работу.',view:'leads'},
-    lead_lost:{type:'CRM_ACTION_LEAD',status:'Отказ',label:'Заявка переведена в статус «Отказ».',view:'leads'},
+    lead_new:{type:'CRM_ACTION_LEAD',status:'Новая',label:'Статус заявки: «Новая».',view:'leads'},
+    lead_work:{type:'CRM_ACTION_LEAD',status:'В работе',label:'Статус заявки: «В работе».',view:'leads'},
+    lead_quote:{type:'CRM_ACTION_LEAD',status:'Расчёт / КП',label:'Статус заявки: «Расчёт / КП».',view:'leads'},
+    lead_approval:{type:'CRM_ACTION_LEAD',status:'Согласование',label:'Статус заявки: «Согласование».',view:'leads'},
+    lead_scheduled:{type:'CRM_ACTION_LEAD',status:'Запланирована',label:'Статус заявки: «Запланирована».',view:'leads'},
+    lead_executing:{type:'CRM_ACTION_LEAD',status:'Выполняется',label:'Статус заявки: «Выполняется».',view:'leads'},
+    lead_done:{type:'CRM_ACTION_LEAD',status:'Выполнена',label:'Статус заявки: «Выполнена».',view:'leads'},
+    lead_lost:{type:'CRM_ACTION_LEAD',status:'Отказ',label:'Статус заявки: «Отказ».',view:'leads'},
     tender_work:{type:'CRM_ACTION_TENDER',status:'В работе',label:'Тендер переведён в работу.',view:'tenders'},
     tender_defer:{type:'CRM_ACTION_TENDER',status:'Отложен',label:'Тендер отложен.',view:'tenders'},
     tender_skip:{type:'CRM_ACTION_TENDER',status:'Не участвуем',label:'Тендер отмечен как «Не участвуем».',view:'tenders'},
