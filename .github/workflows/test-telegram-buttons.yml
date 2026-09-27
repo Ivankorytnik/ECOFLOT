@@ -10,11 +10,34 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Telegram webhook target
+      - name: Send test lead
         run: |
           python3 - <<'PY'
-          import urllib.request
-          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec?action=webhookInfo"
-          with urllib.request.urlopen(url, timeout=30) as r:
-              print(r.read().decode("utf-8","replace"))
+          import json, urllib.parse, urllib.request
+          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          payload = {
+              "type": "Интернет-заявка",
+              "name": "ТЕСТ 8 СТАТУСОВ ECOFLOT",
+              "phone": "+7 999 000-00-00",
+              "wasteType": "Вывоз строительного мусора",
+              "volume": "8 м³",
+              "when": "Сейчас",
+              "address": "Одинцово, Московская область",
+              "source": "Проверка Telegram callback /exec",
+              "status": "Новая",
+              "comment": "Финальная проверка 8 inline-кнопок после исправления webhook",
+              "requestId": "TEST-LEAD-BUTTONS-20260927-003",
+          }
+          req = urllib.request.Request(
+              url,
+              data=urllib.parse.urlencode(payload).encode("utf-8"),
+              method="POST",
+              headers={"User-Agent":"ECOFLOT-Test/1.0"},
+          )
+          with urllib.request.urlopen(req, timeout=30) as r:
+              body = r.read().decode("utf-8","replace")
+              print(body)
+              parsed = json.loads(body)
+              if not parsed.get("ok"):
+                  raise SystemExit("Webhook returned ok=false")
           PY
