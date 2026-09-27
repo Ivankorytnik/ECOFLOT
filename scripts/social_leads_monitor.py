@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import html
 import json
+import os
 import re
 import sys
 import urllib.request
@@ -25,7 +26,8 @@ from internet_leads_monitor import (
 )
 
 STATE_PATH = Path("social_public_leads_state.json")
-MAX_SEND = 50
+MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
+SUPPRESS_NO_RESULTS = os.environ.get("SUPPRESS_NO_RESULTS", "0") == "1"
 
 CHANNELS = [
     ("Всем Подряд", "vsem_podryad"),
@@ -179,13 +181,19 @@ def main():
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < len(CHANNELS):
+    if sent_count == 0 and len(errors) < len(CHANNELS) and not SUPPRESS_NO_RESULTS:
         try:
             send_no_results()
             print("NO_RESULTS_NOTICE_SENT")
         except Exception as exc:
             errors.append(f"no-results: {exc}")
 
+    state["last_run"] = {
+        "at": datetime.now(timezone.utc).isoformat(),
+        "sent": sent_count,
+        "candidates": len(candidates),
+        "errors": len(errors),
+    }
     save_state(state)
     print(f"Social candidates: {len(candidates)}, new: {len(new_items)}, sent: {sent_count}, errors: {len(errors)}")
     for err in errors:
