@@ -80,6 +80,13 @@ EXKAVATOR_SOURCES = [
     ("Экскаватор Ру / заявки на аренду", "https://exkavator.ru/exchange/rent/main.html"),
 ]
 
+VSEMPODRYAD_SOURCES = [
+    ("Всем Подряд / свежие заявки", "https://vsem-podryad.ru/request/"),
+    ("Всем Подряд / спецтехника", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Аренда спецтехники") + "/"),
+    ("Всем Подряд / транспорт", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Транспортные услуги, дорожная техника") + "/"),
+    ("Всем Подряд / демонтаж", "https://vsem-podryad.ru/request/" + urllib.parse.quote("Демонтажные работы, разборка и снос зданий") + "/"),
+]
+
 GEO_ALLOW = (
     "одинцов", "барвиха", "горки-2", "горки 2", "горки-10", "горки 10",
     "рублев", "рублёв", "усово", "жуковка", "николина гора", "раздоры",
@@ -103,6 +110,10 @@ POSITIVE = (
     "погрузка самосвалов", "перевозка песка", "перевозка щебня",
     "вывоз мусора", "самосвал", "тонар", "экскаватор-погрузчик",
     "экскаватор погрузчик", "мусоровоз", "ломовоз", "бункеровоз", "мультилифт",
+    "демонтаж", "снос здания", "снос строения", "разбор здания", "разбор строения",
+    "гидромолот", "выемка грунта", "разработка грунта", "выборка грунта",
+    "котлован", "расчистка участка", "очистка участка", "уборка территории",
+    "порубочные остатки", "подготовка площадки",
 )
 EXCLUDE = (
     "откачка", "септик", "канализац", "медицинск", "ртут", "ламп",
@@ -210,6 +221,25 @@ def relevant(title, description):
         return False
     return any(x in hay for x in POSITIVE)
 
+def lead_class(title, description):
+    hay = normalize((title or "") + " " + (description or ""))
+    hot = (
+        "вывоз", "контейнер", "самосвал", "тонар", "мусоровоз", "ломовоз",
+        "бункеровоз", "мультилифт", "погрузка мусора", "погрузка грунта",
+        "нужен экскаватор", "требуется экскаватор", "требуются самосвалы",
+        "требуется самосвал",
+    )
+    if any(x in hay for x in hot):
+        return "HOT"
+    warm = (
+        "демонтаж", "снос", "разбор", "гидромолот", "выемка грунта",
+        "разработка грунта", "выборка грунта", "котлован", "земляные работы",
+        "расчистка", "подготовка площадки", "порубочные остатки",
+    )
+    if any(x in hay for x in warm):
+        return "WARM"
+    return "HOT"
+
 def infer_work_equipment(title, description):
     hay = normalize((title or "") + " " + (description or ""))
     if any(x in hay for x in ("экскаватор-погрузчик","экскаватор погрузчик")):
@@ -228,8 +258,8 @@ def infer_work_equipment(title, description):
         return "Регулярный вывоз ТКО / обслуживание площадок", "Мусоровоз"
     if any(x in hay for x in ("кгм","кго","крупногабарит","мебель","диван","шкаф","хлам")):
         return "Вывоз КГМ / мебели и хлама", "Газель / бункеровоз / мультилифт"
-    if any(x in hay for x in ("строитель","ремонт","демонтаж","кирпич","бетон")):
-        return "Вывоз строительного мусора", "Бункеровоз / мультилифт / самосвал"
+    if any(x in hay for x in ("строитель","ремонт","демонтаж","снос","разбор","гидромолот","кирпич","бетон")):
+        return "Вывоз строительного мусора / отходов демонтажа", "Бункеровоз / мультилифт / самосвал / экскаватор-погрузчик"
     if any(x in hay for x in ("расчистка территории","очистка стройплощадки","погрузка мусора","погрузка отходов")):
         return "Расчистка / погрузка и вывоз", "Экскаватор-погрузчик + самосвал / контейнер"
     if any(x in hay for x in ("перевозка песка","перевозка щебня","сыпучие материалы","самосвал","тонар")):
@@ -243,6 +273,8 @@ def relevance_score(item):
     if not work or not equipment:
         return 0, work, equipment
     score = 60
+    if lead_class(item.get("title",""), item.get("description","")) == "HOT":
+        score += 5
     loc = normalize(item.get("location",""))
     if "одинцов" in loc:
         score += 20
@@ -711,6 +743,72 @@ def parse_nerudonline(page, source_url):
             out.append(item)
     return out[:80]
 
+def vsempodryad_listing_links(page, source_url):
+    links = set()
+    for href in re.findall(r'href=["\']([^"\']*/request/[0-9a-fA-F-]{32,40}[^"\']*)["\']', page, re.I):
+        url = urllib.parse.urljoin(source_url, html.unescape(href))
+        url = url.split("?", 1)[0].split("#", 1)[0]
+        links.add(url)
+    return sorted(links)[:80]
+
+def parse_vsempodryad_order(url, source_label):
+    page = fetch(url, timeout=15)
+    lines = lines_from_html(page)
+    text = " ".join(lines)
+    low = normalize(text)
+
+    if "заказчик уже нашел исполнителей" in low or "заявка закрыта" in low:
+        return None
+
+    h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
+    title = clean(h1.group(1)) if h1 else (lines[0] if lines else "Строительный заказ")
+
+    description = section_after_label(
+        lines,
+        "Дополнительное описание",
+        ("Предпочтительный способ связи", "Бюджет", "Заявка опубликована", "Представитель заказчика"),
+        max_chars=2200,
+    )
+    if not description:
+        description = text[:1800]
+
+    location = section_after_label(
+        lines,
+        "Место работ",
+        ("Дополнительное описание", "Предпочтительный способ связи", "Бюджет", "Заявка опубликована"),
+        max_chars=350,
+    )
+    location = re.sub(r"^Image:\s*Маркер\s*", "", location, flags=re.I).strip()
+    if not location:
+        location = matched_geo(title + " " + description)
+
+    if not relevant(title, description):
+        return None
+    if not geo_allowed(location, title, description):
+        return None
+
+    date_text = value_after_label(lines, "Заявка опубликована")
+    dt = parse_ddmmyy(date_text)
+    if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+        return None
+
+    budget = value_after_label(lines, "Бюджет") or "договорная"
+    m_id = re.search(r"/request/([0-9a-fA-F-]{32,40})", url)
+    order_id = m_id.group(1) if m_id else hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
+
+    return {
+        "request_id": "WEB-VP-" + order_id,
+        "title": title[:250],
+        "description": description[:1800],
+        "price": budget[:120],
+        "date": dt.strftime("%Y-%m-%d") if dt else (date_text or "актуальная заявка"),
+        "location": location[:250],
+        "volume": extract_volume(description) or "-",
+        "url": url,
+        "source": "Всем Подряд",
+        "priority": priority_for(title + " " + description),
+    }
+
 def parse_profi_relative_date(text):
     t = (text or "").strip().lower()
     now = datetime.now(timezone.utc)
@@ -1009,6 +1107,32 @@ def collect_candidates():
         except Exception as exc:
             errors.append(f"Exkavator {source_label}: {exc}")
 
+    vp_links = {}
+    for source_label, source_url in VSEMPODRYAD_SOURCES:
+        try:
+            page = fetch(source_url, timeout=15)
+            links = vsempodryad_listing_links(page, source_url)
+            print(f"VSEMPODRYAD_SOURCE {source_label}: {len(links)} order links")
+            for link in links:
+                vp_links.setdefault(link, source_label)
+        except Exception as exc:
+            errors.append(f"VsemPodryad listing {source_label}: {exc}")
+
+    def fetch_vp_order(args):
+        link, source_label = args
+        return link, parse_vsempodryad_order(link, source_label)
+
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(fetch_vp_order, item): item for item in list(vp_links.items())[:120]}
+        for future in as_completed(futures):
+            link, source_label = futures[future]
+            try:
+                _, item = future.result()
+                if item:
+                    candidates.append(item)
+            except Exception as exc:
+                errors.append(f"VsemPodryad order {link}: {exc}")
+
     unique = {}
     for item in candidates:
         unique[item["request_id"]] = item
@@ -1017,6 +1141,7 @@ def collect_candidates():
 def send_webhook(item):
     comment = (
         f"Релевантность: {item.get('score',0)}/100\n"
+        f"Тип лида: {item.get('lead_class','HOT')}\n"
         f"Работа ECOFLOT: {item.get('work','')}\n"
         f"Техника: {item.get('equipment','')}\n"
         f"Описание: {item['description']}\n"
@@ -1100,6 +1225,7 @@ def main():
         item["score"] = score
         item["work"] = work
         item["equipment"] = equipment
+        item["lead_class"] = lead_class(item.get("title",""), item.get("description",""))
     candidates = [x for x in candidates if x.get("score",0) >= MIN_RELEVANCE_SCORE]
     candidates.sort(key=lambda x: (-x.get("score",0), x["source"], x["title"]))
 
@@ -1133,6 +1259,7 @@ def main():
         + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
         + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
         + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
+        + len(VSEMPODRYAD_SOURCES)
     ):
         try:
             send_no_results_message()
