@@ -177,7 +177,34 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
 .lead-list-table tbody tr:last-child td,.fleet-list-table tbody tr:last-child td{border-bottom:0}
 .lead-list-table th,.fleet-list-table th{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);background:#f7faf7;font-weight:800}
 .lead-list-table tbody tr:hover,.fleet-list-table tbody tr:hover{background:#fbfdfb}
-.view-switch{display:flex;gap:6px;align-items:center}
+.lead-list-table{table-layout:auto}
+.lead-list-table th:nth-child(3),
+.lead-list-table td:nth-child(3){
+  width:360px;
+  min-width:360px;
+  max-width:360px;
+  white-space:normal;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  word-break:break-word;
+  line-height:1.35;
+}
+.lead-list-table td:nth-child(3) a,
+.lead-list-table td:nth-child(3) b{
+  display:block;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media(max-width:900px){
+  .lead-list-table th:nth-child(3),
+  .lead-list-table td:nth-child(3){
+    width:300px;
+    min-width:300px;
+    max-width:300px;
+  }
+}
+.view-switch{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .crm-modal-form{display:grid;gap:12px;margin-top:14px}
 .crm-modal-form label{margin:0}
 .crm-modal-form input,.crm-modal-form select{margin-top:6px}
@@ -1402,6 +1429,54 @@ function deleteSelectedLeads(){
   showToast('Удалено заявок: ' + count);
 }
 
+async function updateSelectedLeadsStatus(status){
+  const normalized = normalizeStatus(status);
+  const ids = [...leadSelectedIds].filter(id=>data.leads.some(l=>l.id===id));
+  if(!ids.length){
+    showToast('Сначала выберите заявки');
+    return false;
+  }
+
+  const label = leadStatusLabel(normalized);
+  const overrides = getLeadStatusOverrides();
+  const selectedLeads = ids.map(id=>data.leads.find(l=>l.id===id)).filter(Boolean);
+
+  selectedLeads.forEach(lead=>{
+    lead.status = normalized;
+    overrides[lead.id] = normalized;
+  });
+  try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
+  saveLeads();
+  renderView('leads',true);
+  showToast('Статус «' + label + '» для заявок: ' + selectedLeads.length);
+
+  let sent = 0;
+  for(const lead of selectedLeads){
+    if(!lead.requestId) continue;
+    await sendToGoogleSheet({
+      type:'CRM_ACTION_LEAD',
+      name:'Массовый статус заявки: ' + (lead.client || lead.id),
+      phone:lead.phone || '-',
+      wasteType:lead.type || 'Заявка',
+      volume:'-',
+      when:new Date().toLocaleString('ru-RU'),
+      address:lead.address || '-',
+      source:'ECOFLOT CRM / массовое изменение',
+      status:label,
+      comment:'targetRequestId=' + lead.requestId + '\naction=crm_bulk_status\nstatus=' + label,
+      requestId:makeRequestId('CRM-BULK-ACTION')
+    });
+    sent++;
+    await new Promise(resolve=>setTimeout(resolve,180));
+  }
+
+  if(sent){
+    showToast('Изменено: ' + selectedLeads.length + ' · синхронизация с Google');
+    setTimeout(()=>syncLeadsFromGoogleSheet(true),2600);
+  }
+  return true;
+}
+
 function toggleLeadSelect(id,checked){
   if(checked) leadSelectedIds.add(id);
   else leadSelectedIds.delete(id);
@@ -2237,6 +2312,11 @@ function leadsHTML(){
     + '<button class="btn light small" type="button" onclick="clearLeadDateRange()">Сбросить даты</button>'
     + '</div><div class="view-switch">'
     + '<label class="chip" style="display:flex;align-items:center;gap:6px"><input type="checkbox" '+(allVisibleSelected?'checked':'')+' onchange="toggleAllLeads(this.checked)"> Выбрать все</label>'
+    + '<label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">Статус выбранных ('+selectedCount+')'
+    + '<select onchange="if(this.value){updateSelectedLeadsStatus(this.value);this.value=\'\';}" '+(selectedCount?'':'disabled')+' style="min-width:175px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
+    + '<option value="">Выберите статус</option>'
+    + LEAD_STATUSES.map(s=>'<option value="'+s.value+'">'+s.label+'</option>').join('')
+    + '</select></label>'
     + '<button class="btn light small" type="button" onclick="deleteSelectedLeads()" style="color:#a94a4a">Удалить выбранные ('+selectedCount+')</button>'
     + '<button class="chip active" type="button">Строки</button>'
     + '<button class="btn light small" onclick="syncLeadsFromGoogleSheet(true)">↻ Обновить</button>'
