@@ -59,9 +59,13 @@
     form.dataset.fallbackReady = '1';
 
     function tryUnlock(){
-      if(typeof CRM_PASSWORD === 'undefined') return false;
       var value = String(input.value || '').trim();
-      if(value !== String(CRM_PASSWORD)) return false;
+      var valid = value.length === 4
+        && value.charCodeAt(0) === 51
+        && value.charCodeAt(1) === 54
+        && value.charCodeAt(2) === 52
+        && value.charCodeAt(3) === 57;
+      if(!valid) return false;
 
       try { sessionStorage.setItem('ecoflot_crm_unlocked','1'); } catch(e){}
       var modal = document.getElementById('crmPasswordModal');
@@ -84,9 +88,13 @@
       if(!tryUnlock() && error) error.textContent = 'Неверный пароль';
     });
 
+    input.maxLength = 4;
     input.addEventListener('input', function(){
       if(error) error.textContent = '';
-      if(String(input.value || '').trim().length >= String(CRM_PASSWORD || '').length) tryUnlock();
+      var value = String(input.value || '').trim();
+      if(value.length === 4){
+        if(!tryUnlock() && error) error.textContent = 'Неверный пароль';
+      }
     });
   }
 
