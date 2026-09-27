@@ -1,0 +1,41 @@
+name: ECOFLOT object leads monitor
+
+on:
+  schedule:
+    - cron: "30 5 * * *"   # 08:30 Moscow (UTC+3)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/object-leads-monitor.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecoflot-object-leads-monitor
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan future-demand object signals
+        env:
+          MAX_SEND: "20"
+          RECENT_DAYS: "5"
+          MIN_SCORE: "65"
+        run: python3 scripts/object_leads_monitor.py
+
+      - name: Save processed object IDs
+        run: |
+          if [ -n "$(git status --porcelain object_leads_state.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add object_leads_state.json
+            git commit -m "Update object leads monitor state"
+            git pull --rebase origin main
+            git push origin main
+          fi
