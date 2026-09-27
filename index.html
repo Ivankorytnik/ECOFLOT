@@ -1184,7 +1184,7 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
       <h2>Вход в CRM</h2>
       <p>Введите пароль доступа.</p>
       <form id="crmPasswordForm">
-        <label>Пароль<input id="crmPasswordInput" type="password" inputmode="numeric" autocomplete="current-password" required /></label>
+        <label>Пароль<input id="crmPasswordInput" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" required /></label>
         <div id="crmPasswordError" class="form-status error"></div>
         <button class="btn primary full" type="submit">Войти</button>
       </form>
