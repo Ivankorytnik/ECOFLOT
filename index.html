@@ -1270,10 +1270,15 @@ function detectLeadSource(kind){
 }
 
 function normalizeStatus(status){
-  const s = String(status || '').toLowerCase();
-  if(['work','в работе','обработка'].includes(s)) return 'work';
-  if(['won','согласовано','выполнено','успешно'].includes(s)) return 'won';
-  if(['lost','закрыто','отказ'].includes(s)) return 'lost';
+  const s = String(status || '').trim().toLowerCase();
+  if(['new','новая','новый'].includes(s)) return 'new';
+  if(['work','в работе','обработка','обрабатывается'].includes(s)) return 'work';
+  if(['quote','расчёт / кп','расчет / кп','расчёт','расчет','кп','коммерческое предложение'].includes(s)) return 'quote';
+  if(['approval','согласование','на согласовании'].includes(s)) return 'approval';
+  if(['scheduled','запланирована','запланировано','согласовано','won'].includes(s)) return 'scheduled';
+  if(['executing','выполняется','исполнение','в пути','на объекте'].includes(s)) return 'executing';
+  if(['done','выполнена','выполнено','успешно','завершена','завершено'].includes(s)) return 'done';
+  if(['lost','отказ','закрыто','не подходит','отменена','отменено'].includes(s)) return 'lost';
   return 'new';
 }
 
@@ -1284,9 +1289,18 @@ function saveLeads(){
 const LEAD_STATUSES = [
   {value:'new',label:'Новая'},
   {value:'work',label:'В работе'},
-  {value:'won',label:'Согласовано'},
-  {value:'lost',label:'Закрыто'}
+  {value:'quote',label:'Расчёт / КП'},
+  {value:'approval',label:'Согласование'},
+  {value:'scheduled',label:'Запланирована'},
+  {value:'executing',label:'Выполняется'},
+  {value:'done',label:'Выполнена'},
+  {value:'lost',label:'Отказ'}
 ];
+
+function leadStatusLabel(status){
+  const normalized = normalizeStatus(status);
+  return (LEAD_STATUSES.find(x=>x.value===normalized) || LEAD_STATUSES[0]).label;
+}
 const LEAD_OVERRIDES_KEY = 'wf_lead_status_overrides';
 const LEAD_DELETED_KEY = 'wf_lead_deleted_ids';
 
@@ -1321,8 +1335,9 @@ function updateLeadStatus(id,status){
   overrides[id] = normalized;
   try{ localStorage.setItem(LEAD_OVERRIDES_KEY, JSON.stringify(overrides)); }catch(e){}
   saveLeads();
+
   if(lead.requestId){
-    const label = (LEAD_STATUSES.find(x=>x.value===normalized) || {}).label || 'Новая';
+    const label = leadStatusLabel(normalized);
     sendToGoogleSheet({
       type:'CRM_ACTION_LEAD',
       name:'Статус заявки: ' + (lead.client || lead.id),
@@ -1333,12 +1348,15 @@ function updateLeadStatus(id,status){
       address:lead.address || '-',
       source:'ECOFLOT CRM',
       status:label,
-      comment:'targetRequestId=' + lead.requestId + '\naction=crm_status',
+      comment:'targetRequestId=' + lead.requestId + '\naction=crm_status\nstatus=' + label,
       requestId:makeRequestId('CRM-ACTION')
     });
+    setTimeout(()=>syncLeadsFromGoogleSheet(true),2200);
+    showToast('Статус: ' + label + ' · синхронизация с Google');
+  }else{
+    showToast('Статус: ' + leadStatusLabel(normalized));
   }
   renderView('leads',true);
-  showToast('Статус заявки изменён');
 }
 
 function removeLeadIds(ids){
@@ -1398,7 +1416,7 @@ function toggleAllLeads(checked){
 
 function leadStatusSelect(lead){
   const current = normalizeStatus(lead.status);
-  return '<select aria-label="Статус заявки" onchange="updateLeadStatus(\''+escHTML(lead.id)+'\',this.value)" style="min-width:135px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
+  return '<select aria-label="Статус заявки" onchange="updateLeadStatus(\''+escHTML(lead.id)+'\',this.value)" style="min-width:170px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff">'
     + LEAD_STATUSES.map(s=>'<option value="'+s.value+'" '+(s.value===current?'selected':'')+'>'+s.label+'</option>').join('')
     + '</select>';
 }
@@ -1542,7 +1560,7 @@ async function handleBotActionFromUrl(){
 
   const defs = {
     lead_work:{type:'CRM_ACTION_LEAD',status:'В работе',label:'Заявка переведена в работу.',view:'leads'},
-    lead_lost:{type:'CRM_ACTION_LEAD',status:'Закрыто',label:'Заявка отмечена как «Не подходит».',view:'leads'},
+    lead_lost:{type:'CRM_ACTION_LEAD',status:'Отказ',label:'Заявка переведена в статус «Отказ».',view:'leads'},
     tender_work:{type:'CRM_ACTION_TENDER',status:'В работе',label:'Тендер переведён в работу.',view:'tenders'},
     tender_defer:{type:'CRM_ACTION_TENDER',status:'Отложен',label:'Тендер отложен.',view:'tenders'},
     tender_skip:{type:'CRM_ACTION_TENDER',status:'Не участвуем',label:'Тендер отмечен как «Не участвуем».',view:'tenders'},
@@ -2200,7 +2218,7 @@ function leadCard(l){
 
 function leadsHTML(){
   const list = filteredLeads();
-  const cols = [['new','Новые'],['work','В работе'],['won','Согласовано'],['lost','Закрыто']];
+  const cols = LEAD_STATUSES.map(s=>[s.value,s.label]);
   const visibleIds = list.map(l=>l.id);
   const allVisibleSelected = visibleIds.length>0 && visibleIds.every(id=>leadSelectedIds.has(id));
   const selectedCount = [...leadSelectedIds].filter(id=>data.leads.some(l=>l.id===id)).length;
