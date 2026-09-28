@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import ssl
+import time
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -176,6 +177,84 @@ def fetch_relaxed_ssl(url: str, timeout=20) -> str:
 def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
     return re.sub(r"\s+", " ", s).strip()
+
+def parse_webhook_response(status, body, context="webhook"):
+    if not (200 <= status < 300):
+        raise RuntimeError(f"{context} HTTP {status}: {body[:500]}")
+    try:
+        resp = json.loads(body)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"{context} returned non-JSON response: {body[:500]}") from exc
+    if not isinstance(resp, dict) or not resp.get("ok"):
+        raise RuntimeError(f"{context} returned ok=false: {body[:500]}")
+    return resp
+
+def telegram_delivery_confirmed(resp):
+    if not isinstance(resp, dict):
+        return False
+    direct_keys = (
+        "telegramOk", "telegram_ok", "telegramSent", "telegram_sent",
+        "telegramDelivered", "telegram_delivered",
+    )
+    for key in direct_keys:
+        if resp.get(key) is True:
+            return True
+    telegram = resp.get("telegram")
+    if telegram is True:
+        return True
+    if isinstance(telegram, dict) and (
+        telegram.get("ok") is True
+        or telegram.get("sent") is True
+        or telegram.get("delivered") is True
+    ):
+        return True
+    delivery = resp.get("delivery")
+    if isinstance(delivery, dict):
+        tg = delivery.get("telegram")
+        if tg is True:
+            return True
+        if isinstance(tg, dict) and (
+            tg.get("ok") is True
+            or tg.get("sent") is True
+            or tg.get("delivered") is True
+        ):
+            return True
+    return False
+
+def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", attempts=3):
+    payload = json.dumps({
+        "mode": "notify-only",
+        "message": message,
+    }, ensure_ascii=False).encode("utf-8")
+    last_exc = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            req = urllib.request.Request(
+                webhook,
+                data=payload,
+                method="POST",
+                headers={
+                    "User-Agent": user_agent,
+                    "Content-Type": "application/json; charset=utf-8",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = r.read().decode("utf-8", "replace")
+                resp = parse_webhook_response(r.status, body, "Telegram notify-only")
+                print(
+                    "TELEGRAM_NOTIFY_ACK:",
+                    json.dumps(resp, ensure_ascii=False)[:500],
+                )
+                return resp
+        except Exception as exc:
+            last_exc = exc
+            print(
+                f"TELEGRAM_NOTIFY_RETRY {attempt}/{max(1, attempts)}: {exc}",
+                file=sys.stderr,
+            )
+            if attempt < max(1, attempts):
+                time.sleep(attempt)
+    raise RuntimeError(f"Telegram notify-only failed after {attempts} attempts: {last_exc}")
 
 def lines_from_html(page: str):
     page = re.sub(r"(?is)<(script|style).*?</\1>", " ", page)
@@ -1390,6 +1469,7 @@ def send_webhook(item):
         "when": item["date"],
         "address": item["location"],
         "source": item["source"],
+        "link": item["url"],
         "status": "Новая",
         "comment": "\n".join(action_lines)[:3500],
         "requestId": item["request_id"],
@@ -1399,41 +1479,34 @@ def send_webhook(item):
         WEBHOOK,
         data=data,
         method="POST",
-        headers={"User-Agent": "ECOFLOT-Internet-Leads/1.0"},
+        headers={"User-Agent": "ECOFLOT-Internet-Leads/2.0"},
     )
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
-        if not (200 <= r.status < 300):
-            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        try:
-            resp = json.loads(body)
-            if not resp.get("ok"):
-                raise RuntimeError(f"Webhook error: {body[:300]}")
-        except json.JSONDecodeError:
-            pass
+        resp = parse_webhook_response(r.status, body, "Internet lead webhook")
+
+    if not telegram_delivery_confirmed(resp):
+        send_notify_only(
+            (
+                "♻️ ECOFLOT Internet Leads\n"
+                "Новая заявка\n"
+                f"{item['title'][:500]}\n"
+                f"Адрес: {item['location']}\n"
+                f"Работа: {item.get('work') or 'Работа ECOFLOT'}\n"
+                f"Релевантность: {item.get('score',0)}/100\n"
+                f"Источник: {item['url']}\n"
+                f"Request ID: {item['request_id']}"
+            ),
+            webhook=WEBHOOK,
+            user_agent="ECOFLOT-Internet-Leads/2.0",
+        )
 
 def send_no_results_message():
-    payload = {
-        "mode": "notify-only",
-        "message": "Поиск интернет-заявок проведён, новых заявок не обнаружено",
-    }
-    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK,
-        data=data,
-        method="POST",
-        headers={
-            "User-Agent": "ECOFLOT-Internet-Leads/1.0",
-            "Content-Type": "application/json; charset=utf-8",
-        },
+    return send_notify_only(
+        "♻️ ECOFLOT Internet Leads: поиск проведён, новых заявок не обнаружено",
+        webhook=WEBHOOK,
+        user_agent="ECOFLOT-Internet-Leads/2.0",
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        body = r.read().decode("utf-8", "replace")
-        if not (200 <= r.status < 300):
-            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        resp = json.loads(body)
-        if not resp.get("ok"):
-            raise RuntimeError(f"Webhook error: {body[:300]}")
 
 def main():
     state = load_state()
