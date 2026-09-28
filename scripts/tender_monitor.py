@@ -13,7 +13,7 @@ from pathlib import Path
 from internet_leads_monitor import (
     parse_webhook_response,
     telegram_delivery_confirmed,
-    send_notify_only,
+    send_notify_reliable,
 )
 
 WEBHOOK = os.environ.get(
@@ -407,7 +407,7 @@ def send_webhook(entry):
         resp = parse_webhook_response(r.status, body, "Tender webhook")
 
     if not telegram_delivery_confirmed(resp):
-        send_notify_only(
+        send_notify_reliable(
             (
                 "🔎 ECOFLOT Tender Watch\n"
                 "Новый тендер\n"
@@ -421,13 +421,16 @@ def send_webhook(entry):
             ),
             webhook=WEBHOOK,
             user_agent="ECOFLOT-Tender-Monitor/3.0",
+            source="Tender Watch",
+            request_id=request_id_for(entry),
         )
 
 def send_no_results_message():
-    return send_notify_only(
+    return send_notify_reliable(
         "🔎 ECOFLOT Tender Watch: поиск проведён, новых подходящих тендеров не обнаружено",
         webhook=WEBHOOK,
         user_agent="ECOFLOT-Tender-Monitor/3.0",
+        source="Tender Watch",
     )
 
 def main():
