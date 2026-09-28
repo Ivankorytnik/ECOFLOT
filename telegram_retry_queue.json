@@ -1,0 +1,13 @@
+{
+  "items": [
+    {
+      "key": "Tender-Watch-noresults-20260928T1758MSK",
+      "request_id": "",
+      "source": "Tender Watch",
+      "message": "Поиск тендеров проведён, новых подходящих тендеров не обнаружено",
+      "created_at": "2026-09-28T14:58:09+00:00",
+      "updated_at": "2026-09-28T14:58:09+00:00",
+      "attempts": 0
+    }
+  ]
+}
