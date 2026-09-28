@@ -1,4 +1,4 @@
-name: Resend missed Dozzr lead
+name: ECOFLOT Telegram route diagnostic
 
 on:
   push:
@@ -8,47 +8,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  resend:
+  diagnostic:
     runs-on: ubuntu-latest
     steps:
-      - name: Resend WEB-DOZZR-184023 to Telegram
+      - name: Inspect Apps Script and Telegram webhook route
         run: |
           python3 - <<'PY'
           import json
+          import urllib.parse
           import urllib.request
 
-          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          message = (
-              "♻️ ECOFLOT Internet Leads\n"
-              "🔥 ПРОПУЩЕННАЯ ЗАЯВКА\n\n"
-              "Экскаватор-погрузчик 29.09.2026\n"
-              "Одинцовский район, посёлок Заречье\n"
-              "Оплата: безнал с НДС\n"
-              "Работа: погрузка / земляные работы\n"
-              "Релевантность: 88/100\n"
-              "Тип: HOT\n"
-              "Источник: https://dozzr.ru/catalog/item/184023\n"
-              "Request ID: WEB-DOZZR-184023"
-          )
-          payload = json.dumps(
-              {"mode": "notify-only", "message": message},
-              ensure_ascii=False,
-          ).encode("utf-8")
-          req = urllib.request.Request(
-              url,
-              data=payload,
-              method="POST",
-              headers={
-                  "Content-Type": "application/json; charset=utf-8",
-                  "User-Agent": "ECOFLOT-Resend-Diagnostic/1.0",
-              },
-          )
-          with urllib.request.urlopen(req, timeout=30) as r:
-              body = r.read().decode("utf-8", "replace")
-              print("RAW_WEBHOOK_RESPONSE:", body)
-              if not (200 <= r.status < 300):
-                  raise SystemExit(f"HTTP {r.status}")
-              parsed = json.loads(body)
-              if not parsed.get("ok"):
-                  raise SystemExit("Webhook returned ok=false")
+          base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+
+          for label, url in [
+              ("ROOT", base),
+              ("WEBHOOK_INFO", base + "?action=webhookInfo"),
+          ]:
+              try:
+                  with urllib.request.urlopen(url, timeout=30) as r:
+                      body = r.read().decode("utf-8", "replace")
+                      print(label + "_HTTP:", r.status)
+                      print(label + "_BODY:", body)
+              except Exception as exc:
+                  print(label + "_ERROR:", repr(exc))
+                  raise
           PY
