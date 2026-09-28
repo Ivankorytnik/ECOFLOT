@@ -23,7 +23,7 @@ from internet_leads_monitor import (
     load_sheet_index,
     signature,
     send_webhook,
-    send_notify_only,
+    send_notify_reliable,
 )
 
 STATE_PATH = Path("social_public_leads_state.json")
@@ -131,10 +131,11 @@ def parse_channel(label, channel):
     return out
 
 def send_no_results():
-    return send_notify_only(
+    return send_notify_reliable(
         "Поиск Telegram-заявок проведён, новых заявок не обнаружено",
         webhook=WEBHOOK,
         user_agent="ECOFLOT-Social-Monitor/3.0",
+        source="Social Leads Telegram",
     )
 
 def main():
