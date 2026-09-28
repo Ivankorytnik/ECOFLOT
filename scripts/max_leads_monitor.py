@@ -27,6 +27,7 @@ from internet_leads_monitor import (
     load_sheet_index,
     signature,
     send_webhook,
+    send_notify_only,
 )
 
 STATE_PATH = Path("max_public_leads_state.json")
@@ -117,22 +118,11 @@ def extract_candidates(url):
     return [item] if score >= MIN_RELEVANCE_SCORE else []
 
 def send_no_results():
-    payload = json.dumps({
-        "mode": "notify-only",
-        "message": "Поиск MAX-заявок проведён, новых заявок не обнаружено",
-    }, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK,
-        data=payload,
-        method="POST",
-        headers={
-            "User-Agent": "ECOFLOT-MAX-Monitor/1.0",
-            "Content-Type": "application/json; charset=utf-8",
-        },
+    return send_notify_only(
+        "Поиск MAX-заявок проведён, новых заявок не обнаружено",
+        webhook=WEBHOOK,
+        user_agent="ECOFLOT-MAX-Monitor/2.0",
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        if not (200 <= r.status < 300):
-            raise RuntimeError("notify failed")
 
 def main():
     state = load_state()
