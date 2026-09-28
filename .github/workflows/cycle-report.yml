@@ -6,11 +6,6 @@ on:
     - cron: "50 11 * * *"  # 14:50 Moscow
     - cron: "50 15 * * *"  # 18:50 Moscow
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "scripts/cycle_report.py"
-      - ".github/workflows/cycle-report.yml"
 
 permissions:
   contents: write
