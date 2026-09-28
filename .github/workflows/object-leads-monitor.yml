@@ -13,6 +13,7 @@ on:
     paths:
       - '.github/workflows/object-leads-monitor.yml'
       - 'scripts/object_leads_monitor.py'
+      - 'scripts/internet_leads_monitor.py'
 
 permissions:
   contents: write
