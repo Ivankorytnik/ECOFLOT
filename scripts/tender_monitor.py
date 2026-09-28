@@ -514,6 +514,12 @@ def main():
         except Exception as exc:
             errors.append(f"send no-results notice: {exc}")
 
+    state["last_run"] = {
+        "at": datetime.now(timezone.utc).isoformat(),
+        "candidates": len(candidates),
+        "sent": sent_count,
+        "errors": len(errors),
+    }
     save_state(state)
     print(f"Found new active relevant: {len(candidates)}, sent: {sent_count}, errors: {len(errors)}")
     for e in errors:
