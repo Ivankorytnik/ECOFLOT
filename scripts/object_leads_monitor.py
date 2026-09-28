@@ -15,7 +15,7 @@ from pathlib import Path
 from internet_leads_monitor import (
     parse_webhook_response,
     telegram_delivery_confirmed,
-    send_notify_only,
+    send_notify_reliable,
 )
 
 WEBHOOK = os.environ.get(
@@ -248,7 +248,7 @@ def send(item):
         resp = parse_webhook_response(r.status, body, "Object lead webhook")
 
     if not telegram_delivery_confirmed(resp):
-        send_notify_only(
+        send_notify_reliable(
             (
                 "🏗 ECOFLOT Object Leads\n"
                 "Новый потенциальный объект\n"
@@ -261,13 +261,16 @@ def send(item):
             ),
             webhook=WEBHOOK,
             user_agent="ECOFLOT-Object-Leads/2.0",
+            source="Object Leads",
+            request_id=item["request_id"],
         )
 
 def notify_none():
-    return send_notify_only(
+    return send_notify_reliable(
         "🏗 ECOFLOT Object Leads: проверка проведена, новых потенциальных объектов не обнаружено",
         webhook=WEBHOOK,
         user_agent="ECOFLOT-Object-Leads/2.0",
+        source="Object Leads",
     )
 
 def main():
