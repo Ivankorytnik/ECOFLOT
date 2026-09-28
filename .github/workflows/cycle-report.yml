@@ -1,0 +1,37 @@
+name: ECOFLOT cycle delivery control
+
+on:
+  schedule:
+    - cron: "50 5 * * *"   # 08:50 Moscow
+    - cron: "50 11 * * *"  # 14:50 Moscow
+    - cron: "50 15 * * *"  # 18:50 Moscow
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/cycle_report.py"
+      - ".github/workflows/cycle-report.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send full-cycle Telegram control report
+        run: python3 scripts/cycle_report.py
+
+      - name: Save retry queue if report delivery failed
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain telegram_retry_queue.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add telegram_retry_queue.json
+            git commit -m "Queue cycle control Telegram report"
+            git pull --rebase origin main
+            git push origin main
+          fi
