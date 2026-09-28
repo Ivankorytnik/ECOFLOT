@@ -14,34 +14,37 @@ jobs:
       - name: Resend WEB-DOZZR-184023 to Telegram
         run: |
           python3 - <<'PY'
-          import json, urllib.request
-          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          message = """♻️ ECOFLOT Internet Leads
-🔥 ПРОПУЩЕННАЯ ЗАЯВКА
+          import json
+          import urllib.request
 
-Экскаватор-погрузчик 29.09.2026
-Одинцовский район, посёлок Заречье
-Оплата: безнал с НДС
-Работа: погрузка / земляные работы
-Релевантность: 88/100
-Тип: HOT
-Источник: https://dozzr.ru/catalog/item/184023
-Request ID: WEB-DOZZR-184023"""
-          payload = json.dumps({
-              "mode": "notify-only",
-              "message": message
-          }, ensure_ascii=False).encode("utf-8")
+          url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          message = (
+              "♻️ ECOFLOT Internet Leads\n"
+              "🔥 ПРОПУЩЕННАЯ ЗАЯВКА\n\n"
+              "Экскаватор-погрузчик 29.09.2026\n"
+              "Одинцовский район, посёлок Заречье\n"
+              "Оплата: безнал с НДС\n"
+              "Работа: погрузка / земляные работы\n"
+              "Релевантность: 88/100\n"
+              "Тип: HOT\n"
+              "Источник: https://dozzr.ru/catalog/item/184023\n"
+              "Request ID: WEB-DOZZR-184023"
+          )
+          payload = json.dumps(
+              {"mode": "notify-only", "message": message},
+              ensure_ascii=False,
+          ).encode("utf-8")
           req = urllib.request.Request(
               url,
               data=payload,
               method="POST",
               headers={
-                  "Content-Type":"application/json; charset=utf-8",
-                  "User-Agent":"ECOFLOT-Resend-Diagnostic/1.0"
+                  "Content-Type": "application/json; charset=utf-8",
+                  "User-Agent": "ECOFLOT-Resend-Diagnostic/1.0",
               },
           )
           with urllib.request.urlopen(req, timeout=30) as r:
-              body = r.read().decode("utf-8","replace")
+              body = r.read().decode("utf-8", "replace")
               print("RAW_WEBHOOK_RESPONSE:", body)
               if not (200 <= r.status < 300):
                   raise SystemExit(f"HTTP {r.status}")
