@@ -196,7 +196,6 @@ def save_state(state):
     sent = state.get("sent", {})
     if len(sent) > 5000:
         state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:5000])
-    state["last_run"] = datetime.now(timezone.utc).isoformat()
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
 def send(item):
@@ -303,6 +302,13 @@ def main():
             print("NO_RESULTS_NOTICE_SENT")
         except Exception as exc:
             errors.append("notify-none: " + str(exc))
+    state["last_run"] = {
+        "at": datetime.now(timezone.utc).isoformat(),
+        "candidates": len(items),
+        "new": len(fresh),
+        "sent": sent_count,
+        "errors": len(errors),
+    }
     save_state(state)
     print(f"Object leads candidates={len(items)}, new={len(fresh)}, sent={sent_count}, errors={len(errors)}")
     for err in errors:
