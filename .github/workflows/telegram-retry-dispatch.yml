@@ -1,0 +1,39 @@
+name: ECOFLOT Telegram retry dispatcher
+
+on:
+  schedule:
+    - cron: "20 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "telegram_retry_queue.json"
+      - "scripts/telegram_retry_dispatch.py"
+      - ".github/workflows/telegram-retry-dispatch.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecoflot-telegram-retry-dispatch
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Retry Telegram deliveries
+        run: python3 scripts/telegram_retry_dispatch.py
+
+      - name: Save retry queue
+        run: |
+          if [ -n "$(git status --porcelain telegram_retry_queue.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add telegram_retry_queue.json
+            git commit -m "Update Telegram retry queue"
+            git pull --rebase origin main
+            git push origin main
+          fi
