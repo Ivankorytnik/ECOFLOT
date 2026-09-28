@@ -15,6 +15,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/internet-leads-monitor.yml"
+      - "scripts/internet_leads_monitor.py"
 
 permissions:
   contents: write
