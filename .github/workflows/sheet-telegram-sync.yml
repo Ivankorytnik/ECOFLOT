@@ -1,0 +1,42 @@
+name: ECOFLOT Sheet Telegram sync
+
+on:
+  schedule:
+    - cron: "5 5 * * *"   # 08:05 Moscow
+    - cron: "5 11 * * *"  # 14:05 Moscow
+    - cron: "5 15 * * *"  # 18:05 Moscow
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/sheet_telegram_sync.py"
+      - ".github/workflows/sheet-telegram-sync.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecoflot-sheet-telegram-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Send marked Sheet rows to Telegram
+        env:
+          MAX_SEND: "50"
+        run: python3 scripts/sheet_telegram_sync.py
+
+      - name: Save Telegram sync state
+        run: |
+          if [ -n "$(git status --porcelain sheet_telegram_sync_state.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add sheet_telegram_sync_state.json
+            git commit -m "Update Sheet Telegram sync state"
+            git pull --rebase origin main
+            git push origin main
+          fi
