@@ -10,6 +10,12 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from internet_leads_monitor import (
+    parse_webhook_response,
+    telegram_delivery_confirmed,
+    send_notify_only,
+)
+
 WEBHOOK = os.environ.get(
     "ECOFLOT_WEBHOOK",
     "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec",
@@ -246,6 +252,21 @@ def extract_direct_cards(page: str, source_label: str, source_url: str, source_r
 def extract_telegram_tenders(page: str, source_label: str, channel: str, source_region: str):
     out = []
     marks = list(re.finditer(r'data-post="([^"]+)/(\d+)"', page, re.I))
+    procurement_markers = (
+        "тендер", "закуп", "прием заяв", "приём заяв", "подача заяв",
+        "коммерческое предложение", "запрос предлож", "конкурс",
+    )
+    work_markers = (
+        "котлован", "землян", "снос", "демонтаж", "благоустрой",
+        "подготовительн", "расчист", "вывоз", "грунт", "мусор", "отход",
+        "контейнер", "самосвал", "спецтех", "экскаватор", "погрузчик",
+    )
+    informational_exclude = (
+        "а вы знали", "архитектур", "дизайн", "офис", "медиахолдинг",
+        "цюрих", "швейцари", "история компании", "новости компании",
+        "поздравляем", "премия", "рейтинг",
+    )
+
     for i, m in enumerate(marks):
         start = m.start()
         end = marks[i + 1].start() if i + 1 < len(marks) else min(len(page), start + 18000)
@@ -253,23 +274,45 @@ def extract_telegram_tenders(page: str, source_label: str, channel: str, source_
         tm = re.search(r'(?is)<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', block)
         if not tm:
             continue
-        text = clean(re.sub(r'(?i)<br\s*/?>', '\n', tm.group(1)))
-        low = text.lower().replace("ё","е")
-        if not any(x in low for x in ("тендер", "закуп", "котлован", "земляные работы", "снос", "благоустройство", "подготовительные работы")):
+
+        raw = re.sub(r'(?i)<br\s*/?>', '\n', tm.group(1))
+        raw = html.unescape(re.sub(r"<[^>]+>", " ", raw))
+        lines = [re.sub(r"\s+", " ", x).strip() for x in raw.splitlines() if re.sub(r"\s+", " ", x).strip()]
+        text = " ".join(lines)
+        low = text.lower().replace("ё", "е")
+
+        if any(x in low for x in informational_exclude):
+            continue
+        if not any(x in low for x in procurement_markers):
+            continue
+        if not any(x in low for x in work_markers):
             continue
         if not any(x in low for x in ("москва", "московск", "химки", "видное", "одинцов", "красногор", "новая москва")):
             continue
-        if not any(x in low for x in ("котлован", "землян", "снос", "благоустрой", "подготовительн", "расчист", "вывоз", "грунт", "мусор", "отход")):
-            continue
+
         deadline = ""
-        dm = re.search(r'(?i)до\s+(\d{1,2}\s+[а-яё]+|\d{1,2}[./]\d{1,2}(?:[./]20\d{2})?)', text)
+        dm = re.search(
+            r'(?i)(?:до|прием заявок до|приём заявок до)\s+'
+            r'(\d{1,2}\s+[а-яё]+|\d{1,2}[./]\d{1,2}(?:[./]20\d{2})?)',
+            text,
+        )
         if dm:
             deadline = clean(dm.group(1))
+
         post_channel = m.group(1)
         post_id = m.group(2)
         link = f"https://t.me/{post_channel}/{post_id}"
         item_id = "telegram-" + post_channel + "-" + post_id
-        title = next((x.strip("🔸📍⚡️✅ ") for x in text.splitlines() if any(k in x.lower().replace("ё","е") for k in ("котлован","землян","снос","благоустрой","подготовительн","расчист","вывоз","грунт","мусор","отход"))), text[:220])
+
+        title = next(
+            (
+                line.strip("🔸📍⚡️✅ ")
+                for line in lines
+                if any(k in line.lower().replace("ё", "е") for k in work_markers)
+            ),
+            lines[0] if lines else text[:220],
+        )
+
         out.append({
             "id": item_id,
             "title": title[:250],
@@ -357,41 +400,35 @@ def send_webhook(entry):
     data = urllib.parse.urlencode(payload).encode("utf-8")
     req = urllib.request.Request(
         WEBHOOK, data=data, method="POST",
-        headers={"User-Agent": "ECOFLOT-Tender-Monitor/2.0"},
+        headers={"User-Agent": "ECOFLOT-Tender-Monitor/3.0"},
     )
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
-        if not (200 <= r.status < 300):
-            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        try:
-            resp = json.loads(body)
-            if not resp.get("ok"):
-                raise RuntimeError(f"Webhook error: {body[:300]}")
-        except json.JSONDecodeError:
-            pass
+        resp = parse_webhook_response(r.status, body, "Tender webhook")
+
+    if not telegram_delivery_confirmed(resp):
+        send_notify_only(
+            (
+                "🔎 ECOFLOT Tender Watch\n"
+                "Новый тендер\n"
+                f"{entry['title'][:600]}\n"
+                f"Заказчик: {entry['customer'] or 'не указан'}\n"
+                f"Цена: {entry['price'] or 'не указана'}\n"
+                f"Регион: {entry['region']}\n"
+                f"Срок: {entry['deadline'] or 'не указан'}\n"
+                f"Ссылка: {entry['link']}\n"
+                f"Request ID: {request_id_for(entry)}"
+            ),
+            webhook=WEBHOOK,
+            user_agent="ECOFLOT-Tender-Monitor/3.0",
+        )
 
 def send_no_results_message():
-    payload = {
-        "mode": "notify-only",
-        "message": "Поиск проведён, новых тендеров не обнаружено",
-    }
-    data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK,
-        data=data,
-        method="POST",
-        headers={
-            "User-Agent": "ECOFLOT-Tender-Monitor/2.0",
-            "Content-Type": "application/json; charset=utf-8",
-        },
+    return send_notify_only(
+        "🔎 ECOFLOT Tender Watch: поиск проведён, новых подходящих тендеров не обнаружено",
+        webhook=WEBHOOK,
+        user_agent="ECOFLOT-Tender-Monitor/3.0",
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        body = r.read().decode("utf-8", "replace")
-        if not (200 <= r.status < 300):
-            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        resp = json.loads(body)
-        if not resp.get("ok"):
-            raise RuntimeError(f"Webhook error: {body[:300]}")
 
 def main():
     state = load_state()
