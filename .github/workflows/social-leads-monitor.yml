@@ -13,6 +13,9 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/social-leads-monitor.yml'
+      - 'scripts/social_leads_monitor.py'
+      - 'scripts/max_leads_monitor.py'
+      - 'scripts/internet_leads_monitor.py'
 
 permissions:
   contents: write
