@@ -23,6 +23,7 @@ from internet_leads_monitor import (
     load_sheet_index,
     signature,
     send_webhook,
+    send_notify_only,
 )
 
 STATE_PATH = Path("social_public_leads_state.json")
@@ -130,22 +131,11 @@ def parse_channel(label, channel):
     return out
 
 def send_no_results():
-    payload = json.dumps({
-        "mode": "notify-only",
-        "message": "Поиск Telegram-заявок проведён, новых заявок не обнаружено",
-    }, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK,
-        data=payload,
-        method="POST",
-        headers={
-            "User-Agent": "ECOFLOT-Social-Monitor/2.0",
-            "Content-Type": "application/json; charset=utf-8",
-        },
+    return send_notify_only(
+        "Поиск Telegram-заявок проведён, новых заявок не обнаружено",
+        webhook=WEBHOOK,
+        user_agent="ECOFLOT-Social-Monitor/3.0",
     )
-    with urllib.request.urlopen(req, timeout=30) as r:
-        if not (200 <= r.status < 300):
-            raise RuntimeError("notify failed")
 
 def main():
     state = load_state()
