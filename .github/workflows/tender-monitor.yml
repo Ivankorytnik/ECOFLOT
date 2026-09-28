@@ -42,10 +42,10 @@ jobs:
 
       - name: Save sent tender IDs
         run: |
-          if [ -n "$(git status --porcelain tender_state.json)" ]; then
+          if [ -n "$(git status --porcelain tender_state.json telegram_retry_queue.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add tender_state.json
+            git add tender_state.json telegram_retry_queue.json 2>/dev/null || git add tender_state.json
             git commit -m "Update tender monitor state"
             git pull --rebase origin main
             git push origin main
