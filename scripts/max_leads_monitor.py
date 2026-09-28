@@ -27,7 +27,7 @@ from internet_leads_monitor import (
     load_sheet_index,
     signature,
     send_webhook,
-    send_notify_only,
+    send_notify_reliable,
 )
 
 STATE_PATH = Path("max_public_leads_state.json")
@@ -118,10 +118,11 @@ def extract_candidates(url):
     return [item] if score >= MIN_RELEVANCE_SCORE else []
 
 def send_no_results():
-    return send_notify_only(
+    return send_notify_reliable(
         "Поиск MAX-заявок проведён, новых заявок не обнаружено",
         webhook=WEBHOOK,
         user_agent="ECOFLOT-MAX-Monitor/2.0",
+        source="Social Leads MAX",
     )
 
 def main():
