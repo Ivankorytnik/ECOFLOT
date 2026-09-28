@@ -18,6 +18,8 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/tender-monitor.yml"
+      - "scripts/tender_monitor.py"
+      - "scripts/internet_leads_monitor.py"
 
 permissions:
   contents: write
