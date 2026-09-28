@@ -20,6 +20,7 @@ WEBHOOK = os.environ.get(
 SHEET_ID = "1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws"
 SHEET_NAME = "Заявки"
 STATE_PATH = Path("internet_leads_state.json")
+TELEGRAM_RETRY_QUEUE_PATH = Path("telegram_retry_queue.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
 RECENT_DAYS = 7
 MIN_RELEVANCE_SCORE = 60
@@ -255,6 +256,69 @@ def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", 
             if attempt < max(1, attempts):
                 time.sleep(attempt)
     raise RuntimeError(f"Telegram notify-only failed after {attempts} attempts: {last_exc}")
+
+def queue_telegram_retry(message, source="ECOFLOT", request_id=""):
+    try:
+        if TELEGRAM_RETRY_QUEUE_PATH.exists():
+            data = json.loads(TELEGRAM_RETRY_QUEUE_PATH.read_text("utf-8"))
+        else:
+            data = {"items": []}
+    except Exception:
+        data = {"items": []}
+
+    items = data.setdefault("items", [])
+    now = datetime.now(timezone.utc).isoformat()
+    dedupe_key = request_id or hashlib.sha1(
+        (source + "|" + message).encode("utf-8")
+    ).hexdigest()[:24]
+
+    for item in items:
+        if item.get("key") == dedupe_key:
+            item["message"] = message
+            item["source"] = source
+            item["updated_at"] = now
+            item["attempts"] = int(item.get("attempts", 0))
+            break
+    else:
+        items.append({
+            "key": dedupe_key,
+            "request_id": request_id,
+            "source": source,
+            "message": message,
+            "created_at": now,
+            "updated_at": now,
+            "attempts": 0,
+        })
+
+    data["items"] = items[-500:]
+    TELEGRAM_RETRY_QUEUE_PATH.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+        "utf-8",
+    )
+    print("TELEGRAM_RETRY_QUEUED:", source, dedupe_key)
+
+def send_notify_reliable(
+    message,
+    webhook=WEBHOOK,
+    user_agent="ECOFLOT-Notify/2.0",
+    attempts=3,
+    source="ECOFLOT",
+    request_id="",
+):
+    try:
+        return send_notify_only(
+            message,
+            webhook=webhook,
+            user_agent=user_agent,
+            attempts=attempts,
+        )
+    except Exception:
+        queue_telegram_retry(
+            message,
+            source=source,
+            request_id=request_id,
+        )
+        raise
 
 def lines_from_html(page: str):
     page = re.sub(r"(?is)<(script|style).*?</\1>", " ", page)
@@ -1486,7 +1550,7 @@ def send_webhook(item):
         resp = parse_webhook_response(r.status, body, "Internet lead webhook")
 
     if not telegram_delivery_confirmed(resp):
-        send_notify_only(
+        send_notify_reliable(
             (
                 "♻️ ECOFLOT Internet Leads\n"
                 "Новая заявка\n"
@@ -1499,13 +1563,16 @@ def send_webhook(item):
             ),
             webhook=WEBHOOK,
             user_agent="ECOFLOT-Internet-Leads/2.0",
+            source="Internet Leads",
+            request_id=item["request_id"],
         )
 
 def send_no_results_message():
-    return send_notify_only(
+    return send_notify_reliable(
         "♻️ ECOFLOT Internet Leads: поиск проведён, новых заявок не обнаружено",
         webhook=WEBHOOK,
         user_agent="ECOFLOT-Internet-Leads/2.0",
+        source="Internet Leads",
     )
 
 def main():
@@ -1566,6 +1633,13 @@ def main():
         except Exception as exc:
             errors.append(f"send no-results notice: {exc}")
 
+    state["last_run"] = {
+        "at": datetime.now(timezone.utc).isoformat(),
+        "candidates": len(candidates),
+        "new": len(new_items),
+        "sent": sent_count,
+        "errors": len(errors),
+    }
     save_state(state)
     print(
         f"Internet candidates: {len(candidates)}, new after dedupe: {len(new_items)}, "
