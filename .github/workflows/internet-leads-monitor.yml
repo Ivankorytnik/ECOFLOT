@@ -39,10 +39,10 @@ jobs:
 
       - name: Save processed request IDs
         run: |
-          if [ -n "$(git status --porcelain internet_leads_state.json)" ]; then
+          if [ -n "$(git status --porcelain internet_leads_state.json telegram_retry_queue.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add internet_leads_state.json
+            git add internet_leads_state.json telegram_retry_queue.json 2>/dev/null || git add internet_leads_state.json
             git commit -m "Update internet leads monitor state"
             git pull --rebase origin main
             git push origin main
