@@ -44,8 +44,8 @@ jobs:
         run: |
           python3 - <<'PY'
           import json
-          import urllib.request
           from pathlib import Path
+          from scripts.internet_leads_monitor import WEBHOOK, send_notify_only
 
           def sent(path):
               try:
@@ -55,16 +55,11 @@ jobs:
                   return 0
 
           if sent("social_public_leads_state.json") == 0 and sent("max_public_leads_state.json") == 0:
-              url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-              payload = json.dumps({
-                  "mode": "notify-only",
-                  "message": "Поиск Telegram/MAX проведён, новых заявок не обнаружено"
-              }, ensure_ascii=False).encode("utf-8")
-              req = urllib.request.Request(
-                  url, data=payload, method="POST",
-                  headers={"Content-Type":"application/json; charset=utf-8"}
+              send_notify_only(
+                  "🔷 ECOFLOT Social Leads: поиск Telegram/MAX проведён, новых заявок не обнаружено",
+                  webhook=WEBHOOK,
+                  user_agent="ECOFLOT-Social-Combined/2.0",
               )
-              urllib.request.urlopen(req, timeout=30).read()
               print("COMBINED_NO_RESULTS_NOTICE_SENT")
           PY
 
