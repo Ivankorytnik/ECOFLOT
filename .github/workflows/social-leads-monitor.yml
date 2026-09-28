@@ -45,7 +45,7 @@ jobs:
           python3 - <<'PY'
           import json
           from pathlib import Path
-          from scripts.internet_leads_monitor import WEBHOOK, send_notify_only
+          from scripts.internet_leads_monitor import WEBHOOK, send_notify_reliable
 
           def sent(path):
               try:
@@ -55,20 +55,21 @@ jobs:
                   return 0
 
           if sent("social_public_leads_state.json") == 0 and sent("max_public_leads_state.json") == 0:
-              send_notify_only(
+              send_notify_reliable(
                   "🔷 ECOFLOT Social Leads: поиск Telegram/MAX проведён, новых заявок не обнаружено",
                   webhook=WEBHOOK,
                   user_agent="ECOFLOT-Social-Combined/2.0",
+                  source="Social Leads Telegram/MAX",
               )
               print("COMBINED_NO_RESULTS_NOTICE_SENT")
           PY
 
       - name: Save processed social IDs
         run: |
-          if [ -n "$(git status --porcelain social_public_leads_state.json max_public_leads_state.json)" ]; then
+          if [ -n "$(git status --porcelain social_public_leads_state.json max_public_leads_state.json telegram_retry_queue.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add social_public_leads_state.json max_public_leads_state.json
+            git add social_public_leads_state.json max_public_leads_state.json telegram_retry_queue.json 2>/dev/null || git add social_public_leads_state.json max_public_leads_state.json
             git commit -m "Update Telegram and MAX lead monitor state"
             git pull --rebase origin main
             git push origin main
