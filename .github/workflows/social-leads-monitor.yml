@@ -1,6 +1,3 @@
-# new sources validation 2026-09-27 19:20 MSK
-# manual full sweep 2026-09-27 19:13 MSK
-# manual full sweep 2026-09-27 14:57 MSK
 name: ECOFLOT public social leads monitor
 
 on:
@@ -16,6 +13,7 @@ on:
       - 'scripts/social_leads_monitor.py'
       - 'scripts/max_leads_monitor.py'
       - 'scripts/internet_leads_monitor.py'
+      - 'scripts/search_completion_report.py'
 
 permissions:
   contents: write
@@ -32,48 +30,37 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Scan public Telegram demand feeds
+        id: telegram_scan
+        continue-on-error: true
         env:
           MAX_SEND: "50"
           SUPPRESS_NO_RESULTS: "1"
         run: python3 scripts/social_leads_monitor.py
 
       - name: Scan public MAX demand feeds
+        id: max_scan
+        continue-on-error: true
         env:
           MAX_SEND: "50"
           SUPPRESS_NO_RESULTS: "1"
         run: python3 scripts/max_leads_monitor.py
 
-      - name: Send combined no-results notice
-        run: |
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          from scripts.internet_leads_monitor import WEBHOOK, send_notify_reliable
-
-          def sent(path):
-              try:
-                  data = json.loads(Path(path).read_text("utf-8"))
-                  return int((data.get("last_run") or {}).get("sent", 0))
-              except Exception:
-                  return 0
-
-          if sent("social_public_leads_state.json") == 0 and sent("max_public_leads_state.json") == 0:
-              send_notify_reliable(
-                  "🔷 ECOFLOT Social Leads: поиск Telegram/MAX проведён, новых заявок не обнаружено",
-                  webhook=WEBHOOK,
-                  user_agent="ECOFLOT-Social-Combined/2.0",
-                  source="Social Leads Telegram/MAX",
-              )
-              print("COMBINED_NO_RESULTS_NOTICE_SENT")
-          PY
-
       - name: Save processed social IDs
+        if: always()
+        continue-on-error: true
         run: |
           if [ -n "$(git status --porcelain social_public_leads_state.json max_public_leads_state.json telegram_retry_queue.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
             git add social_public_leads_state.json max_public_leads_state.json telegram_retry_queue.json 2>/dev/null || git add social_public_leads_state.json max_public_leads_state.json
-            git commit -m "Update Telegram and MAX lead monitor state"
-            git pull --rebase origin main
-            git push origin main
+            git commit -m "Update Telegram and MAX lead monitor state" || true
+            git pull --rebase origin main || true
+            git push origin main || true
           fi
+
+      - name: Report search result to Telegram
+        if: always()
+        env:
+          TELEGRAM_OUTCOME: ${{ steps.telegram_scan.outcome }}
+          MAX_OUTCOME: ${{ steps.max_scan.outcome }}
+        run: python3 scripts/search_completion_report.py social
