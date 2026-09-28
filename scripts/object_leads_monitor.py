@@ -12,6 +12,12 @@ from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
+from internet_leads_monitor import (
+    parse_webhook_response,
+    telegram_delivery_confirmed,
+    send_notify_only,
+)
+
 WEBHOOK = os.environ.get(
     "ECOFLOT_WEBHOOK",
     "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec",
@@ -239,25 +245,30 @@ def send(item):
     )
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
-        if not (200 <= r.status < 300):
-            raise RuntimeError(f"Webhook HTTP {r.status}: {body[:300]}")
-        try:
-            parsed = json.loads(body)
-            if parsed.get("ok") is False:
-                raise RuntimeError(body[:300])
-        except json.JSONDecodeError:
-            pass
+        resp = parse_webhook_response(r.status, body, "Object lead webhook")
+
+    if not telegram_delivery_confirmed(resp):
+        send_notify_only(
+            (
+                "🏗 ECOFLOT Object Leads\n"
+                "Новый потенциальный объект\n"
+                f"{item['title'][:600]}\n"
+                f"Локация: {item['location']}\n"
+                f"Сигнал: {item['signal']}\n"
+                f"Релевантность: {item['score']}/100\n"
+                f"Источник: {item['url']}\n"
+                f"Request ID: {item['request_id']}"
+            ),
+            webhook=WEBHOOK,
+            user_agent="ECOFLOT-Object-Leads/2.0",
+        )
 
 def notify_none():
-    body = json.dumps({
-        "mode": "notify-only",
-        "message": "Object Leads: проверка новых объектов проведена, новых потенциальных объектов не обнаружено"
-    }, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK, data=body, method="POST",
-        headers={"Content-Type":"application/json; charset=utf-8","User-Agent":"ECOFLOT-Object-Leads/1.0"},
+    return send_notify_only(
+        "🏗 ECOFLOT Object Leads: проверка проведена, новых потенциальных объектов не обнаружено",
+        webhook=WEBHOOK,
+        user_agent="ECOFLOT-Object-Leads/2.0",
     )
-    urllib.request.urlopen(req, timeout=30).read()
 
 def main():
     state = load_state()
