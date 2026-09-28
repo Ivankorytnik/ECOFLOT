@@ -1,42 +1,50 @@
-name: Test Telegram status buttons
+name: Resend missed Dozzr lead
 
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/test-telegram-buttons.yml'
+  workflow_dispatch:
 
 jobs:
-  test:
+  resend:
     runs-on: ubuntu-latest
     steps:
-      - name: Send test lead
+      - name: Resend WEB-DOZZR-184023 to Telegram
         run: |
           python3 - <<'PY'
-          import json, urllib.parse, urllib.request
+          import json, urllib.request
           url = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          payload = {
-              "type": "Интернет-заявка",
-              "name": "ТЕСТ 8 СТАТУСОВ ECOFLOT",
-              "phone": "+7 999 000-00-00",
-              "wasteType": "Вывоз строительного мусора",
-              "volume": "8 м³",
-              "when": "Сейчас",
-              "address": "Одинцово, Московская область",
-              "source": "Проверка Telegram callback /exec",
-              "status": "Новая",
-              "comment": "Финальная проверка 8 inline-кнопок после исправления webhook",
-              "requestId": "TEST-LEAD-BUTTONS-20260927-003",
-          }
+          message = """♻️ ECOFLOT Internet Leads
+🔥 ПРОПУЩЕННАЯ ЗАЯВКА
+
+Экскаватор-погрузчик 29.09.2026
+Одинцовский район, посёлок Заречье
+Оплата: безнал с НДС
+Работа: погрузка / земляные работы
+Релевантность: 88/100
+Тип: HOT
+Источник: https://dozzr.ru/catalog/item/184023
+Request ID: WEB-DOZZR-184023"""
+          payload = json.dumps({
+              "mode": "notify-only",
+              "message": message
+          }, ensure_ascii=False).encode("utf-8")
           req = urllib.request.Request(
               url,
-              data=urllib.parse.urlencode(payload).encode("utf-8"),
+              data=payload,
               method="POST",
-              headers={"User-Agent":"ECOFLOT-Test/1.0"},
+              headers={
+                  "Content-Type":"application/json; charset=utf-8",
+                  "User-Agent":"ECOFLOT-Resend-Diagnostic/1.0"
+              },
           )
           with urllib.request.urlopen(req, timeout=30) as r:
               body = r.read().decode("utf-8","replace")
-              print(body)
+              print("RAW_WEBHOOK_RESPONSE:", body)
+              if not (200 <= r.status < 300):
+                  raise SystemExit(f"HTTP {r.status}")
               parsed = json.loads(body)
               if not parsed.get("ok"):
                   raise SystemExit("Webhook returned ok=false")
