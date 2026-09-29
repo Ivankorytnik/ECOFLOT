@@ -36,11 +36,18 @@ function regSafe_(v) {
 
 function regAdminChatId_() {
   const props = regProps_();
-  return regSafe_(
+  const raw =
     props.getProperty('TELEGRAM_ADMIN_CHAT_ID') ||
     props.getProperty('TELEGRAM_ADMIN_ID') ||
-    props.getProperty('TELEGRAM_CHAT_ID')
-  );
+    props.getProperty('TELEGRAM_CHAT_ID') ||
+    props.getProperty('CHAT_ID') ||
+    props.getProperty('TG_CHAT_ID') ||
+    '';
+
+  return String(raw)
+    .split(/[\s,;]+/)
+    .map(function(v) { return String(v || '').trim(); })
+    .filter(Boolean)[0] || '';
 }
 
 function regLegacyAllowedIds_() {
@@ -571,4 +578,88 @@ function regApprove_(telegramId, approvedBy) {
  */
 function getApprovedTelegramRecipients_() {
   return regApprovedIds_();
+}
+
+
+/*
+============================================================
+REGISTRATION WRAPPER
+Keeps old ECOFLOT logic intact and protects against duplicate/stale /start
+============================================================
+*/
+function handleTelegramUpdate_(update) {
+  try {
+    const cache = CacheService.getScriptCache();
+    const updateId =
+      update && update.update_id != null
+        ? String(update.update_id)
+        : '';
+
+    if (updateId) {
+      const updateKey = 'tg_update_' + updateId;
+
+      if (cache.get(updateKey)) {
+        return jsonResponse({
+          ok: true,
+          ignored: 'duplicate_update'
+        });
+      }
+
+      cache.put(updateKey, '1', 21600);
+    }
+
+    if (
+      update &&
+      update.message &&
+      update.message.text &&
+      /^\/start\b/i.test(String(update.message.text).trim())
+    ) {
+      const messageDate = Number(update.message.date || 0);
+
+      if (messageDate) {
+        const ageSeconds =
+          Math.floor(Date.now() / 1000) - messageDate;
+
+        if (ageSeconds > 120) {
+          return jsonResponse({
+            ok: true,
+            ignored: 'stale_start',
+            ageSeconds: ageSeconds
+          });
+        }
+      }
+    }
+
+    if (update && update.callback_query) {
+      if (regHandleCallback_(update.callback_query)) {
+        return jsonResponse({
+          ok: true,
+          registration: true
+        });
+      }
+    }
+
+    if (update && update.message) {
+      if (regHandleMessage_(update.message)) {
+        return jsonResponse({
+          ok: true,
+          registration: true
+        });
+      }
+    }
+
+    return handleTelegramUpdateOriginal_(update);
+
+  } catch (error) {
+    console.error(
+      'Registration wrapper error: ' +
+      (
+        error && error.stack
+          ? error.stack
+          : error
+      )
+    );
+
+    return handleTelegramUpdateOriginal_(update);
+  }
 }
