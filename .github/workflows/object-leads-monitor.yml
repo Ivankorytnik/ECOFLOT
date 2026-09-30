@@ -1,56 +1,14 @@
-name: ECOFLOT object leads monitor
+name: ECOFLOT object leads monitor (disabled predictive mode)
 
 on:
-  schedule:
-    - cron: "0 5 * * *"   # 08:00 Moscow (UTC+3)
-    - cron: "0 11 * * *"  # 14:00 Moscow (UTC+3)
-    - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/object-leads-monitor.yml'
-      - 'scripts/object_leads_monitor.py'
-      - 'scripts/internet_leads_monitor.py'
-      - 'scripts/search_completion_report.py'
 
 permissions:
-  contents: write
-
-concurrency:
-  group: ecoflot-object-leads-monitor
-  cancel-in-progress: true
+  contents: read
 
 jobs:
-  monitor:
+  disabled:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Scan future-demand object signals
-        id: scan
-        continue-on-error: true
-        env:
-          MAX_SEND: "20"
-          RECENT_DAYS: "5"
-          MIN_SCORE: "70"
-        run: python3 scripts/object_leads_monitor.py
-
-      - name: Save processed object IDs
-        if: always()
-        continue-on-error: true
-        run: |
-          if [ -n "$(git status --porcelain object_leads_state.json telegram_retry_queue.json)" ]; then
-            git config user.name "ecoflot-bot"
-            git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add object_leads_state.json telegram_retry_queue.json 2>/dev/null || git add object_leads_state.json
-            git commit -m "Update object leads monitor state" || true
-            git pull --rebase origin main || true
-            git push origin main || true
-          fi
-
-      - name: Report search result to Telegram
-        if: always()
-        env:
-          SCAN_OUTCOME: ${{ steps.scan.outcome }}
-        run: python3 scripts/search_completion_report.py object
+      - name: Predictive Object Leads disabled by base TZ
+        run: echo "Predictive Object Leads is disabled. Base TZ allows only explicit demand signals."
