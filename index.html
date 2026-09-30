@@ -1848,12 +1848,14 @@ const LEAD_COLLAPSIBLE_COLUMNS = [
   {key:'type',label:'Тип'},
   {key:'date',label:'Когда'},
   {key:'address',label:'Адрес'},
+  {key:'city',label:'Город'},
   {key:'source',label:'Источник'},
   {key:'resource',label:'Ресурс'}
 ];
 
 function loadLeadColumnVisibility(){
   const defaults = Object.fromEntries(LEAD_COLLAPSIBLE_COLUMNS.map(col=>[col.key,false]));
+  defaults.city = true;
   try{
     const saved = JSON.parse(localStorage.getItem('ecoflot_lead_column_visibility') || '{}');
     LEAD_COLLAPSIBLE_COLUMNS.forEach(col=>{
@@ -2128,6 +2130,23 @@ function sheetCell(row,index){
   return '';
 }
 
+function inferLeadCity(address,explicitCity=''){
+  const explicit = String(explicitCity || '').trim();
+  if(explicit && explicit !== '-') return explicit;
+  const text = String(address || '').trim();
+  if(!text || text === '-') return '';
+  const cities = [
+    'Москва','Зеленоград','Троицк','Щербинка','Одинцово','Красногорск','Химки',
+    'Мытищи','Балашиха','Подольск','Домодедово','Люберцы','Королёв','Королев',
+    'Реутов','Долгопрудный','Лобня','Истра','Звенигород','Апрелевка',
+    'Наро-Фоминск','Кубинка','Голицыно','Можайск','Руза','Калуга','Обнинск',
+    'Балабаново','Малоярославец','Боровск','Жуков','Белоусово','Ермолино','Кондрово'
+  ];
+  const low = text.toLowerCase();
+  const found = cities.find(city=>low.includes(city.toLowerCase()));
+  return found || '';
+}
+
 function stableLeadId(requestId,seed){
   const digits = String(requestId || '').replace(/\D/g,'');
   if(digits) return 'L-' + digits.slice(-6).padStart(6,'0');
@@ -2312,6 +2331,7 @@ function googleSheetRowsToLeads(response){
       const volume = sheetCell(row,5);
       const when = sheetCell(row,6);
       const address = sheetCell(row,7);
+      const city = sheetCell(row,12);
       const source = sheetCell(row,8) || 'Сайт ECOFLOT';
       const status = sheetCell(row,9) || 'Новая';
       const comment = sheetCell(row,10);
@@ -2337,6 +2357,7 @@ function googleSheetRowsToLeads(response){
         phone,
         type,
         address:address || 'Адрес не указан',
+        city:inferLeadCity(address,city),
         date:when || createdAt || 'Новая заявка',
         createdAt,
         sum:0,
@@ -2409,7 +2430,7 @@ function syncLeadsFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить Google Sheets');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет' or B = 'CRM_ACTION_LEAD') order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L,W where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет' or B = 'CRM_ACTION_LEAD') order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
@@ -2660,6 +2681,7 @@ function addLeadToCRM(lead){
     phone: lead.phone || '',
     type: lead.type || lead.volume || lead.wasteType || 'Заявка',
     address: lead.address || 'Адрес не указан',
+    city: lead.city || inferLeadCity(lead.address),
     date: lead.date || 'Только что',
     sum: Number(lead.sum || 0),
     status: normalizeStatus(lead.status),
@@ -2945,6 +2967,7 @@ function leadsHTML(){
       ['type','Тип'],
       ['date','Когда'],
       ['address','Адрес'],
+      ['city','Город'],
       ['source','Источник'],
       ['resource','Ресурс']
     ].filter(([key])=>leadColumnVisibility[key]).map(([,label])=>'<th>'+label+'</th>').join('');
@@ -2961,6 +2984,7 @@ function leadsHTML(){
         + (leadColumnVisibility.type ? '<td>'+escHTML(l.type)+'</td>' : '')
         + (leadColumnVisibility.date ? '<td>'+escHTML(l.date)+'</td>' : '')
         + (leadColumnVisibility.address ? '<td>'+escHTML(l.address)+'</td>' : '')
+        + (leadColumnVisibility.city ? '<td>'+escHTML(l.city || inferLeadCity(l.address) || '')+'</td>' : '')
         + (leadColumnVisibility.source ? '<td>'+escHTML(l.source)+'</td>' : '')
         + (leadColumnVisibility.resource ? '<td>'+escHTML(resource)+'</td>' : '');
       return '<tr>'
@@ -3160,6 +3184,7 @@ function openCreateLeadModal(){
     + '<label>Клиент<input id="crmLeadClient" required placeholder="ООО Компания или ФИО"></label>'
     + '<label>Телефон<input id="crmLeadPhone" placeholder="+7 999 000-00-00"></label>'
     + '<label>Тип<select id="crmLeadType"><option>Газель</option><option selected>8 м³</option><option>20 м³</option><option>27 м³</option></select></label>'
+    + '<label>Город<input id="crmLeadCity" placeholder="Например, Одинцово"></label>'
     + '<label>Адрес<input id="crmLeadAddress" placeholder="Адрес подачи"></label>'
     + '<div class="crm-modal-actions"><button type="button" class="btn light" data-crm-action="close-create">Отмена</button><button type="submit" class="btn primary">Создать</button></div>'
     + '</form>';
@@ -3172,6 +3197,7 @@ function openCreateLeadModal(){
       client,
       phone:$('#crmLeadPhone').value.trim(),
       type:$('#crmLeadType').value,
+      city:$('#crmLeadCity').value.trim(),
       address:$('#crmLeadAddress').value.trim() || 'Уточнить адрес',
       date:'Новая заявка',
       status:'new',
