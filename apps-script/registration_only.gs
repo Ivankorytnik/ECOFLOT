@@ -235,12 +235,20 @@ function regStart_(message) {
   regClearState_(chatId);
 
   if (regIsApproved_(chatId)) {
-    telegramApi_('sendMessage', {
-      chat_id: chatId,
-      text:
+    if (typeof ecoflotSendMainMenu_ === 'function') {
+      ecoflotSendMainMenu_(
+        chatId,
         '✅ Доступ к ECOFLOT активен.\n' +
         'Вы будете получать все сообщения бота, включая результаты поисков.'
-    });
+      );
+    } else {
+      telegramApi_('sendMessage', {
+        chat_id: chatId,
+        text:
+          '✅ Доступ к ECOFLOT активен.\n' +
+          'Вы будете получать все сообщения бота, включая результаты поисков.'
+      });
+    }
     return true;
   }
 
@@ -287,6 +295,12 @@ function regHandleMessage_(message) {
 
   if (command === '/start') {
     return regStart_(message);
+  }
+
+  if (regIsApproved_(chatId) && typeof ecoflotHandleMenuMessage_ === 'function') {
+    if (ecoflotHandleMenuMessage_(message)) {
+      return true;
+    }
   }
 
   if (command === '/status') {
@@ -548,12 +562,20 @@ function regHandleCallback_(callbackQuery) {
     } catch (ignore) {}
   }
 
-  telegramApi_('sendMessage', {
-    chat_id: user.telegramId,
-    text:
+  if (typeof ecoflotSendMainMenu_ === 'function') {
+    ecoflotSendMainMenu_(
+      user.telegramId,
       '✅ Доступ к ECOFLOT подтверждён.\n' +
       'Теперь вы будете получать все сообщения бота, включая результаты поисков.'
-  });
+    );
+  } else {
+    telegramApi_('sendMessage', {
+      chat_id: user.telegramId,
+      text:
+        '✅ Доступ к ECOFLOT подтверждён.\n' +
+        'Теперь вы будете получать все сообщения бота, включая результаты поисков.'
+    });
+  }
 
   return true;
 }
