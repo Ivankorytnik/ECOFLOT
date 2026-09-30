@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 SEARCHES = {
@@ -76,8 +77,14 @@ def aggregate(cfg):
     duplicates = max(candidates - sent, 0)
     return sent, duplicates, status, error_text, "; ".join(details)
 
-def post(payload):
+def post_message(message):
     webhook = read_webhook()
+    run_id = os.environ.get("GITHUB_RUN_ID", "").strip() or datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    attempt = os.environ.get("GITHUB_RUN_ATTEMPT", "1").strip() or "1"
+    payload = {
+        "mode": "notify-only",
+        "message": message + f"\nПрогон: {run_id}.{attempt}",
+    }
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     req = urllib.request.Request(
         webhook,
@@ -85,7 +92,7 @@ def post(payload):
         method="POST",
         headers={
             "Content-Type": "application/json; charset=utf-8",
-            "User-Agent": "ECOFLOT-Search-Completion/1.0",
+            "User-Agent": "ECOFLOT-Search-Completion/2.0",
         },
     )
     with urllib.request.urlopen(req, timeout=30) as response:
@@ -95,6 +102,10 @@ def post(payload):
         parsed = json.loads(body)
         if not parsed.get("ok"):
             raise RuntimeError(f"Webhook returned ok=false: {body[:500]}")
+        if parsed.get("duplicate") is True:
+            raise RuntimeError(f"Final Telegram report was deduplicated: {body[:500]}")
+        if parsed.get("telegramSent") is False:
+            raise RuntimeError(f"Final Telegram report was not sent: {body[:500]}")
         print("SEARCH_COMPLETE_ACK:", body[:500])
 
 def main():
@@ -102,16 +113,17 @@ def main():
         raise SystemExit("usage: search_completion_report.py internet|social|tender|object")
     cfg = SEARCHES[sys.argv[1]]
     sent, duplicates, status, error_text, details = aggregate(cfg)
-    payload = {
-        "event": "search_complete",
-        "searchName": cfg["name"],
-        "status": status,
-        "newCount": sent,
-        "duplicates": duplicates,
-        "error": error_text,
-    }
-    print("SEARCH_COMPLETE:", json.dumps(payload, ensure_ascii=False), details)
-    post(payload)
+    status_label = "успешно" if status == "ok" else "ошибка"
+    message = (
+        f"✅ ECOFLOT {cfg['name']}: поиск завершён\n"
+        f"Статус: {status_label}\n"
+        f"Новых результатов: {sent}\n"
+        f"Отсеяно / уже было: {duplicates}"
+    )
+    if error_text:
+        message += f"\nОшибка: {error_text}"
+    print("SEARCH_COMPLETE:", message.replace("\n", " | "), details)
+    post_message(message)
 
 if __name__ == "__main__":
     main()
