@@ -36,6 +36,11 @@ SOURCES = [
     ("Москва / транспорт", "https://gentender.ru/tenders/transport/moskva"),
     ("Московская область / спецтехника", "https://gentender.ru/tenders/spetstehnika/moskovskaya-oblast"),
     ("Москва / спецтехника", "https://gentender.ru/tenders/spetstehnika/moskva"),
+    ("Калужская область / отходы", "https://gentender.ru/tenders/utilizaciya-othodov/kaluzhskaya-oblast"),
+    ("Калужская область / строительство", "https://gentender.ru/tenders/stroitelstvo/kaluzhskaya-oblast"),
+    ("Калужская область / благоустройство", "https://gentender.ru/tenders/blagoustroystvo/kaluzhskaya-oblast"),
+    ("Калужская область / транспорт", "https://gentender.ru/tenders/transport/kaluzhskaya-oblast"),
+    ("Калужская область / спецтехника", "https://gentender.ru/tenders/spetstehnika/kaluzhskaya-oblast"),
 ]
 
 DIRECT_SOURCES = [
