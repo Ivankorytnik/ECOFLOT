@@ -6,6 +6,8 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from internet_leads_monitor import queue_telegram_retry
+
 SEARCHES = {
     "internet": {
         "name": "Internet Leads",
@@ -95,18 +97,26 @@ def post_message(message):
             "User-Agent": "ECOFLOT-Search-Completion/2.0",
         },
     )
-    with urllib.request.urlopen(req, timeout=30) as response:
-        body = response.read().decode("utf-8", "replace")
-        if not (200 <= response.status < 300):
-            raise RuntimeError(f"HTTP {response.status}: {body[:500]}")
-        parsed = json.loads(body)
-        if not parsed.get("ok"):
-            raise RuntimeError(f"Webhook returned ok=false: {body[:500]}")
-        if parsed.get("duplicate") is True:
-            raise RuntimeError(f"Final Telegram report was deduplicated: {body[:500]}")
-        if parsed.get("telegramSent") is False:
-            raise RuntimeError(f"Final Telegram report was not sent: {body[:500]}")
-        print("SEARCH_COMPLETE_ACK:", body[:500])
+    try:
+        with urllib.request.urlopen(req, timeout=30) as response:
+            body = response.read().decode("utf-8", "replace")
+            if not (200 <= response.status < 300):
+                raise RuntimeError(f"HTTP {response.status}: {body[:500]}")
+            parsed = json.loads(body)
+            if not parsed.get("ok"):
+                raise RuntimeError(f"Webhook returned ok=false: {body[:500]}")
+            if parsed.get("duplicate") is True:
+                raise RuntimeError(f"Final Telegram report was deduplicated: {body[:500]}")
+            if parsed.get("telegramSent") is False:
+                raise RuntimeError(f"Final Telegram report was not sent: {body[:500]}")
+            print("SEARCH_COMPLETE_ACK:", body[:500])
+    except Exception:
+        queue_telegram_retry(
+            payload["message"],
+            source="Search Completion",
+            request_id="SEARCH-COMPLETE-" + run_id + "-" + attempt,
+        )
+        raise
 
 def main():
     if len(sys.argv) != 2 or sys.argv[1] not in SEARCHES:
