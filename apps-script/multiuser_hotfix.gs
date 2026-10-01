@@ -41,7 +41,12 @@ function ecoflotApprovedChatIds_() {
     rows.forEach(function(row) {
       const id = String(row[0] || '').trim();
       const status = String(row[4] || '').trim();
-      if (id && status === ECOFLOT_USER_APPROVED) ids[id] = true;
+      if (!id) return;
+      if (status === 'Бот заблокирован') {
+        delete ids[id];
+        return;
+      }
+      if (status === ECOFLOT_USER_APPROVED) ids[id] = true;
     });
   }
 
