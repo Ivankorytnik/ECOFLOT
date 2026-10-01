@@ -2,6 +2,10 @@ name: ECOFLOT internet leads monitor
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "manual-trigger-token.txt"
 
 permissions:
   contents: write
