@@ -53,3 +53,17 @@ jobs:
         env:
           SCAN_OUTCOME: ${{ steps.scan.outcome }}
         run: python3 scripts/search_completion_report.py internet
+
+
+      - name: Persist final Telegram retry queue
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -n "$(git status --porcelain telegram_retry_queue.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add telegram_retry_queue.json
+            git commit -m "Persist final Telegram retry queue" || true
+            git pull --rebase origin main || true
+            git push origin main || true
+          fi
