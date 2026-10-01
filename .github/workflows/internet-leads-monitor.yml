@@ -1,17 +1,7 @@
 name: ECOFLOT internet leads monitor
 
 on:
-  schedule:
-    - cron: "0 5 * * *"   # 08:00 Moscow (UTC+3)
-    - cron: "0 11 * * *"  # 14:00 Moscow (UTC+3)
-    - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/internet-leads-monitor.yml"
-      - "scripts/internet_leads_monitor.py"
-      - "scripts/search_completion_report.py"
 
 permissions:
   contents: write
