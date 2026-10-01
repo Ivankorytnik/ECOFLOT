@@ -127,7 +127,7 @@ GEO_ALLOW = (
     "горки-2", "горки 2", "горки-10", "горки 10", "рублев", "рублёв",
     "усово", "жуковка", "николина гора", "раздоры", "новоивановск",
     "новоивановский", "лесной городок", "фрязино", "ивантеевк", "красноармейск",
-    "лосино-петровск", "лосино петровск", "ликino-дулево", "ликино-дулево",
+    "лосино-петровск", "лосино петровск", "ликино-дулево",
     "куровское", "шатура", "розаль", "озеры", "озёры", "кашира", "зарайск",
     "луховицы", "протвино", "пущино", "электрогорск", "черноголовк",
     "солнечногорск", "талдом", "волоколамск", "можайск", "руза",
@@ -138,6 +138,49 @@ GEO_ALLOW = (
     "кондрово", "медынь", "юхнов", "мосальск", "мещовск", "сухиничи",
     "козельск", "сосенский", "людиново", "киров калуж", "спас-деменск",
     "спас деменск", "жиздра"
+)
+
+# Явные локации вне разрешенной географии. Наличие такого маркера в адресе
+# или заголовке имеет приоритет над случайным словом "Москва" в меню/футере страницы.
+GEO_DENY = (
+    "санкт-петербург", "петербург", "ленинградская область",
+    "тверь", "тверская область", "тула", "тульская область",
+    "рязань", "рязанская область", "владимир", "владимирская область",
+    "ярославль", "ярославская область", "иваново", "ивановская область",
+    "смоленск", "смоленская область", "брянск", "брянская область",
+    "орел", "орловская область", "курск", "курская область",
+    "белгород", "белгородская область", "липецк", "липецкая область",
+    "воронеж", "воронежская область", "тамбов", "тамбовская область",
+    "нижний новгород", "нижегородская область", "казань", "татарстан",
+    "чебоксары", "чувашия", "самара", "самарская область",
+    "саратов", "саратовская область", "волгоград", "волгоградская область",
+    "ростов-на-дону", "ростовская область", "краснодар", "краснодарский край",
+    "сочи", "ставрополь", "ставропольский край", "махачкала", "дагестан",
+    "грозный", "чеченская республика", "владикавказ", "северная осетия",
+    "нальчик", "кабардино-балкария", "екатеринбург", "свердловская область",
+    "челябинск", "челябинская область", "пермь", "пермский край",
+    "уфа", "башкортостан", "оренбург", "оренбургская область",
+    "тюмень", "тюменская область", "омск", "омская область",
+    "новосибирск", "новосибирская область", "томск", "томская область",
+    "кемерово", "кемеровская область", "красноярск", "красноярский край",
+    "иркутск", "иркутская область", "хабаровск", "хабаровский край",
+    "владивосток", "приморский край", "мурманск", "мурманская область",
+    "архангельск", "архангельская область", "вологда", "вологодская область",
+    "псков", "псковская область", "великий новгород", "новгородская область",
+    "петрозаводск", "карелия", "сыктывкар", "республика коми",
+    "ижевск", "удмуртия", "саранск", "мордовия", "пенза", "пензенская область",
+    "ульяновск", "ульяновская область", "астрахань", "астраханская область",
+)
+
+DIRECT_DEMAND_MARKERS = (
+    "нужен", "нужна", "нужно", "нужны", "требуется", "требуются",
+    "ищем", "ищу", "заказ", "закажу", "арендую", "необходим", "в работу",
+    "кто вывезет", "кто может вывезти", "нужен вывоз", "требуется вывоз",
+)
+
+OBJECT_MARKERS = (
+    "объект", "стройплощад", "строительная площадка", "площадка",
+    "территория", "склад", "снт", "жк ", "коттеджный поселок",
 )
 
 POSITIVE = (
@@ -425,13 +468,21 @@ def extract_volume(text):
             return value + " м³"
     return ""
 
+def has_outside_geo(text):
+    hay = normalize(text or "")
+    return any(normalize(term) in hay for term in GEO_DENY)
+
 def geo_allowed(location, title="", description=""):
-    # Жесткий геофильтр. Если площадка дала адрес/локацию, доверяем только этому полю.
-    # К тексту заявки обращаемся лишь когда отдельного адреса нет.
+    # Жесткий геофильтр: явная внешняя локация в адресе/заголовке блокирует заявку.
     loc = normalize(location or "")
+    title_norm = normalize(title or "")
+    if has_outside_geo(" ".join([loc, title_norm])):
+        return False
     if loc:
         return any(normalize(term) in loc for term in GEO_ALLOW)
     hay = normalize(" ".join([title or "", description or ""]))
+    if has_outside_geo(hay):
+        return False
     return any(normalize(term) in hay for term in GEO_ALLOW)
 
 def relevant(title, description):
@@ -458,6 +509,27 @@ def lead_class(title, description):
     if any(x in hay for x in warm):
         return "WARM"
     return "HOT"
+
+def result_class(title, description):
+    raw = (title or "") + " " + (description or "")
+    hay = normalize(raw)
+    has_contact = bool(
+        re.search(r"(?:\+7|8)[\s()\-]*\d{3}[\s()\-]*\d{3}[\s\-]*\d{2}[\s\-]*\d{2}", raw)
+        or re.search(r"@[A-Za-z0-9_]{4,}", raw)
+    )
+    direct = any(normalize(x) in hay for x in DIRECT_DEMAND_MARKERS)
+    if direct:
+        return "A" if has_contact else "B"
+    current_task = any(x in hay for x in (
+        "вывоз", "демонтаж", "снос", "расчист", "землян", "погруз",
+        "контейнер", "самосвал", "экскаватор", "мусор", "отход", "грунт",
+    ))
+    if current_task and any(normalize(x) in hay for x in OBJECT_MARKERS):
+        return "D"
+    return "C"
+
+def minimum_score_for_class(result_type):
+    return 55 if result_type in ("C", "D") else MIN_RELEVANCE_SCORE
 
 def infer_work_equipment(title, description):
     hay = normalize((title or "") + " " + (description or ""))
@@ -490,38 +562,50 @@ def infer_work_equipment(title, description):
     return "", ""
 
 def relevance_score(item):
-    work, equipment = infer_work_equipment(item.get("title",""), item.get("description",""))
+    title = item.get("title","")
+    description = item.get("description","")
+    work, equipment = infer_work_equipment(title, description)
     if not work or not equipment:
         return 0, work, equipment
-    score = 60
-    if lead_class(item.get("title",""), item.get("description","")) == "HOT":
-        score += 5
+
+    result_type = result_class(title, description)
+    score = 30  # соответствие потребности/услуге
+    score += {"A": 25, "B": 20, "C": 12, "D": 12}.get(result_type, 10)
+
     loc = normalize(item.get("location",""))
-    if "одинцов" in loc:
-        score += 20
-    elif geo_allowed(loc):
-        score += 15
-    else:
+    if not geo_allowed(loc, title, description):
         return 0, work, equipment
+    score += 20  # подтвержденная разрешенная география
+
     dt = parse_date(item.get("date",""))
     if dt:
         age = datetime.now(timezone.utc) - dt
         if age <= timedelta(days=1):
-            score += 10
+            score += 15
         elif age <= timedelta(days=3):
-            score += 6
+            score += 12
         elif age <= timedelta(days=7):
-            score += 3
+            score += 9
         elif age <= timedelta(days=14):
-            score += 2
+            score += 6
         elif age <= timedelta(days=30):
-            score += 1
+            score += 3
+        else:
+            return 0, work, equipment
     else:
-        score += 3
+        score += 5
+
+    raw = title + " " + description
+    if result_type == "A":
+        score += 5
     if item.get("volume") and item.get("volume") != "-":
-        score += 3
+        score += 4
     if item.get("price") and "договор" not in str(item.get("price")).lower():
-        score += 2
+        score += 3
+    if re.search(r"\b\d+\s*(?:машин|самосвал|контейнер|рейс|смен)", normalize(raw)):
+        score += 3
+    if item.get("source"):
+        score += 3
     return min(score,100), work, equipment
 
 def priority_for(text):
@@ -541,6 +625,12 @@ def normalize(s):
 def signature(title, location, description):
     base = "|".join([normalize(title), normalize(location), normalize(description)[:350]])
     return hashlib.sha1(base.encode("utf-8")).hexdigest()
+
+def content_signature(description):
+    body = normalize(description)[:700]
+    if len(body) < 40:
+        return ""
+    return hashlib.sha1(body.encode("utf-8")).hexdigest()
 
 def load_sheet_index():
     params = urllib.parse.urlencode({
@@ -575,7 +665,11 @@ def load_sheet_index():
                 links.add(link.rstrip(").,;"))
             desc_match = re.search(r"Описание:\s*(.*?)(?:\s+Цена:|\s+Дата публикации:|\s+Ссылка:|$)", comment, re.I)
             if desc_match:
-                sigs.add(signature(title, address, desc_match.group(1)))
+                desc = desc_match.group(1)
+                sigs.add(signature(title, address, desc))
+                body_sig = content_signature(desc)
+                if body_sig:
+                    sigs.add("body:" + body_sig)
         return ids, links, sigs, True
     except Exception as exc:
         print("SHEET_DEDUPE_WARNING:", exc, file=sys.stderr)
@@ -665,6 +759,8 @@ def parse_day_month(text):
 
 def matched_geo(text):
     hay = normalize(text or "")
+    if has_outside_geo(hay):
+        return ""
     for term in GEO_ALLOW:
         if normalize(term) in hay:
             return term
@@ -1548,6 +1644,7 @@ def send_webhook(item):
     comment = (
         f"Релевантность: {item.get('score',0)}/100\n"
         f"Тип лида: {item.get('lead_class','HOT')}\n"
+        f"Класс результата: {item.get('result_class','B')}\n"
         f"Работа ECOFLOT: {item.get('work','')}\n"
         f"Техника: {item.get('equipment','')}\n"
         f"Описание: {item['description']}\n"
@@ -1602,6 +1699,7 @@ def send_webhook(item):
                 f"{item['title'][:500]}\n"
                 f"Адрес: {item['location']}\n"
                 f"Работа: {item.get('work') or 'Работа ECOFLOT'}\n"
+                f"Класс: {item.get('result_class','B')}\n"
                 f"Релевантность: {item.get('score',0)}/100\n"
                 f"Источник: {item['url']}\n"
                 f"Request ID: {item['request_id']}"
@@ -1641,19 +1739,31 @@ def main():
         item["work"] = work
         item["equipment"] = equipment
         item["lead_class"] = lead_class(item.get("title",""), item.get("description",""))
-    candidates = [x for x in candidates if x.get("score",0) >= MIN_RELEVANCE_SCORE]
+        item["result_class"] = result_class(item.get("title",""), item.get("description",""))
+    candidates = [
+        x for x in candidates
+        if x.get("score",0) >= minimum_score_for_class(x.get("result_class","B"))
+    ]
     candidates.sort(key=lambda x: (-x.get("score",0), x["source"], x["title"]))
 
     new_items = []
     local_seen = set()
+    local_content_seen = set()
     for item in candidates:
         request_id = item["request_id"]
         sig = signature(item["title"], item["location"], item["description"])
+        body_sig = content_signature(item["description"])
         if request_id in sheet_ids or item["url"] in sheet_links or sig in sheet_sigs:
+            continue
+        if body_sig and ("body:" + body_sig) in sheet_sigs:
             continue
         if request_id in sent or request_id in local_seen:
             continue
+        if body_sig and body_sig in local_content_seen:
+            continue
         local_seen.add(request_id)
+        if body_sig:
+            local_content_seen.add(body_sig)
         new_items.append(item)
 
     sent_count = 0
@@ -1664,6 +1774,9 @@ def main():
             sheet_ids.add(item["request_id"])
             sheet_links.add(item["url"])
             sheet_sigs.add(signature(item["title"], item["location"], item["description"]))
+            body_sig = content_signature(item["description"])
+            if body_sig:
+                sheet_sigs.add("body:" + body_sig)
             sent_count += 1
             print("SENT:", item["source"], item["request_id"], item["title"][:140], item["location"])
         except Exception as exc:
