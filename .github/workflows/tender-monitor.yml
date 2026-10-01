@@ -1,18 +1,7 @@
 name: ECOFLOT tender monitor
 
 on:
-  schedule:
-    - cron: "0 5 * * *"   # 08:00 Moscow (UTC+3)
-    - cron: "0 11 * * *"  # 14:00 Moscow (UTC+3)
-    - cron: "0 15 * * *"  # 18:00 Moscow (UTC+3)
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - ".github/workflows/tender-monitor.yml"
-      - "scripts/tender_monitor.py"
-      - "scripts/internet_leads_monitor.py"
-      - "scripts/search_completion_report.py"
 
 permissions:
   contents: write
