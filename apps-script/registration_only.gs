@@ -165,11 +165,18 @@ function regIsApproved_(telegramId) {
   telegramId = regSafe_(telegramId);
   if (!telegramId) return false;
 
+  // An explicit blocked status in the users sheet always wins over legacy
+  // Script Properties. This prevents a blocked chat from staying active
+  // forever because its ID is still present in TELEGRAM_CHAT_ID(S).
+  const user = regFindUser_(telegramId);
+  if (user && user.status === 'Бот заблокирован') {
+    return false;
+  }
+
   if (regLegacyAllowedIds_().indexOf(telegramId) >= 0) {
     return true;
   }
 
-  const user = regFindUser_(telegramId);
   return !!(user && user.status === ECOFLOT_REG.APPROVED);
 }
 
@@ -191,8 +198,15 @@ function regApprovedIds_() {
     rows.forEach(function(r) {
       const id = regSafe_(r[0]);
       const status = regSafe_(r[4]);
+      if (!id) return;
 
-      if (id && status === ECOFLOT_REG.APPROVED) {
+      // Explicit block overrides every legacy recipient property.
+      if (status === 'Бот заблокирован') {
+        delete ids[id];
+        return;
+      }
+
+      if (status === ECOFLOT_REG.APPROVED) {
         ids[id] = true;
       }
     });
