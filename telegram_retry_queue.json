@@ -1,5 +1,159 @@
 {
-  "items": [],
+  "items": [
+    {
+      "key": "recovery-20261001-1400-TENDER-0873500002326000779",
+      "request_id": "TENDER-0873500002326000779",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nАссенизация неканализированных санитарных объектов, Троицк/Коммунарка\n📍 Москва, Коммунарка, ул. Сосенский Стан, д. 4\n💰 21 000 000 ₽\n⏰ До 06.10.2026 10:00 МСК\n⭐ Релевантность: 98%\n🔗 https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0873500002326000779\nRequest ID: TENDER-0873500002326000779",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0373100134626000475",
+      "request_id": "TENDER-0373100134626000475",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nОткачка и транспортировка ЖБО и обслуживание МТК, Тушинский РГС\n📍 Москва / Московская область\n💰 1 860 335,78 ₽\n⏰ До 06.10.2026 09:00 МСК\n⭐ Релевантность: 97%\n🔗 https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373100134626000475\nRequest ID: TENDER-0373100134626000475",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-РН60905490",
+      "request_id": "TENDER-РН60905490",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nМеханизированная уборка территории и ПСП на объектах АО «РН-Москва»\n📍 Москва\n💰 91 701 984 ₽\n⏰ До 06.10.2026 16:00 МСК\n⭐ Релевантность: 72%\n🔗 https://energybase.ru/tender/01a0e915-c883-7314-85d6-68764e2ec2ac\nRequest ID: TENDER-РН60905490",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-4046288",
+      "request_id": "TENDER-4046288",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nСбор, транспортирование и утилизация отработанных автомобильных шин\n📍 Солнечногорск\n💰 цена не указана\n⏰ До 07.10.2026 11:00 МСК\n⭐ Релевантность: 83%\n🔗 https://synapsenet.ru/zakupki/rts/4046288%231--moskovskaya-obl-okazanie-uslug-po-sboru-transportirovaniyu-i\nRequest ID: TENDER-4046288",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0137600014226000177",
+      "request_id": "TENDER-0137600014226000177",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nЗимнее содержание дорог, ТО Руднянский\n📍 Калужская область, Дзержинский округ\n💰 839 990 ₽\n⏰ До 02.10.2026 08:00 МСК\n⭐ Релевантность: 67%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0137600014226000177\nRequest ID: TENDER-0137600014226000177",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0137600014226000178",
+      "request_id": "TENDER-0137600014226000178",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nЗимнее содержание дорог, с. Дворцы\n📍 Калужская область, Дзержинский округ\n💰 1 894 212 ₽\n⏰ До 02.10.2026 08:00 МСК\n⭐ Релевантность: 68%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0137600014226000178\nRequest ID: TENDER-0137600014226000178",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0137600014226000179",
+      "request_id": "TENDER-0137600014226000179",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nЗимнее содержание дорог, ТО Сенской\n📍 Калужская область, Дзержинский округ\n💰 1 074 992 ₽\n⏰ До 02.10.2026 08:00 МСК\n⭐ Релевантность: 65%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0137600014226000179\nRequest ID: TENDER-0137600014226000179",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0137600014226000184",
+      "request_id": "TENDER-0137600014226000184",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nЗимнее содержание дорог, совхоз им. Ленина\n📍 Калужская область, Дзержинский округ\n💰 1 564 517 ₽\n⏰ До 05.10.2026 08:00 МСК\n⭐ Релевантность: 66%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0137600014226000184\nRequest ID: TENDER-0137600014226000184",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-16576-СМР",
+      "request_id": "TENDER-16576-СМР",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nЮВАО, ул. Артюхиной, СМР и снос наружных сетей\n📍 Москва, ЮВАО\n💰 цена не указана\n⏰ До 02.10.2026 18:00 МСК\n⭐ Релевантность: 74%\n🔗 https://synapsenet.ru/zakupki/ultimetamsu1/16576-%D1%81%D0%BC%D1%80%231--moskovskaya-obl-yuvao-artyuhinoj-ul-vl\nRequest ID: TENDER-16576-СМР",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-4046391",
+      "request_id": "TENDER-4046391",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nДосортировка и погрузочно-разгрузочные работы отходов V класса в бункеры\n📍 Солнечногорск\n💰 цена не указана\n⏰ До 07.10.2026 12:00 МСК\n⭐ Релевантность: 86%\n🔗 https://synapsenet.ru/zakupki/rts/4046391%231--moskovskaya-obl-okazanie-uslug-po-dosortirovke-i-vipolnenie\nRequest ID: TENDER-4046391",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-1018253",
+      "request_id": "TENDER-1018253",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nСбор, транспортирование и утилизация отходов IV-V классов, отходы ЖБИ\n📍 Московская область\n💰 цена не указана\n⏰ До 09.10.2026 20:00 МСК\n⭐ Релевантность: 96%\n🔗 https://synapsenet.ru/zakupki/gazprombank/1018253--moskovskaya-obl-okazanie-uslug-po-sboru-transportirovaniyu\nRequest ID: TENDER-1018253",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-4049797",
+      "request_id": "TENDER-4049797",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nСпецтехника с экипажем для перевозки техногрунта, КГО и инертных материалов\n📍 Солнечногорск\n💰 комплекс техники по ТЗ\n⏰ До 12.10.2026 12:00 МСК\n⭐ Релевантность: 100%\n🔗 https://synapsenet.ru/zakupki/rts/4049797%231--moskovskaya-obl-okazanie-uslug-po-predostavleniyu-specializirovannoj\nRequest ID: TENDER-4049797",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0373200074826000970",
+      "request_id": "TENDER-0373200074826000970",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nВывоз и утилизация снега с территории ГКБ №1 им. Н.И. Пирогова\n📍 Москва\n💰 2 119 785 ₽; 6 000 м³\n⏰ До 05.10.2026 10:00 МСК\n⭐ Релевантность: 97%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0373200074826000970\nRequest ID: TENDER-0373200074826000970",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0373200068626000700",
+      "request_id": "TENDER-0373200068626000700",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nСанитарная обрезка и вырубка деревьев с корчеванием пней и вывозом отходов\n📍 Москва, Чертаново\n💰 717 403,41 ₽\n⏰ До 06.10.2026 10:00 МСК\n⭐ Релевантность: 78%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0373200068626000700\nRequest ID: TENDER-0373200068626000700",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-32616419747",
+      "request_id": "TENDER-32616419747",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nВывоз КГМ и органических отходов жизнедеятельности животных\n📍 Москва\n💰 6 000 000 ₽\n⏰ До 07.10.2026 09:00 МСК\n⭐ Релевантность: 95%\n🔗 https://zakupki.gov.ru/223/purchase/public/purchase/info/common-info.html?regNumber=32616419747\nRequest ID: TENDER-32616419747",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-0373200139926000012",
+      "request_id": "TENDER-0373200139926000012",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nУдаление аварийных деревьев, корчевание пней и вывоз порубочных остатков\n📍 Малаховка / Люберцы\n💰 264 314,05 ₽\n⏰ До 02.10.2026 10:00 МСК\n⭐ Релевантность: 84%\n🔗 https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0373200139926000012\nRequest ID: TENDER-0373200139926000012",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    },
+    {
+      "key": "recovery-20261001-1400-TENDER-6225986",
+      "request_id": "TENDER-6225986",
+      "source": "ECOFLOT 14:00 recovery",
+      "message": "🆕 ECOFLOT — Tender Watch 14:00\nТранспортировка и утилизация огнетушителей IV класса опасности\n📍 Серпухов\n💰 38 505 ₽\n⏰ До 02.10.2026 09:21 МСК\n⭐ Релевантность: 70%\n🔗 https://synapsenet.ru/zakupki/zakupkimosru/6225986--moskovskaya-obl-okazanie-uslug-po-transportirovke-othodov-iv\nRequest ID: TENDER-6225986",
+      "created_at": "2026-10-01T11:37:00+00:00",
+      "updated_at": "2026-10-01T11:37:00+00:00",
+      "attempts": 0
+    }
+  ],
   "last_dispatch": {
     "at": "2026-10-01T07:39:22.817390+00:00",
     "delivered": 21,
