@@ -11,7 +11,6 @@ MAX_AGE = timedelta(hours=2, minutes=15)
 MONITORS = [
     ("♻️ Internet Leads", Path("internet_leads_state.json")),
     ("🔎 Tender Watch", Path("tender_state.json")),
-    ("🏗 Object Leads", Path("object_leads_state.json")),
 ]
 
 def read_last_run(path):
