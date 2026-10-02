@@ -2095,6 +2095,23 @@ function isDemoLead(lead){
     || ['79991112233','79994445566'].includes(phone);
 }
 
+const OCTOBER_DB_CLEANUP_KEY = 'ecoflot_october_cleanup_20261002_v1';
+
+function applyOctoberDatabaseCleanup(){
+  try{
+    if(localStorage.getItem(OCTOBER_DB_CLEANUP_KEY) === '1') return;
+    [
+      'wf_leads',
+      'wf_tenders',
+      'wf_lead_status_overrides',
+      'wf_tender_status_overrides',
+      'wf_lead_deleted_ids',
+      'wf_tender_deleted_ids'
+    ].forEach(key=>localStorage.removeItem(key));
+    localStorage.setItem(OCTOBER_DB_CLEANUP_KEY,'1');
+  }catch(e){}
+}
+
 function loadLeads(){
   try{
     const raw = localStorage.getItem('wf_leads');
@@ -3404,6 +3421,7 @@ function restoreAppState(){
   }
 }
 
+applyOctoberDatabaseCleanup();
 loadLeads();
 loadTenders();
 syncLeadsFromGoogleSheet(false);
