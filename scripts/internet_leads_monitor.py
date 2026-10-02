@@ -35,8 +35,12 @@ NPD_SOURCES = [
     ("Наро-Фоминск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-naro-fominsk"),
 ]
 
-# Профи.ру исключен: для контакта с заказчиком требуется регистрация/отклик.
-PROFI_SOURCES = []
+PROFI_SOURCES = [
+    ("Профи / вывоз мусора", "https://profi.ru/registration/remont/musor/"),
+    ("Профи / заказы на вывоз мусора", "https://profi.ru/rabota/remont/vyvoz-musora/"),
+    ("Профи / вывоз с грузчиками", "https://profi.ru/rabota/remont/uslugi-po-vyvozu-musora-s-gruzchikami/"),
+    ("Профи / уборка строительного мусора", "https://profi.ru/rabota/remont/uslugi-po-uborke-stroitelnogo-musora/"),
+]
 
 # YouDo/Yandex/Avito are intentionally not treated as automatic demand feeds here.
 # Their public pages currently mix provider profiles with service catalog content,
@@ -47,8 +51,10 @@ YOUDO_SOURCES = []
 # Перевозка24 исключена из базового ТЗ ECOFLOT.
 P24_SOURCES = []
 
-# Везёт Всем исключен: контакты заказчика доступны через зарегистрированный аккаунт/сделку.
-VEZETVSEM_SOURCES = []
+VEZETVSEM_SOURCES = [
+    ("Везёт Всем / вывоз мусора", "https://www.vezetvsem.ru/listing/all/vyvoz_musora"),
+    ("Везёт Всем / строительные грузы", "https://www.vezetvsem.ru/listing/moskva/stroitelnye_gruzy_i_oborudovanie"),
+]
 
 # Dozzr исключен из базового ТЗ ECOFLOT.
 DOZZR_SOURCES = []
@@ -62,10 +68,6 @@ EXCLUDED_DOMAINS = (
 
 # Источники, где данные заказчика скрыты до регистрации/авторизации/отклика.
 REGISTRATION_GATED_DOMAINS = (
-    "profi.ru",
-    "www.profi.ru",
-    "vezetvsem.ru",
-    "www.vezetvsem.ru",
 )
 
 NERUDONLINE_SOURCES = [
