@@ -63,6 +63,24 @@ TELEGRAM_TENDER_SOURCES = [
     ("ФСК тендеры", "fsk_tenders", "Москва / Московская область"),
 ]
 
+TENDER_WEB_DISCOVERY_QUERIES = [
+    'site:fabrikant.ru самосвал закупка Москва',
+    'site:fabrikant.ru спецтехника закупка Московская область',
+    'site:fabrikant.ru самосвал закупка Калужская область',
+    'site:roseltorg.ru самосвал закупка Москва',
+    'site:roseltorg.ru спецтехника закупка Московская область',
+    'site:roseltorg.ru самосвал закупка Калужская область',
+    'site:rts-tender.ru самосвал закупка Москва',
+    'site:rts-tender.ru спецтехника закупка Московская область',
+    'site:rts-tender.ru самосвал закупка Калужская область',
+    'site:sberbank-ast.ru самосвал закупка Москва',
+    'site:sberbank-ast.ru спецтехника закупка Московская область',
+    'site:sberbank-ast.ru самосвал закупка Калужская область',
+    'site:etpgpb.ru самосвал закупка Москва',
+    'site:etpgpb.ru спецтехника закупка Московская область',
+    'site:etpgpb.ru самосвал закупка Калужская область',
+]
+
 POSITIVE = (
     "вывоз", "транспортирован", "транспортировк", "сбор отход",
     "тко", "кгм", "мусор", "свалк", "навал", "шлам", "фильтрат",
@@ -296,6 +314,87 @@ def extract_direct_cards(page: str, source_label: str, source_url: str, source_r
         })
     return out[:150]
 
+
+def tender_discovery_urls(query):
+    search_url = "https://www.google.com/search?q=" + urllib.parse.quote(query)
+    page = fetch(search_url, timeout=20)
+    urls = []
+    allowed_hosts = (
+        "fabrikant.ru", "roseltorg.ru", "rts-tender.ru",
+        "sberbank-ast.ru", "etpgpb.ru",
+    )
+    for raw in re.findall(r"https?://[^\"'<>\s]+", page, re.I):
+        url = html.unescape(raw).replace("\\u003d", "=").replace("\\u0026", "&")
+        url = url.split("&amp;", 1)[0].rstrip(").,;")
+        try:
+            host = (urllib.parse.urlparse(url).hostname or "").lower()
+        except Exception:
+            continue
+        if not any(host == d or host.endswith("." + d) for d in allowed_hosts):
+            continue
+        if url not in urls:
+            urls.append(url)
+    return urls[:30]
+
+def parse_discovered_tender(url):
+    page = fetch(url, timeout=20)
+    text = clean(page)
+    if not text or not direct_relevant(text):
+        return None
+
+    low = text.lower().replace("ё", "е")
+    if any(x in low for x in ("завершен", "завершён", "архив", "закрыт", "итоги подведены")):
+        return None
+
+    region = ""
+    for label, terms in (
+        ("Москва", ("москва", "г. москва")),
+        ("Московская область", ("московская область", "подмосковье")),
+        ("Калужская область", ("калужская область", "калуга", "обнинск")),
+    ):
+        if any(t in low for t in terms):
+            region = label
+            break
+    if not region:
+        return None
+
+    h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
+    title = clean(h1.group(1)) if h1 else ""
+    if not title:
+        tm = re.search(r"(?is)<title[^>]*>(.*?)</title>", page)
+        title = clean(tm.group(1)) if tm else text[:220]
+
+    deadline = ""
+    dm = re.search(
+        r"(?i)(?:подать заявку до|окончани\w* приема|окончани\w* подачи|до)\D{0,30}"
+        r"(\d{1,2}[./]\d{1,2}[./]20\d{2}(?:\s+\d{1,2}:\d{2})?)",
+        text,
+    )
+    if dm:
+        deadline = clean(dm.group(1))
+
+    price = ""
+    pm = re.search(r"(?i)(?:начальная цена|нмц\w*|цена)\D{0,30}(\d[\d\s]{3,}\s*(?:руб\.?|₽))", text)
+    if pm:
+        price = clean(pm.group(1))
+
+    customer = ""
+    cm = re.search(r"(?i)(?:заказчик|организатор)\s*:?\s*([^\n]{5,220})", text)
+    if cm:
+        customer = clean(cm.group(1))[:220]
+
+    entry = {
+        "id": "discovery-" + hashlib.sha1(url.encode("utf-8")).hexdigest()[:24],
+        "title": title[:250],
+        "law": "Тендер / закупка",
+        "region": region,
+        "customer": customer,
+        "price": price,
+        "deadline": deadline,
+        "link": url,
+        "source": "Tender Web Discovery / " + (urllib.parse.urlparse(url).hostname or "web"),
+    }
+    return entry if valid_tender_card_link(entry) else None
 
 def extract_telegram_tenders(page: str, source_label: str, channel: str, source_region: str):
     out = []
@@ -532,6 +631,32 @@ def main():
         except Exception as exc:
             errors.append(f"{source_label}: {exc}")
 
+    discovered_urls = {}
+    for query in TENDER_WEB_DISCOVERY_QUERIES:
+        try:
+            urls = tender_discovery_urls(query)
+            print(f"TENDER_DISCOVERY_QUERY {query}: {len(urls)} urls")
+            for url in urls:
+                discovered_urls[url] = query
+        except Exception as exc:
+            errors.append(f"Tender discovery {query}: {exc}")
+
+    for url in list(discovered_urls)[:120]:
+        try:
+            entry = parse_discovered_tender(url)
+            if not entry:
+                continue
+            key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+            request_id = request_id_for(entry)
+            if request_id in sheet_request_ids:
+                continue
+            if key in sent or key in seen:
+                continue
+            seen.add(key)
+            candidates.append((entry, key))
+        except Exception as exc:
+            errors.append(f"Tender discovery page {url}: {exc}")
+
     for source_label, channel, source_region in TELEGRAM_TENDER_SOURCES:
         try:
             url = f"https://t.me/s/{channel}"
@@ -567,7 +692,10 @@ def main():
         except Exception as exc:
             errors.append(f"send {entry['id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < (len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)):
+    if sent_count == 0 and len(errors) < (
+        len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)
+        + len(TENDER_WEB_DISCOVERY_QUERIES)
+    ):
         try:
             send_no_results_message()
             print("NO_RESULTS_NOTICE_SENT")
@@ -585,7 +713,10 @@ def main():
     for e in errors:
         print("ERROR:", e, file=sys.stderr)
 
-    if errors and len(errors) >= (len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)) and sent_count == 0:
+    if errors and len(errors) >= (
+        len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)
+        + len(TENDER_WEB_DISCOVERY_QUERIES)
+    ) and sent_count == 0:
         sys.exit(1)
 
 if __name__ == "__main__":
