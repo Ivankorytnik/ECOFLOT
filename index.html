@@ -2130,6 +2130,32 @@ function sheetCell(row,index){
   return '';
 }
 
+function isServiceSheetRow(row){
+  const requestType = sheetCell(row,1).trim();
+  const requestId = sheetCell(row,11).trim();
+  const actuality = sheetCell(row,13).trim();
+  const source = sheetCell(row,8).trim();
+  const lowerType = requestType.toLowerCase();
+  const lowerId = requestId.toLowerCase();
+  const lowerActuality = actuality.toLowerCase();
+  const lowerSource = source.toLowerCase();
+
+  if(!requestType && !requestId && !sheetCell(row,2) && !sheetCell(row,3) && !sheetCell(row,7)) return true;
+  if(lowerType.startsWith('crm_action_')) return true;
+  if(lowerId.startsWith('crm-bulk-action')) return true;
+  if(lowerActuality.includes('служеб')) return true;
+  if(lowerType.startsWith('тест')) return true;
+  if(lowerType.includes('мониторинг telegram/max')) return true;
+  if(lowerId.includes('noresults')) return true;
+  if(lowerSource.includes('массовое изменение')) return true;
+  return false;
+}
+
+function isTenderSheetRow(row){
+  const requestType = sheetCell(row,1).trim().toLowerCase();
+  return requestType === 'тендер' || requestType === 'тендеры' || requestType.includes('тендер');
+}
+
 function inferLeadCity(address,explicitCity=''){
   const explicit = String(explicitCity || '').trim();
   if(explicit && explicit !== '-') return explicit;
@@ -2321,7 +2347,7 @@ function googleSheetRowsToLeads(response){
   });
 
   const leads = rows
-    .filter(row=>sheetCell(row,1) !== 'CRM_ACTION_LEAD')
+    .filter(row=>!isServiceSheetRow(row) && !isTenderSheetRow(row))
     .map(row=>{
       const createdAt = sheetCell(row,0);
       const requestType = sheetCell(row,1);
@@ -2332,6 +2358,7 @@ function googleSheetRowsToLeads(response){
       const when = sheetCell(row,6);
       const address = sheetCell(row,7);
       const city = sheetCell(row,12);
+      const sourceLink = sheetCell(row,14);
       const source = sheetCell(row,8) || 'Сайт ECOFLOT';
       const status = sheetCell(row,9) || 'Новая';
       const comment = sheetCell(row,10);
@@ -2366,7 +2393,7 @@ function googleSheetRowsToLeads(response){
         vehicleId:null,
         partnerId:null,
         comment,
-        applicationUrl:extractLeadApplicationUrl(comment),
+        applicationUrl:sourceLink || extractLeadApplicationUrl(comment),
         requestType,
         requestId
       };
@@ -2430,7 +2457,7 @@ function syncLeadsFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить Google Sheets');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L,W where (B = 'ФОС' or B = 'Обратный звонок' or B contains 'Интернет' or B = 'CRM_ACTION_LEAD') order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L,W,P,N order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
@@ -2569,7 +2596,7 @@ function googleSheetRowsToTenders(response){
   });
 
   const tenders = rows
-    .filter(row=>sheetCell(row,1) === 'Тендер')
+    .filter(row=>isTenderSheetRow(row) && !isServiceSheetRow(row))
     .map(row=>{
       const createdAt = sheetCell(row,0);
       const title = sheetCell(row,2);
@@ -2662,7 +2689,7 @@ function syncTendersFromGoogleSheet(rerender=true){
       console.error('ECOFLOT: не удалось загрузить тендеры');
       finish(false);
     };
-    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L where (B = 'Тендер' or B = 'CRM_ACTION_TENDER') order by A desc";
+    const tq = "select A,B,C,D,E,F,G,H,I,J,K,L,W,P,N order by A desc";
     const tqx = 'out:json;responseHandler:' + callbackName;
     script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(ECOFLOT_SHEET_ID)
       + '/gviz/tq?sheet=' + encodeURIComponent(ECOFLOT_SHEET_NAME)
