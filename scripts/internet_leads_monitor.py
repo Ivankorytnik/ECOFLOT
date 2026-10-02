@@ -22,7 +22,7 @@ SHEET_NAME = "Заявки"
 STATE_PATH = Path("internet_leads_state.json")
 TELEGRAM_RETRY_QUEUE_PATH = Path("telegram_retry_queue.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
-RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "30"))
+RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "7"))
 MIN_RELEVANCE_SCORE = 60
 
 NPD_SOURCES = [
@@ -272,19 +272,30 @@ def is_public_contact_url(url):
     try:
         parsed = urllib.parse.urlparse(str(url or "").strip())
         host = (parsed.hostname or "").lower()
-        path = parsed.path or ""
+        path = (parsed.path or "").strip("/")
+        query = urllib.parse.parse_qs(parsed.query or "")
     except Exception:
         return False
-    if not host:
+    if not host or not path:
         return False
-    if host in ("t.me", "telegram.me") and path.strip("/"):
-        return True
-    if host in ("wa.me", "api.whatsapp.com", "web.whatsapp.com") and path.strip("/"):
-        return True
-    if host in ("vk.com", "vk.me") and path.strip("/"):
-        return True
-    if host == "max.ru" and path.strip("/"):
-        return True
+
+    # Ссылки «поделиться» и служебные маршруты не являются контактом заявителя.
+    if host in ("t.me", "telegram.me"):
+        first = path.split("/", 1)[0].lower()
+        return first not in ("share", "iv", "addstickers", "proxy", "socks")
+    if host == "wa.me":
+        return bool(re.fullmatch(r"\+?\d{7,15}", path))
+    if host in ("api.whatsapp.com", "web.whatsapp.com"):
+        phone = "".join(query.get("phone", []))
+        return bool(re.sub(r"\D", "", phone))
+    if host == "vk.me":
+        return path.lower() not in ("share", "share.php")
+    if host == "vk.com":
+        first = path.split("/", 1)[0].lower()
+        return first not in ("share.php", "share", "widget_share.php")
+    if host == "max.ru":
+        first = path.split("/", 1)[0].lower()
+        return first not in ("share", "invite")
     return False
 
 def extract_public_contact(text):
@@ -1566,6 +1577,42 @@ def discovery_result_urls(query):
             urls.append(url)
     return urls[:25]
 
+def discovery_activity_context(text):
+    hay = str(text or "")
+    low = normalize(hay)
+    positions = []
+    for marker in DEMAND_INTENT:
+        pos = low.find(normalize(marker))
+        if pos >= 0:
+            positions.append(pos)
+    if not positions:
+        return hay[:3500]
+    pos = min(positions)
+    start = max(0, pos - 1400)
+    end = min(len(hay), pos + 2600)
+    return hay[start:end]
+
+def extract_publication_date(page):
+    patterns = [
+        r'(?is)(?:article:published_time|datePublished|datepublished)[^>]{0,180}(20\d{2}-\d{2}-\d{2})',
+        r'(?is)<time[^>]+datetime=["\'](20\d{2}-\d{2}-\d{2})',
+        r'(?i)\b(20\d{2}-\d{2}-\d{2})\b',
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, page or "")
+        if m:
+            return m.group(1)
+    return ""
+
+def undated_activity_confirmed(text):
+    low = normalize(text)
+    markers = (
+        "сегодня", "вчера", "срочно", "прямо сейчас", "актуально",
+        "требуются", "нужны машины", "добираем машины", "машин не хватает",
+        "постоянная работа", "долгосрочно", "работа 24 7", "до конца месяца",
+    )
+    return any(normalize(x) in low for x in markers)
+
 def parse_discovery_candidate(url):
     page = fetch(url, timeout=15)
     text = clean(page)
@@ -1574,28 +1621,40 @@ def parse_discovery_candidate(url):
         return None
     if not relevant(text[:250], text):
         return None
+
+    publication_date = extract_publication_date(page)
+    if publication_date:
+        if not is_recent(publication_date):
+            return None
+    elif not undated_activity_confirmed(text):
+        # Без подтвержденной даты нужен отдельный признак, что спрос живой сейчас.
+        return None
+
     location = matched_geo(text)
     if not location:
         return None
     h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
     title = clean(h1.group(1)) if h1 else clean(re.sub(r"(?is).*?<title[^>]*>(.*?)</title>.*", r"\1", page))
     title = (title or text[:180])[:250]
+
+    # Контакт ищем только рядом с текстом спроса, а не в footer/support площадки.
+    demand_context = discovery_activity_context(text)
+    phone, contact_url = extract_public_contact(demand_context)
     rid = "WEB-DISC-" + hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
-    phone, contact_url = extract_public_contact(page + " " + text)
     return {
         "request_id": rid,
         "title": title,
-        "description": text[:1800],
-        "contact_text": page[:6000],
+        "description": demand_context[:1800],
+        "contact_text": demand_context,
         "phone": phone,
         "contact_url": contact_url,
         "price": "договорная",
-        "date": "актуальная публикация",
+        "date": publication_date or "актуальность подтверждена текстом",
         "location": location,
-        "volume": extract_volume(text) or "-",
+        "volume": extract_volume(demand_context) or "-",
         "url": url,
         "source": "Web Discovery / " + (urllib.parse.urlparse(url).hostname or "web"),
-        "priority": priority_for(text),
+        "priority": priority_for(demand_context),
     }
 
 def collect_candidates():
