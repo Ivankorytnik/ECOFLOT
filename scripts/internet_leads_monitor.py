@@ -520,6 +520,14 @@ def send_notify_reliable(
     source="ECOFLOT",
     request_id="",
 ):
+    # notify-only is reserved for service messages (cycle summaries / no-results).
+    # Real lead/tender cards must never fall back to plain text because that
+    # strips inline status buttons and may create a visible duplicate.
+    if request_id:
+        raise RuntimeError(
+            "Plain-text Telegram fallback is forbidden for card request_id="
+            + str(request_id)
+        )
     try:
         return send_notify_only(
             message,
