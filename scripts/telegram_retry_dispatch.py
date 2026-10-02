@@ -39,6 +39,23 @@ def main():
 
     for item in items:
         attempts = int(item.get("attempts", 0))
+
+        # Real lead/tender cards must be resent only through the card route
+        # that rebuilds inline status buttons. This dispatcher is text-only,
+        # so never turn a card retry into a second buttonless Telegram message.
+        if item.get("request_id"):
+            item["last_error"] = "card retry blocked: use webhook card route"
+            item["updated_at"] = datetime.now(timezone.utc).isoformat()
+            remaining.append(item)
+            failed += 1
+            print(
+                "TELEGRAM_RETRY_CARD_BLOCKED:",
+                item.get("source"),
+                item.get("key"),
+                file=sys.stderr,
+            )
+            continue
+
         if attempts >= MAX_ATTEMPTS:
             failed += 1
             item["last_error"] = "max attempts reached"
