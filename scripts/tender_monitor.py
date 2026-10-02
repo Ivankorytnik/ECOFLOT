@@ -126,6 +126,22 @@ def clean(s: str) -> str:
 def request_id_for(entry) -> str:
     return "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", entry["id"])[:80]
 
+def valid_tender_card_link(entry) -> bool:
+    """Тендер допускается только с прямой ссылкой на его карточку/публикацию."""
+    link = str(entry.get("link") or "").strip()
+    if not link:
+        return False
+    try:
+        parsed = urllib.parse.urlparse(link)
+    except Exception:
+        return False
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return False
+    # Корневая страница площадки без пути/параметров не считается карточкой тендера.
+    if (not parsed.path or parsed.path == "/") and not parsed.query:
+        return False
+    return True
+
 def load_sheet_request_ids():
     params = urllib.parse.urlencode({
         "sheet": SHEET_NAME,
@@ -455,6 +471,9 @@ def main():
             for entry in cards:
                 if not relevant(entry):
                     continue
+                if not valid_tender_card_link(entry):
+                    print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
+                    continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
@@ -472,6 +491,9 @@ def main():
             cards = extract_direct_cards(page, source_label, url, source_region)
             print(f"DIRECT_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
+                if not valid_tender_card_link(entry):
+                    print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
+                    continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
@@ -490,6 +512,9 @@ def main():
             cards = extract_telegram_tenders(page, source_label, channel, source_region)
             print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
+                if not valid_tender_card_link(entry):
+                    print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
+                    continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
@@ -500,6 +525,9 @@ def main():
                 candidates.append((entry, key))
         except Exception as exc:
             errors.append(f"{source_label}: {exc}")
+
+    # Финальный предохранитель: без ссылки на карточку тендер не отправляется.
+    candidates = [(entry, key) for entry, key in candidates if valid_tender_card_link(entry)]
 
     sent_count = 0
     for entry, key in candidates[:MAX_SEND]:
