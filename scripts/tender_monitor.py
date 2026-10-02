@@ -51,6 +51,12 @@ DIRECT_SOURCES = [
     ("Самолёт S.Tender", "https://partner.samolet.ru/", "Москва / Московская область"),
     ("Sminex", "https://corp.sminex.com/sotrudnichestvo/tendery-developera", "Москва / Московская область"),
     ("Level Group ETP", "https://etp.level.ru/trades", "Москва / Московская область"),
+    ("B2B-Center / самосвалы / Москва", "https://www.b2b-center.ru/search/moskva/samosvaly/", "Москва"),
+    ("B2B-Center / самосвалы / Московская область", "https://www.b2b-center.ru/search/moskovskaya-oblast/samosvaly/", "Московская область"),
+    ("B2B-Center / самосвалы / Калужская область", "https://www.b2b-center.ru/search/kaluzhskaya-oblast/samosvaly/", "Калужская область"),
+    ("B2B-Center / спецтехника / Москва", "https://www.b2b-center.ru/search/moskva/spectexnika/", "Москва"),
+    ("B2B-Center / спецтехника / Московская область", "https://www.b2b-center.ru/search/moskovskaya-oblast/spectexnika/", "Московская область"),
+    ("B2B-Center / спецтехника / Калужская область", "https://www.b2b-center.ru/search/kaluzhskaya-oblast/spectexnika/", "Калужская область"),
 ]
 
 TELEGRAM_TENDER_SOURCES = [
@@ -127,7 +133,7 @@ def request_id_for(entry) -> str:
     return "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", entry["id"])[:80]
 
 def valid_tender_card_link(entry) -> bool:
-    """Тендер допускается только с прямой ссылкой на его карточку/публикацию."""
+    """Тендер допускается только с прямой ссылкой на карточку конкретной закупки."""
     link = str(entry.get("link") or "").strip()
     if not link:
         return False
@@ -137,10 +143,31 @@ def valid_tender_card_link(entry) -> bool:
         return False
     if parsed.scheme not in ("http", "https") or not parsed.netloc:
         return False
-    # Корневая страница площадки без пути/параметров не считается карточкой тендера.
-    if (not parsed.path or parsed.path == "/") and not parsed.query:
+
+    path = (parsed.path or "").lower()
+    query = urllib.parse.parse_qs(parsed.query or "")
+    full = (path + "?" + (parsed.query or "")).lower()
+
+    # Главные, каталожные и поисковые страницы не считаются карточкой.
+    listing_only = (
+        "/search/" in path and not re.search(r"\d{5,}", full),
+        path.rstrip("/") in ("/torgi", "/trades", "/tenders", "/search-tender"),
+        path.rstrip("/").endswith("/catalog"),
+    )
+    if any(listing_only):
         return False
-    return True
+
+    # Сильные признаки конкретной карточки: числовой ID/номер закупки
+    # либо detail-like URL с параметром конкретной процедуры.
+    if re.search(r"\d{5,}", full):
+        return True
+    for key in ("id", "q", "purchase", "procedure", "trade", "tender", "notice"):
+        vals = query.get(key, [])
+        if any(str(v).strip() for v in vals):
+            return True
+    if any(token in path for token in ("/procedure/", "/purchase/", "/notice/", "/tender/", "/trade/", "/auction/", "/request/")):
+        return True
+    return False
 
 def load_sheet_request_ids():
     params = urllib.parse.urlencode({
