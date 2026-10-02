@@ -24,6 +24,8 @@ from internet_leads_monitor import (
     signature,
     send_webhook,
     send_notify_reliable,
+    ensure_public_contact,
+    contact_dedupe_keys,
 )
 
 STATE_PATH = Path("social_public_leads_state.json")
@@ -156,12 +158,23 @@ def main():
     unique = {x["request_id"]: x for x in candidates}
     candidates = sorted(unique.values(), key=lambda x: (-x["score"], x["source"], x["title"]))
 
+    contact_ready = []
+    for item in candidates:
+        ok, reason = ensure_public_contact(item)
+        if ok:
+            contact_ready.append(item)
+        else:
+            print("EXCLUDED_CONTACT:", reason, item.get("source"), item.get("request_id"), item.get("url"))
+    candidates = contact_ready
+
     new_items = []
     for item in candidates:
         sig = signature(item["title"], item["location"], item["description"])
         if item["request_id"] in sent or item["request_id"] in sheet_ids:
             continue
         if item["url"] in sheet_links or sig in sheet_sigs:
+            continue
+        if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
         new_items.append(item)
 
