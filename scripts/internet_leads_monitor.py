@@ -56,10 +56,15 @@ VEZETVSEM_SOURCES = [
     ("Везёт Всем / строительные грузы", "https://www.vezetvsem.ru/listing/moskva/stroitelnye_gruzy_i_oborudovanie"),
 ]
 
-DOZZR_SOURCES = [
-    ("Dozzr / самосвалы и тонары", "https://dozzr.ru/catalog/28"),
-    ("Dozzr / общая лента", "https://dozzr.ru/"),
-]
+# Dozzr исключен из базового ТЗ ECOFLOT.
+DOZZR_SOURCES = []
+
+EXCLUDED_DOMAINS = (
+    "dozzr.ru",
+    "www.dozzr.ru",
+    "perevozka24.ru",
+    "www.perevozka24.ru",
+)
 
 NERUDONLINE_SOURCES = [
     ("НерудОнлайн / работа для самосвалов", "https://nerudonline.ru/rabota/samosvaly"),
@@ -1538,6 +1543,17 @@ def collect_candidates():
                     candidates.append(item)
             except Exception as exc:
                 errors.append(f"VsemPodryad order {link}: {exc}")
+
+    # Жесткий фильтр исключенных доменов применяется ко всем найденным кандидатам,
+    # независимо от того, каким источником или парсером они были обнаружены.
+    filtered_candidates = []
+    for item in candidates:
+        item_url = str(item.get("url") or "").lower()
+        if any(domain in item_url for domain in EXCLUDED_DOMAINS):
+            print("EXCLUDED_DOMAIN:", item.get("request_id"), item_url)
+            continue
+        filtered_candidates.append(item)
+    candidates = filtered_candidates
 
     unique = {}
     for item in candidates:
