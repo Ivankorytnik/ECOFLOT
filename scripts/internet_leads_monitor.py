@@ -115,6 +115,29 @@ PROMINDEX_SOURCES = [
     ("Promindex / Московская область / заявки", "https://promindex.ru/moskovskaya-oblast/orders"),
 ]
 
+SPECTEHINFO_SOURCES = [
+    ("СПЕЦТЕХНИКА-ИНФО / Москва / самосвалы", "https://moskva.spectehinfo.ru/arenda/samosvaly"),
+    ("СПЕЦТЕХНИКА-ИНФО / Московская область / самосвалы", "https://mosobl.spectehinfo.ru/arenda/samosvaly"),
+    ("СПЕЦТЕХНИКА-ИНФО / Калужская область / самосвалы", "https://kaluga.spectehinfo.ru/arenda/samosvaly"),
+]
+
+# Дополнительный discovery-слой: поиск открытого спроса по всему публичному интернету,
+# а не только по заранее известным площадкам. Кандидат все равно проходит географию,
+# проверку намерения, открытого контакта, актуальности, скоринг и антидубли.
+WEB_DISCOVERY_QUERIES = [
+    '"нужен самосвал" Москва телефон',
+    '"требуются самосвалы" "Московская область"',
+    '"требуются самосвалы" "Калужская область"',
+    '"нужен тонар" Москва',
+    '"работа для самосвалов" "Московская область"',
+    '"вывоз грунта" "нужен" Москва',
+    '"перевозка ПГС" самосвал "Московская область"',
+    '"нужен экскаватор" "Московская область"',
+    '"нужен экскаватор-погрузчик" Москва',
+    '"нужен контейнер" "вывоз мусора" Москва',
+    '"требуется спецтехника" "Калужская область"',
+]
+
 # Жесткая география базового ТЗ: только Москва, Московская область, Калужская область.
 # Если географию нельзя подтвердить по тексту/полю адреса, заявка не выдается.
 GEO_ALLOW = (
@@ -176,6 +199,20 @@ POSITIVE = (
     "требуется спецтехника", "нужен экскаватор", "нужен погрузчик",
     "нужен манипулятор", "требуется манипулятор", "вывезти грунт",
     "вывезти мусор", "вывезти ветки", "убрать ветки",
+    "перевозка пгс", "перевезти пгс", "асфальтовая крошка",
+    "бой кирпича", "бой бетона", "работа для самосвалов",
+    "работа для тонаров", "постоянка", "плечо", "рейсы самосвал",
+)
+DEMAND_INTENT = (
+    "нужен", "нужна", "нужно", "нужны", "требуется", "требуются",
+    "ищем", "ищу", "необходим", "необходимы", "заказ", "работа для",
+    "кто вывезет", "нужно вывезти", "надо вывезти", "подрядчик",
+)
+COMMERCIAL_SIGNALS = (
+    "постоянка", "постоянная работа", "до конца года", "на месяц",
+    "на 2 месяца", "на 3 месяца", "долгосрочно", "24/7", "круглосуточно",
+    "оплата ежедневно", "оплата раз в неделю", "безнал", "с ндс",
+    "плечо", "рейс", "рейсы", "смена", "смены", "тонн", "м3", "м³",
 )
 EXCLUDE = (
     "откачка", "септик", "канализац", "медицинск", "ртут", "ламп",
@@ -311,6 +348,24 @@ def ensure_public_contact(item):
     item["phone"] = phone
     item["contact_url"] = contact_url
     return True, ""
+
+def normalize_phone(value):
+    digits = re.sub(r"\D", "", str(value or ""))
+    if len(digits) == 11 and digits[0] in ("7", "8"):
+        return "7" + digits[-10:]
+    if len(digits) == 10:
+        return "7" + digits
+    return digits
+
+def contact_dedupe_keys(item):
+    keys = []
+    phone = normalize_phone(item.get("phone"))
+    if phone:
+        keys.append("contact:tel:" + phone)
+    contact_url = str(item.get("contact_url") or "").strip().lower()
+    if contact_url:
+        keys.append("contact:url:" + contact_url)
+    return keys
 
 def parse_webhook_response(status, body, context="webhook"):
     if not (200 <= status < 300):
@@ -619,6 +674,19 @@ def relevance_score(item):
         score += 3
     if item.get("price") and "договор" not in str(item.get("price")).lower():
         score += 2
+    commercial_text = normalize(
+        " ".join([
+            str(item.get("title") or ""),
+            str(item.get("description") or ""),
+        ])
+    )
+    commercial_hits = sum(1 for signal in COMMERCIAL_SIGNALS if normalize(signal) in commercial_text)
+    if commercial_hits >= 4:
+        score += 8
+    elif commercial_hits >= 2:
+        score += 5
+    elif commercial_hits == 1:
+        score += 2
     return min(score,100), work, equipment
 
 def priority_for(text):
@@ -644,7 +712,7 @@ def load_sheet_index():
         "sheet": SHEET_NAME,
         "headers": "1",
         "tqx": "out:json",
-        "tq": "select C,H,K,L where L is not null",
+        "tq": "select C,D,H,K,L where L is not null",
     })
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?{params}"
     ids, links, sigs = set(), set(), set()
@@ -663,13 +731,19 @@ def load_sheet_index():
                 if v is None:
                     v = cell.get("f")
                 vals.append(str(v or "").strip())
-            while len(vals) < 4:
+            while len(vals) < 5:
                 vals.append("")
-            title, address, comment, request_id = vals[:4]
+            title, phone, address, comment, request_id = vals[:5]
             if request_id:
                 ids.add(request_id)
+            phone_key = normalize_phone(phone)
+            if phone_key:
+                links.add("contact:tel:" + phone_key)
             for link in re.findall(r"https?://[^\s]+", comment):
-                links.add(link.rstrip(").,;"))
+                clean_link = link.rstrip(").,;")
+                links.add(clean_link)
+                if is_public_contact_url(clean_link):
+                    links.add("contact:url:" + clean_link.lower())
             desc_match = re.search(r"Описание:\s*(.*?)(?:\s+Цена:|\s+Дата публикации:|\s+Ссылка:|$)", comment, re.I)
             if desc_match:
                 sigs.add(signature(title, address, desc_match.group(1)))
@@ -1419,6 +1493,111 @@ def extract_youdo_candidates(page, source_label, source_url):
         })
     return candidates[:50]
 
+def parse_spectehinfo_requests(page, source_label, source_url):
+    lines = lines_from_html(page)
+    start = next((i for i, line in enumerate(lines) if "последние заявки" in normalize(line)), -1)
+    if start < 0:
+        return []
+    segment = lines[start + 1:start + 220]
+    stop = next(
+        (i for i, line in enumerate(segment)
+         if normalize(line) in ("все заявки", "добавить заявку") or normalize(line).startswith("свободен")),
+        len(segment),
+    )
+    segment = segment[:stop]
+    starts = [i for i, line in enumerate(segment) if normalize(line).startswith("заявка на аренду")]
+    out = []
+    for pos, block_start in enumerate(starts):
+        block_end = starts[pos + 1] if pos + 1 < len(starts) else min(len(segment), block_start + 28)
+        block_lines = segment[block_start:block_end]
+        block = " ".join(block_lines)
+        if not block or not relevant(block_lines[0], block):
+            continue
+        location = ""
+        date_text = ""
+        for idx, line in enumerate(block_lines):
+            low = normalize(line)
+            if low.startswith("место работ"):
+                location = clean(re.sub(r"(?i)^место работ\s*:\s*", "", line))
+                if not location and idx + 1 < len(block_lines):
+                    location = block_lines[idx + 1]
+            elif low.startswith("дата начала работ"):
+                date_text = clean(re.sub(r"(?i)^дата начала работ\s*:\s*", "", line))
+                if not date_text and idx + 1 < len(block_lines):
+                    date_text = block_lines[idx + 1]
+        if not geo_allowed(location, block_lines[0], block):
+            continue
+        rid = "WEB-SPECTEHINFO-" + hashlib.sha1(
+            (source_url + "|" + block[:900]).encode("utf-8")
+        ).hexdigest()[:20]
+        out.append({
+            "request_id": rid,
+            "title": block_lines[0][:250],
+            "description": block[:1800],
+            "contact_text": block,
+            "price": "договорная",
+            "date": date_text or "актуальная заявка",
+            "location": location or matched_geo(block),
+            "volume": extract_volume(block) or "-",
+            "url": source_url,
+            "source": source_label,
+            "priority": priority_for(block),
+        })
+    return out
+
+def discovery_result_urls(query):
+    search_url = "https://www.google.com/search?q=" + urllib.parse.quote(query)
+    page = fetch(search_url, timeout=20)
+    urls = []
+    blocked_hosts = (
+        "google.", "gstatic.", "youtube.", "ecoflot.pro",
+        "perevozka24.ru", "dozzr.ru",
+    )
+    for raw in re.findall(r"https?://[^\"'<>\s]+", page, re.I):
+        url = html.unescape(raw).replace("\\u003d", "=").replace("\\u0026", "&")
+        url = url.split("&amp;", 1)[0].rstrip(").,;")
+        try:
+            host = (urllib.parse.urlparse(url).hostname or "").lower()
+        except Exception:
+            continue
+        if not host or any(x in host for x in blocked_hosts):
+            continue
+        if url not in urls:
+            urls.append(url)
+    return urls[:25]
+
+def parse_discovery_candidate(url):
+    page = fetch(url, timeout=15)
+    text = clean(page)
+    low = normalize(text)
+    if not text or not any(normalize(marker) in low for marker in DEMAND_INTENT):
+        return None
+    if not relevant(text[:250], text):
+        return None
+    location = matched_geo(text)
+    if not location:
+        return None
+    h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
+    title = clean(h1.group(1)) if h1 else clean(re.sub(r"(?is).*?<title[^>]*>(.*?)</title>.*", r"\1", page))
+    title = (title or text[:180])[:250]
+    rid = "WEB-DISC-" + hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
+    phone, contact_url = extract_public_contact(page + " " + text)
+    return {
+        "request_id": rid,
+        "title": title,
+        "description": text[:1800],
+        "contact_text": page[:6000],
+        "phone": phone,
+        "contact_url": contact_url,
+        "price": "договорная",
+        "date": "актуальная публикация",
+        "location": location,
+        "volume": extract_volume(text) or "-",
+        "url": url,
+        "source": "Web Discovery / " + (urllib.parse.urlparse(url).hostname or "web"),
+        "priority": priority_for(text),
+    }
+
 def collect_candidates():
     candidates = []
     errors = []
@@ -1636,6 +1815,36 @@ def collect_candidates():
             except Exception as exc:
                 errors.append(f"VsemPodryad order {link}: {exc}")
 
+    for source_label, source_url in SPECTEHINFO_SOURCES:
+        try:
+            page = fetch(source_url, timeout=20)
+            found = parse_spectehinfo_requests(page, source_label, source_url)
+            print(f"SPECTEHINFO_SOURCE {source_label}: {len(found)} candidate blocks")
+            candidates.extend(found)
+        except Exception as exc:
+            errors.append(f"Spectehinfo {source_label}: {exc}")
+
+    discovered_urls = {}
+    for query in WEB_DISCOVERY_QUERIES:
+        try:
+            urls = discovery_result_urls(query)
+            print(f"WEB_DISCOVERY_QUERY {query}: {len(urls)} urls")
+            for url in urls:
+                discovered_urls[url] = query
+        except Exception as exc:
+            errors.append(f"Web discovery {query}: {exc}")
+
+    with ThreadPoolExecutor(max_workers=10) as pool:
+        futures = {pool.submit(parse_discovery_candidate, url): url for url in list(discovered_urls)[:80]}
+        for future in as_completed(futures):
+            url = futures[future]
+            try:
+                item = future.result()
+                if item:
+                    candidates.append(item)
+            except Exception as exc:
+                errors.append(f"Web discovery page {url}: {exc}")
+
     # Жесткий фильтр исключенных доменов применяется ко всем найденным кандидатам,
     # независимо от того, каким источником или парсером они были обнаружены.
     filtered_candidates = []
@@ -1773,6 +1982,8 @@ def main():
         sig = signature(item["title"], item["location"], item["description"])
         if request_id in sheet_ids or item["url"] in sheet_links or sig in sheet_sigs:
             continue
+        if any(key in sheet_links for key in contact_dedupe_keys(item)):
+            continue
         if request_id in sent or request_id in local_seen:
             continue
         local_seen.add(request_id)
@@ -1785,6 +1996,8 @@ def main():
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
             sheet_ids.add(item["request_id"])
             sheet_links.add(item["url"])
+            for key in contact_dedupe_keys(item):
+                sheet_links.add(key)
             sheet_sigs.add(signature(item["title"], item["location"], item["description"]))
             sent_count += 1
             print("SENT:", item["source"], item["request_id"], item["title"][:140], item["location"])
@@ -1798,6 +2011,7 @@ def main():
         + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
         + len(VSEMPODRYAD_SOURCES) + len(SPCTEH_RU_SOURCES)
         + len(RENTAG_SOURCES) + len(PROMINDEX_SOURCES) + len(SAMOSVAL_INFO_SOURCES)
+        + len(SPECTEHINFO_SOURCES) + len(WEB_DISCOVERY_QUERIES)
     ):
         try:
             send_no_results_message()
