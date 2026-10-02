@@ -35,12 +35,8 @@ NPD_SOURCES = [
     ("Наро-Фоминск", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-naro-fominsk"),
 ]
 
-PROFI_SOURCES = [
-    ("Профи / вывоз мусора", "https://profi.ru/registration/remont/musor/"),
-    ("Профи / заказы на вывоз мусора", "https://profi.ru/rabota/remont/vyvoz-musora/"),
-    ("Профи / вывоз с грузчиками", "https://profi.ru/rabota/remont/uslugi-po-vyvozu-musora-s-gruzchikami/"),
-    ("Профи / уборка строительного мусора", "https://profi.ru/rabota/remont/uslugi-po-uborke-stroitelnogo-musora/"),
-]
+# Профи.ру исключен: для контакта с заказчиком требуется регистрация/отклик.
+PROFI_SOURCES = []
 
 # YouDo/Yandex/Avito are intentionally not treated as automatic demand feeds here.
 # Their public pages currently mix provider profiles with service catalog content,
@@ -51,10 +47,8 @@ YOUDO_SOURCES = []
 # Перевозка24 исключена из базового ТЗ ECOFLOT.
 P24_SOURCES = []
 
-VEZETVSEM_SOURCES = [
-    ("Везёт Всем / вывоз мусора", "https://www.vezetvsem.ru/listing/all/vyvoz_musora"),
-    ("Везёт Всем / строительные грузы", "https://www.vezetvsem.ru/listing/moskva/stroitelnye_gruzy_i_oborudovanie"),
-]
+# Везёт Всем исключен: контакты заказчика доступны через зарегистрированный аккаунт/сделку.
+VEZETVSEM_SOURCES = []
 
 # Dozzr исключен из базового ТЗ ECOFLOT.
 DOZZR_SOURCES = []
@@ -64,6 +58,14 @@ EXCLUDED_DOMAINS = (
     "www.dozzr.ru",
     "perevozka24.ru",
     "www.perevozka24.ru",
+)
+
+# Источники, где данные заказчика скрыты до регистрации/авторизации/отклика.
+REGISTRATION_GATED_DOMAINS = (
+    "profi.ru",
+    "www.profi.ru",
+    "vezetvsem.ru",
+    "www.vezetvsem.ru",
 )
 
 NERUDONLINE_SOURCES = [
@@ -219,6 +221,94 @@ def fetch_relaxed_ssl(url: str, timeout=20) -> str:
 def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
     return re.sub(r"\s+", " ", s).strip()
+
+def _host_matches(url, domains):
+    try:
+        host = (urllib.parse.urlparse(str(url or "")).hostname or "").lower()
+    except Exception:
+        host = ""
+    return any(host == d or host.endswith("." + d) for d in domains)
+
+def is_public_contact_url(url):
+    try:
+        parsed = urllib.parse.urlparse(str(url or "").strip())
+        host = (parsed.hostname or "").lower()
+        path = parsed.path or ""
+    except Exception:
+        return False
+    if not host:
+        return False
+    if host in ("t.me", "telegram.me") and path.strip("/"):
+        return True
+    if host in ("wa.me", "api.whatsapp.com", "web.whatsapp.com") and path.strip("/"):
+        return True
+    if host in ("vk.com", "vk.me") and path.strip("/"):
+        return True
+    if host == "max.ru" and path.strip("/"):
+        return True
+    return False
+
+def extract_public_contact(text):
+    raw = html.unescape(str(text or ""))
+    # Маскированные контакты ("Телефон скрыт") не считаются доступным контактом.
+    phone = ""
+    phone_re = re.compile(
+        r"(?<!\d)(?:\+?7|8)[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)"
+    )
+    m = phone_re.search(raw)
+    if m:
+        digits = re.sub(r"\D", "", m.group(0))
+        if len(digits) == 11:
+            phone = "+7" + digits[-10:]
+
+    contact_url = ""
+    for m in re.finditer(r"https?://[^\s<>\]\[)]+", raw, re.I):
+        candidate = m.group(0).rstrip(".,;:!?")
+        if is_public_contact_url(candidate):
+            contact_url = candidate
+            break
+
+    if not contact_url:
+        email_m = re.search(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", raw, re.I)
+        if email_m:
+            contact_url = "mailto:" + email_m.group(0)
+
+    if not contact_url:
+        handle_m = re.search(r"(?<![\w.])@([A-Za-z0-9_]{5,32})\b", raw)
+        if handle_m:
+            contact_url = "https://t.me/" + handle_m.group(1)
+
+    return phone, contact_url
+
+def ensure_public_contact(item):
+    source_url = str(item.get("url") or "")
+    if _host_matches(source_url, REGISTRATION_GATED_DOMAINS):
+        return False, "registration-gated"
+
+    phone = str(item.get("phone") or "").strip()
+    contact_url = str(item.get("contact_url") or "").strip()
+    if contact_url and not (contact_url.startswith("mailto:") or is_public_contact_url(contact_url)):
+        contact_url = ""
+
+    if not phone or not contact_url:
+        found_phone, found_url = extract_public_contact(
+            " ".join([
+                str(item.get("title") or ""),
+                str(item.get("description") or ""),
+                str(item.get("contact_text") or ""),
+            ])
+        )
+        if not phone:
+            phone = found_phone
+        if not contact_url:
+            contact_url = found_url
+
+    if not phone and not contact_url:
+        return False, "no-public-contact"
+
+    item["phone"] = phone
+    item["contact_url"] = contact_url
+    return True, ""
 
 def parse_webhook_response(status, body, context="webhook"):
     if not (200 <= status < 300):
@@ -1569,6 +1659,8 @@ def send_webhook(item):
         f"Описание: {item['description']}\n"
         f"Цена: {item['price']}\n"
         f"Дата публикации: {item['date']}\n"
+        f"Телефон: {item.get('phone') or '-'}\n"
+        f"Контакт: {item.get('contact_url') or '-'}\n"
         f"Ссылка: {item['url']}\n"
         f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws/export?format=xlsx"
     )
@@ -1588,7 +1680,7 @@ def send_webhook(item):
     payload = {
         "type": "Интернет-заявка",
         "name": item["title"],
-        "phone": "-",
+        "phone": item.get("phone") or "-",
         "wasteType": item.get("work") or "Работа ECOFLOT",
         "volume": item["volume"],
         "when": item["date"],
@@ -1651,6 +1743,18 @@ def main():
         x for x in candidates
         if geo_allowed(x.get("location",""), x.get("title",""), x.get("description",""))
     ]
+
+    # Обязательное правило контактности: показываем только заявки, где
+    # уже есть открытый телефон или прямая публичная ссылка на контакт.
+    contact_ready = []
+    for item in candidates:
+        ok, reason = ensure_public_contact(item)
+        if ok:
+            contact_ready.append(item)
+        else:
+            print("EXCLUDED_CONTACT:", reason, item.get("source"), item.get("request_id"), item.get("url"))
+    candidates = contact_ready
+
     for item in candidates:
         score, work, equipment = relevance_score(item)
         item["score"] = score
