@@ -389,36 +389,52 @@ def parse_webhook_response(status, body, context="webhook"):
         raise RuntimeError(f"{context} returned ok=false: {body[:500]}")
     return resp
 
+def _truthy_delivery(value):
+    if value is True:
+        return True
+    if isinstance(value, (int, float)):
+        return value > 0
+    if isinstance(value, str):
+        return value.strip().lower() in ("1", "true", "yes", "ok", "sent", "delivered")
+    return False
+
 def telegram_delivery_confirmed(resp):
     if not isinstance(resp, dict):
         return False
+
+    # A duplicate means the request has already been processed by the bridge.
+    # Do not send a second plain-text fallback, otherwise Telegram gets duplicates.
+    if resp.get("duplicate") is True:
+        return True
+
     direct_keys = (
         "telegramOk", "telegram_ok", "telegramSent", "telegram_sent",
         "telegramDelivered", "telegram_delivered",
     )
     for key in direct_keys:
-        if resp.get(key) is True:
+        if _truthy_delivery(resp.get(key)):
             return True
+
     telegram = resp.get("telegram")
-    if telegram is True:
+    if _truthy_delivery(telegram):
         return True
-    if isinstance(telegram, dict) and (
-        telegram.get("ok") is True
-        or telegram.get("sent") is True
-        or telegram.get("delivered") is True
+    if isinstance(telegram, dict) and any(
+        _truthy_delivery(telegram.get(key))
+        for key in ("ok", "sent", "delivered", "count")
     ):
         return True
+
     delivery = resp.get("delivery")
     if isinstance(delivery, dict):
         tg = delivery.get("telegram")
-        if tg is True:
+        if _truthy_delivery(tg):
             return True
-        if isinstance(tg, dict) and (
-            tg.get("ok") is True
-            or tg.get("sent") is True
-            or tg.get("delivered") is True
+        if isinstance(tg, dict) and any(
+            _truthy_delivery(tg.get(key))
+            for key in ("ok", "sent", "delivered", "count")
         ):
             return True
+
     return False
 
 def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", attempts=3):
