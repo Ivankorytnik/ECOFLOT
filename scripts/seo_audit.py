@@ -25,6 +25,7 @@ class PageParser(HTMLParser):
             self._in_title = True
         elif tag == "h1":
             self._in_h1 = True
+            self.h1_count += 1
         elif tag == "meta" and a.get("name","").lower() == "description":
             self.desc = a.get("content","").strip()
         elif tag == "link" and a.get("rel","").lower() == "canonical":
@@ -96,8 +97,8 @@ for path in sorted(ROOT.rglob("index.html")):
         errors.append(f"{path}: missing canonical")
     elif p.canonical != url:
         errors.append(f"{path}: canonical mismatch: {p.canonical} != {url}")
-    if len(p.h1) != 1:
-        errors.append(f"{path}: expected exactly one H1, found {len(p.h1)}")
+    if p.h1_count != 1:
+        errors.append(f"{path}: expected exactly one H1, found {p.h1_count}")
 
     if p.title:
         titles.setdefault(p.title, []).append(str(path.relative_to(ROOT)))
