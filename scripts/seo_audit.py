@@ -14,7 +14,7 @@ class PageParser(HTMLParser):
         self.title = ""
         self.desc = ""
         self.canonical = ""
-        self.h1 = []
+        self.h1 = []\n        self.h1_count = 0
         self.links = []
         self._in_title = False
         self._in_h1 = False
