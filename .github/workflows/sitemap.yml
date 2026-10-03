@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - '**/index.html'
-      - 'scripts/generate_sitemap.py'
+      - 'scripts/generate_sitemap.py'\n      - 'scripts/seo_repair.py'\n      - 'scripts/seo_audit.py'
 
 permissions:
   contents: write
