@@ -1466,6 +1466,28 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   #landing .section{padding:54px 0}
 }
 </style>
+<style id="ecoflot-full-width-intro">
+#landing .hero-intro{
+  grid-column:1/-1;
+  min-width:0;
+  padding-bottom:28px;
+  border-bottom:1px solid rgba(255,255,255,.3);
+}
+#landing .hero-intro h1{max-width:none;margin-top:18px}
+#landing .hero-intro>p{
+  max-width:none;
+  margin:0;
+  color:#e5f5fb;
+  font-size:17px;
+  line-height:1.62;
+}
+#landing .hero-copy{padding-top:0;min-width:0}
+#landing .hero-copy .urgent-box{margin-top:0}
+@media(max-width:760px){
+  #landing .hero-intro{padding-bottom:22px}
+  #landing .hero-intro>p{font-size:15px}
+}
+</style>
 </head>
 <body>
   <div id="landing" class="page active">
@@ -1484,10 +1506,12 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
 
     <main>
       <section id="hero" class="hero container">
-        <div class="hero-copy">
+        <div class="hero-intro">
           <div class="eyebrow">ECOFLOT • собственный парк спецтехники</div>
           <h1>Вывоз мусора, грунта и отходов своей техникой</h1>
           <p>Мультилифты, бункеровозы, самосвалы, ломовозы с грейфером, мусоровозы и экскаватор-погрузчик. Вывозим отходы и грунт, выполняем погрузку, расчистку, земляные и демонтажные работы.</p>
+        </div>
+        <div class="hero-copy">
           <div class="urgent-box" id="urgent">
             <div class="urgent-head"><strong>Срочно нужна машина сегодня?</strong><span>Заявка за 30 секунд</span></div>
             <div class="urgent-types" id="urgentTypes">
