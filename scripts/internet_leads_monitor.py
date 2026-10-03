@@ -144,6 +144,9 @@ WEB_DISCOVERY_QUERIES = [
     '"нужен экскаватор-погрузчик" Москва',
     '"нужен контейнер" "вывоз мусора" Москва',
     '"требуется спецтехника" "Калужская область"',
+    '"нужен ассенизатор" Москва',
+    '"нужен илосос" "Московская область"',
+    '"откачка ЖБО" "Калужская область" заказ',
 ]
 
 # Жесткая география базового ТЗ: только Москва, Московская область, Калужская область.
@@ -196,6 +199,7 @@ POSITIVE = (
     "гидромолот", "выемка грунта", "разработка грунта", "выборка грунта",
     "котлован", "расчистка участка", "очистка участка", "уборка территории",
     "порубочные остатки", "подготовка площадки", "аренда спецтехники",
+    "ассенизатор", "илосос", "жбо", "откачка жбо", "откачка септика",
     "разработка котлована", "благоустройство", "ликвидация свалки",
     "погрузка и вывоз", "содержание территории", "экскаватор", "погрузчик",
     "освободить участок", "освободить помещение", "освободить склад",
@@ -223,7 +227,7 @@ COMMERCIAL_SIGNALS = (
     "плечо", "рейс", "рейсы", "смена", "смены", "тонн", "м3", "м³",
 )
 EXCLUDE = (
-    "откачка", "септик", "канализац", "медицинск", "ртут", "ламп",
+    "медицинск", "ртут", "ламп",
     "аккумулятор", "шины", "пищев", "реактив",
     "вакансия", "резюме", "ищу работу", "продам самосвал", "продажа самосвала",
     "продам экскаватор", "продажа экскаватора", "продам контейнер",
@@ -1065,7 +1069,7 @@ def parse_dozzr(page, source_url):
 
 def parse_samosval_info(page, source_url):
     out = []
-    for m in re.finditer(r'(?is)<a[^>]+href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', page):
+    for m in re.finditer(r'(?is)<a[^>]+href=["\\']([^"\\']+)["\\'][^>]*>(.*?)</a>', page):
         href = html.unescape(m.group(1))
         title = clean(m.group(2))
         if len(title) < 12:
@@ -1079,7 +1083,7 @@ def parse_samosval_info(page, source_url):
             continue
         if not geo_allowed("", title, context):
             continue
-        until_m = re.search(r'(?i)(?:актуал[^0-9]{0,20}до|до)\s*(\d{1,2}\.\d{1,2}(?:\.20\d{2})?)', combined)
+        until_m = re.search(r'(?i)(?:актуал[^0-9]{0,20}до|до)\\s*(\\d{1,2}\\.\\d{1,2}(?:\\.20\\d{2})?)', combined)
         date_text = until_m.group(1) if until_m else "актуальная заявка"
         link = urllib.parse.urljoin(source_url, href)
         key = hashlib.sha1(link.encode("utf-8")).hexdigest()[:16]
@@ -1090,6 +1094,50 @@ def parse_samosval_info(page, source_url):
         )
         if item:
             out.append(item)
+
+    # Current Samosval.info listing pages often render order text as plain
+    # blocks rather than clickable order titles. Fall back to ID-based blocks.
+    if not out:
+        lines = lines_from_html(page)
+        positions = []
+        for idx, line in enumerate(lines):
+            m = re.match(r"^ID:\\s*(\\d+)\\s*$", line, re.I)
+            if m:
+                positions.append((idx, m.group(1)))
+
+        for pos, (idx, order_id) in enumerate(positions):
+            next_idx = positions[pos + 1][0] if pos + 1 < len(positions) else min(len(lines), idx + 45)
+            block_start = max(0, idx - 8)
+            block_lines = lines[block_start:next_idx]
+            block = " ".join(block_lines).strip()
+            low = normalize(block)
+            if "объявление было актуально до" in low or "было активно до" in low:
+                continue
+            if not any(x in low for x in ("требуются самосвалы","требуется самосвал","тонар","самосвал","вывоз грунта","перевозка грунта","песок","щебень","грунт")):
+                continue
+            if not geo_allowed("", block, block):
+                continue
+
+            title = ""
+            for j in range(idx - 1, max(-1, idx - 10), -1):
+                candidate = lines[j].strip()
+                if "работа для" in normalize(candidate) and any(x in normalize(candidate) for x in ("самосвал", "тонар")):
+                    title = candidate
+                    break
+            if not title:
+                title = f"Заявка Samosval.info {order_id}"
+
+            until_m = re.search(r"(?i)объявление актуально до:\\s*([^|]+?)(?=\\s{2,}|$)", block)
+            date_text = until_m.group(1).strip() if until_m else "актуальная заявка"
+            link = urllib.parse.urljoin(source_url, f"detail.php?ID={order_id}")
+            item = build_open_feed_item(
+                "Samosval.info", source_url, order_id, title[:180], block[:1800], date_text,
+                location=matched_geo(block),
+                url=link,
+            )
+            if item:
+                out.append(item)
+
     unique = {x["request_id"]: x for x in out}
     return list(unique.values())
 
