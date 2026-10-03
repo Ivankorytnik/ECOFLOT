@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "manual-trigger-token.txt"
+      - "internet-manual-trigger.txt"
       - "internet-manual-trigger.txt"
 
 permissions:
