@@ -1488,6 +1488,44 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
   #landing .hero-intro>p{font-size:15px}
 }
 </style>
+<style id="ecoflot-balanced-hero">
+#landing .hero{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:28px;
+  align-items:stretch;
+}
+#landing .hero-intro{
+  text-align:center;
+  padding:0 0 30px;
+}
+#landing .hero-intro h1{
+  max-width:1100px;
+  margin:20px auto;
+  font-size:clamp(36px,4.6vw,64px);
+  line-height:1.08;
+  letter-spacing:-.035em;
+}
+#landing .hero-intro>p{max-width:900px;margin:0 auto;line-height:1.65}
+#landing .hero>.hero-visual.hero-photo-replacement{
+  height:100%!important;
+  min-height:330px;
+  margin:0;
+}
+#landing .hero>.hero-card{min-width:0;margin:0}
+#landing .hero>.hero-copy{grid-column:1/-1;padding:0}
+#landing .hero-copy .urgent-box{margin:0}
+#landing .hero-copy .trust-row{margin-top:22px;text-align:center}
+@media(max-width:980px){
+  #landing .hero{grid-template-columns:minmax(0,1fr);gap:24px}
+  #landing .hero>.hero-visual.hero-photo-replacement{height:330px!important;min-height:0}
+}
+@media(max-width:760px){
+  #landing .hero-intro{padding-bottom:24px}
+  #landing .hero-intro h1{font-size:clamp(28px,6.5vw,42px);margin:18px auto}
+  #landing .hero-intro>p{font-size:15px}
+  #landing .hero>.hero-visual.hero-photo-replacement{height:260px!important}
+}
+</style>
 </head>
 <body>
   <div id="landing" class="page active">
@@ -1511,30 +1549,6 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
           <h1>Вывозим мусор и грунт.<br>Погрузку берём на себя.</h1>
           <p>Нужно убрать мусор после ремонта, вывезти грунт со стройки или расчистить участок? Подберём машину под объём и подъезд к объекту. Приедем на своей технике, погрузим и вывезем. Также поможем с демонтажем и земляными работами.</p>
         </div>
-        <div class="hero-copy">
-          <div class="urgent-box" id="urgent">
-            <div class="urgent-head"><strong>Срочно нужна машина сегодня?</strong><span>Заявка за 30 секунд</span></div>
-            <div class="urgent-types" id="urgentTypes">
-              <button type="button" class="urgent-chip active" data-urgent-type="Самосвал">Самосвал</button>
-              <button type="button" class="urgent-chip" data-urgent-type="Контейнер / мультилифт">Контейнер</button>
-              <button type="button" class="urgent-chip" data-urgent-type="Экскаватор-погрузчик">Экскаватор</button>
-              <button type="button" class="urgent-chip" data-urgent-type="Вывоз мусора">Вывоз мусора</button>
-              <button type="button" class="urgent-chip" data-urgent-type="Другое">Другое</button>
-            </div>
-            <div class="urgent-fields">
-              <input id="urgentAddress" type="text" placeholder="Адрес подачи" aria-label="Адрес подачи техники">
-              <input id="urgentPhone" type="tel" placeholder="+7 999 000-00-00" aria-label="Телефон">
-              <button type="button" id="urgentSubmitBtn" class="btn primary" onclick="submitUrgentLead()">Нужна машина</button>
-            </div>
-            <div id="urgentStatus" class="urgent-status"></div>
-          </div>
-          <div class="trust-row">
-            <div><strong>6 типов техники</strong><span>под разные задачи</span></div>
-            <div><strong>Свой парк</strong><span>реальная техника ECOFLOT</span></div>
-            <div><strong>Под ключ</strong><span>погрузка, контейнер и вывоз</span></div>
-          </div>
-        </div>
-        <div class="hero-side">
           <div class="hero-visual hero-photo-replacement" role="img" aria-label="Ломовоз ECOFLOT с КМУ и грейфером">
             <div class="hero-visual-label"><strong>Реальная техника ECOFLOT</strong><span>Собственный парк для вывоза и погрузки</span></div>
           </div>
@@ -1594,6 +1608,28 @@ input,select,textarea{margin-top:6px;padding:11px 11px;border-radius:9px;font-si
             <div id="leadSuccess" class="form-success hidden">Заявка отправлена</div>
           </form>
         </div>
+        <div class="hero-copy">
+          <div class="urgent-box" id="urgent">
+            <div class="urgent-head"><strong>Срочно нужна машина сегодня?</strong><span>Заявка за 30 секунд</span></div>
+            <div class="urgent-types" id="urgentTypes">
+              <button type="button" class="urgent-chip active" data-urgent-type="Самосвал">Самосвал</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Контейнер / мультилифт">Контейнер</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Экскаватор-погрузчик">Экскаватор</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Вывоз мусора">Вывоз мусора</button>
+              <button type="button" class="urgent-chip" data-urgent-type="Другое">Другое</button>
+            </div>
+            <div class="urgent-fields">
+              <input id="urgentAddress" type="text" placeholder="Адрес подачи" aria-label="Адрес подачи техники">
+              <input id="urgentPhone" type="tel" placeholder="+7 999 000-00-00" aria-label="Телефон">
+              <button type="button" id="urgentSubmitBtn" class="btn primary" onclick="submitUrgentLead()">Нужна машина</button>
+            </div>
+            <div id="urgentStatus" class="urgent-status"></div>
+          </div>
+          <div class="trust-row">
+            <div><strong>6 типов техники</strong><span>под разные задачи</span></div>
+            <div><strong>Свой парк</strong><span>реальная техника ECOFLOT</span></div>
+            <div><strong>Под ключ</strong><span>погрузка, контейнер и вывоз</span></div>
+          </div>
         </div>
       </section>
       <section class="proof-strip container">
