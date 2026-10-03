@@ -104,8 +104,13 @@ def post_message(message):
             raise RuntimeError(f"Webhook returned ok=false: {body[:500]}")
         if parsed.get("duplicate") is True:
             raise RuntimeError(f"Final Telegram report was deduplicated: {body[:500]}")
-        if parsed.get("telegramSent") is False:
-            raise RuntimeError(f"Final Telegram report was not sent: {body[:500]}")
+        sent = parsed.get("telegramSent")
+        try:
+            sent_count = int(sent)
+        except Exception:
+            sent_count = 0
+        if sent_count < 1:
+            raise RuntimeError(f"Final Telegram report was not confirmed as sent: {body[:500]}")
         print("SEARCH_COMPLETE_ACK:", body[:500])
 
 def main():
