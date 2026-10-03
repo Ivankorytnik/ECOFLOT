@@ -32,7 +32,7 @@
     var bar=document.createElement('div');
     bar.className='ecoflot-mobile-cta';
     bar.setAttribute('data-nosnippet','');
-    bar.innerHTML='<a class="primary" href="/#leadform">Оставить заявку</a><a class="secondary" href="/ceny/">Цены</a>';
+    bar.innerHTML='<a class="primary" href="/#leadform">Оставить заявку</a><a class="secondary" href="tel:+79687614666">Позвонить</a>';
     document.body.appendChild(bar);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addMobileCTA);
