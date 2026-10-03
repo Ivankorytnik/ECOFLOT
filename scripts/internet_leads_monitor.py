@@ -1069,7 +1069,7 @@ def parse_dozzr(page, source_url):
 
 def parse_samosval_info(page, source_url):
     out = []
-    for m in re.finditer(r'(?is)<a[^>]+href=["\\']([^"\\']+)["\\'][^>]*>(.*?)</a>', page):
+    for m in re.finditer(r"(?is)<a[^>]+href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>", page):
         href = html.unescape(m.group(1))
         title = clean(m.group(2))
         if len(title) < 12:
