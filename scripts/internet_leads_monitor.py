@@ -70,6 +70,14 @@ EXCLUDED_DOMAINS = (
 REGISTRATION_GATED_DOMAINS = (
 )
 
+# Пользовательские исключения: эти площадки остаются в поиске даже если
+# контакты заказчика раскрываются только после входа. В таком случае сама
+# карточка заказа считается допустимым маршрутом контакта.
+CONTACT_GATED_ALLOWED_DOMAINS = (
+    "profi.ru", "www.profi.ru",
+    "vezetvsem.ru", "www.vezetvsem.ru",
+)
+
 NERUDONLINE_SOURCES = [
     ("НерудОнлайн / работа для самосвалов", "https://nerudonline.ru/rabota/samosvaly"),
 ]
@@ -354,7 +362,12 @@ def ensure_public_contact(item):
             contact_url = found_url
 
     if not phone and not contact_url:
-        return False, "no-public-contact"
+        # Исключение, отдельно утвержденное для ECOFLOT: Профи.ру и
+        # «Везёт Всем» не отбрасываем из-за скрытых контактов.
+        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS):
+            contact_url = source_url
+        else:
+            return False, "no-public-contact"
 
     item["phone"] = phone
     item["contact_url"] = contact_url
