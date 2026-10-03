@@ -1,10 +1,6 @@
-name: ECOFLOT cycle delivery control
+name: ECOFLOT cycle delivery control (manual reserve)
 
 on:
-  schedule:
-    - cron: "50 5 * * *"   # 08:50 Moscow
-    - cron: "50 11 * * *"  # 14:50 Moscow
-    - cron: "50 15 * * *"  # 18:50 Moscow
   workflow_dispatch:
 
 permissions:
