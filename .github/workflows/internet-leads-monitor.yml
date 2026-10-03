@@ -26,7 +26,7 @@ jobs:
         continue-on-error: true
         env:
           MAX_SEND: "50"
-          RECENT_DAYS: "30"
+          RECENT_DAYS: "7"
         run: python3 scripts/internet_leads_monitor.py
 
       - name: Save processed request IDs
