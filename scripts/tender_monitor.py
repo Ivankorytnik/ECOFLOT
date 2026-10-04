@@ -492,8 +492,24 @@ def allowed_region(entry):
     return any(x in hay for x in allowed)
 
 def relevant(entry):
-    hay = entry["title"].lower()
+    hay = entry["title"].lower().replace("ё", "е")
     if any(x in hay for x in EXCLUDE):
+        return False
+
+    # Не путать спрос на услуги ECOFLOT с ремонтом/производством/продажей техники.
+    service_markers = (
+        "вывоз", "транспортирован", "перевозк", "аренд", "предоставлен",
+        "землян", "котлован", "демонтаж", "снос", "расчист", "погруз",
+        "уборк", "содержан", "снег", "отход", "мусор",
+    )
+    equipment_non_demand = (
+        "капитальный ремонт", "ремонт кпп", "ремонт самосвал", "ремонт спецтех",
+        "техническое обслуживание", "то и ремонт", "сборка кузов", "изготовление",
+        "поставка запчаст", "запасные части", "комплектующ", "продажа",
+        "покупка самосвал", "приобретение самосвал", "поставка самосвал",
+        "поставка экскаватор", "поставка погрузчик",
+    )
+    if any(x in hay for x in equipment_non_demand) and not any(x in hay for x in service_markers):
         return False
 
     strong = (
