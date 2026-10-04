@@ -6,7 +6,6 @@ on:
     branches: [main]
     paths:
       - "internet-manual-trigger.txt"
-      - "internet-manual-trigger.txt"
 
 permissions:
   contents: write
@@ -28,6 +27,7 @@ jobs:
         env:
           MAX_SEND: "50"
           RECENT_DAYS: "7"
+          SUPPRESS_NO_RESULTS: "1"
         run: python3 scripts/internet_leads_monitor.py
 
       - name: Save processed request IDs
@@ -43,8 +43,3 @@ jobs:
             git push origin main || true
           fi
 
-      - name: Report search result to Telegram
-        if: always()
-        env:
-          SCAN_OUTCOME: ${{ steps.scan.outcome }}
-        run: python3 scripts/search_completion_report.py internet
