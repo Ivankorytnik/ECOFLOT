@@ -24,6 +24,7 @@ TELEGRAM_RETRY_QUEUE_PATH = Path("telegram_retry_queue.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
 RECENT_DAYS = int(os.environ.get("RECENT_DAYS", "7"))
 MIN_RELEVANCE_SCORE = 60
+SUPPRESS_NO_RESULTS = os.environ.get("SUPPRESS_NO_RESULTS", "0") == "1"
 
 NPD_SOURCES = [
     ("Одинцово", "https://www.napodrabotku.ru/msk/jobs-stroyka-remont/vyvoz-musora/town-odincovo"),
@@ -2146,7 +2147,7 @@ def main():
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < (
+    if not SUPPRESS_NO_RESULTS and sent_count == 0 and len(errors) < (
         len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)
         + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
         + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
