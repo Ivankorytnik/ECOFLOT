@@ -473,6 +473,24 @@ def extract_telegram_tenders(page: str, source_label: str, channel: str, source_
         })
     return out
 
+def allowed_region(entry):
+    region = str(entry.get("region") or "").lower().replace("ё","е")
+    title = str(entry.get("title") or "").lower().replace("ё","е")
+    source = str(entry.get("source") or "").lower().replace("ё","е")
+    hay = " ".join((region, title, source))
+    allowed = (
+        "москва", "московская область", "подмосковье",
+        "калужская область", "калуга", "обнинск",
+    )
+    excluded = (
+        "краснодар", "санкт-петербург", "ленинградская область",
+        "тульская область", "тверская область", "рязанская область",
+        "владимирская область", "смоленская область",
+    )
+    if any(x in hay for x in excluded):
+        return False
+    return any(x in hay for x in allowed)
+
 def relevant(entry):
     hay = entry["title"].lower()
     if any(x in hay for x in EXCLUDE):
@@ -679,7 +697,7 @@ def main():
             errors.append(f"{source_label}: {exc}")
 
     # Финальный предохранитель: без ссылки на карточку тендер не отправляется.
-    candidates = [(entry, key) for entry, key in candidates if valid_tender_card_link(entry)]
+    candidates = [(entry, key) for entry, key in candidates if valid_tender_card_link(entry) and allowed_region(entry)]
 
     sent_count = 0
     for entry, key in candidates[:MAX_SEND]:
