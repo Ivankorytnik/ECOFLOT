@@ -41,6 +41,9 @@ PROFI_SOURCES = [
     ("Профи / заказы на вывоз мусора", "https://profi.ru/rabota/remont/vyvoz-musora/"),
     ("Профи / вывоз с грузчиками", "https://profi.ru/rabota/remont/uslugi-po-vyvozu-musora-s-gruzchikami/"),
     ("Профи / уборка строительного мусора", "https://profi.ru/rabota/remont/uslugi-po-uborke-stroitelnogo-musora/"),
+    ("Профи / земляные работы", "https://profi.ru/rabota/remont/zakazy-na-zemlyanye-raboty/"),
+    ("Профи / расчистка участка", "https://profi.ru/rabota/remont/zakazy-na-raschistku-uchastka/"),
+    ("Профи / демонтаж", "https://profi.ru/rabota/remont/zakazy-na-demontazh-kvartir/"),
 ]
 
 # YouDo/Yandex/Avito are intentionally not treated as automatic demand feeds here.
@@ -116,7 +119,8 @@ RENTAG_SOURCES = [
 ]
 
 SAMOSVAL_INFO_SOURCES = [
-    ("Samosval.info / Москва и МО", "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/"),
+    ("Samosval.info / Московская область", "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/"),
+    ("Samosval.info / Москва", "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskva/"),
 ]
 
 PROMINDEX_SOURCES = [
@@ -386,13 +390,27 @@ def normalize_phone(value):
         return "7" + digits
     return digits
 
+def is_listing_url_for_dedupe(item):
+    source = normalize(item.get("source") or "")
+    url = str(item.get("url") or "").lower()
+    if "профи" in source or "profi.ru/rabota/" in url or "profi.ru/registration/" in url:
+        return True
+    if "спецтехника-инфо" in source or "spectehinfo.ru/arenda/" in url:
+        return True
+    if "экскаватор ру" in source and "/exchange/rent/" in url:
+        return True
+    if "нерудонлайн" in source and "/rabota/samosvaly" in url:
+        return True
+    return False
+
+
 def contact_dedupe_keys(item):
     keys = []
     phone = normalize_phone(item.get("phone"))
     if phone:
         keys.append("contact:tel:" + phone)
     contact_url = str(item.get("contact_url") or "").strip().lower()
-    if contact_url:
+    if contact_url and not is_listing_url_for_dedupe(item):
         keys.append("contact:url:" + contact_url)
     return keys
 
@@ -1102,7 +1120,7 @@ def parse_samosval_info(page, source_url):
         lines = lines_from_html(page)
         positions = []
         for idx, line in enumerate(lines):
-            m = re.match(r"^ID:\\s*(\\d+)\\s*$", line, re.I)
+            m = re.match(r"^ID:\s*(\d+)\s*$", line, re.I)
             if m:
                 positions.append((idx, m.group(1)))
 
@@ -1128,9 +1146,9 @@ def parse_samosval_info(page, source_url):
             if not title:
                 title = f"Заявка Samosval.info {order_id}"
 
-            until_m = re.search(r"(?i)объявление актуально до:\\s*([^|]+?)(?=\\s{2,}|$)", block)
+            until_m = re.search(r"(?i)объявление актуально до:\s*([^|]+?)(?=\s{2,}|$)", block)
             date_text = until_m.group(1).strip() if until_m else "актуальная заявка"
-            link = urllib.parse.urljoin(source_url, f"detail.php?ID={order_id}")
+            link = "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=" + order_id
             item = build_open_feed_item(
                 "Samosval.info", source_url, order_id, title[:180], block[:1800], date_text,
                 location=matched_geo(block),
@@ -1480,8 +1498,6 @@ def parse_profi_orders(page, source_label, source_url):
     )
     for raw_title, raw_body in blocks:
         title = clean(raw_title)
-        if "вывоз" not in title.lower() and "мусор" not in title.lower():
-            continue
 
         body_lines = lines_from_html(raw_body)
         if not any("Откликнуться" in x for x in body_lines):
@@ -1641,24 +1657,58 @@ def parse_spectehinfo_requests(page, source_label, source_url):
     return out
 
 def discovery_result_urls(query):
-    search_url = "https://www.google.com/search?q=" + urllib.parse.quote(query)
-    page = fetch(search_url, timeout=20)
     urls = []
     blocked_hosts = (
         "google.", "gstatic.", "youtube.", "ecoflot.pro",
+        "bing.com", "duckduckgo.com",
         "perevozka24.ru", "dozzr.ru",
     )
-    for raw in re.findall(r"https?://[^\"'<>\s]+", page, re.I):
-        url = html.unescape(raw).replace("\\u003d", "=").replace("\\u0026", "&")
-        url = url.split("&amp;", 1)[0].rstrip(").,;")
+
+    def add_url(raw):
+        raw = html.unescape(str(raw or "")).replace("\\u003d", "=").replace("\\u0026", "&")
+        raw = raw.rstrip(").,;")
+        if raw.startswith("/url?q="):
+            raw = urllib.parse.unquote(raw.split("/url?q=", 1)[1].split("&", 1)[0])
         try:
-            host = (urllib.parse.urlparse(url).hostname or "").lower()
+            parsed = urllib.parse.urlparse(raw)
+            host = (parsed.hostname or "").lower()
+        except Exception:
+            return
+        if not raw.startswith(("http://", "https://")):
+            return
+        if not host or any(x in host for x in blocked_hosts):
+            return
+        if raw not in urls:
+            urls.append(raw)
+
+    search_pages = [
+        "https://www.google.com/search?q=" + urllib.parse.quote(query),
+        "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query),
+        "https://www.bing.com/search?q=" + urllib.parse.quote(query),
+    ]
+    for search_url in search_pages:
+        try:
+            page = fetch(search_url, timeout=15, attempts=1)
         except Exception:
             continue
-        if not host or any(x in host for x in blocked_hosts):
-            continue
-        if url not in urls:
-            urls.append(url)
+
+        for href in re.findall(r'(?is)href=[\"\']([^\"\']+)[\"\']', page):
+            candidate = html.unescape(href)
+            if "uddg=" in candidate:
+                try:
+                    qs = urllib.parse.parse_qs(urllib.parse.urlparse(candidate).query)
+                    if qs.get("uddg"):
+                        candidate = qs["uddg"][0]
+                except Exception:
+                    pass
+            add_url(candidate)
+
+        for raw in re.findall(r"https?://[^\"'<>\s]+", page, re.I):
+            add_url(raw)
+
+        if len(urls) >= 25:
+            break
+
     return urls[:25]
 
 def discovery_activity_context(text):
@@ -2092,12 +2142,14 @@ def main():
     )
 
     candidates, errors = collect_candidates()
+    print(f"FILTER_STAGE raw_unique_candidates={len(candidates)}")
     # Финальный географический предохранитель перед скорингом и отправкой.
     candidates = [
         x for x in candidates
         if geo_allowed(x.get("location",""), x.get("title",""), x.get("description",""))
     ]
 
+    print(f"FILTER_STAGE after_geo={len(candidates)}")
     # Обязательное правило контактности: показываем только заявки, где
     # уже есть открытый телефон или прямая публичная ссылка на контакт.
     contact_ready = []
@@ -2108,6 +2160,7 @@ def main():
         else:
             print("EXCLUDED_CONTACT:", reason, item.get("source"), item.get("request_id"), item.get("url"))
     candidates = contact_ready
+    print(f"FILTER_STAGE after_contact={len(candidates)}")
 
     for item in candidates:
         score, work, equipment = relevance_score(item)
@@ -2116,6 +2169,7 @@ def main():
         item["equipment"] = equipment
         item["lead_class"] = lead_class(item.get("title",""), item.get("description",""))
     candidates = [x for x in candidates if x.get("score",0) >= MIN_RELEVANCE_SCORE]
+    print(f"FILTER_STAGE after_score={len(candidates)}")
     candidates.sort(key=lambda x: (-x.get("score",0), x["source"], x["title"]))
 
     new_items = []
@@ -2123,7 +2177,8 @@ def main():
     for item in candidates:
         request_id = item["request_id"]
         sig = signature(item["title"], item["location"], item["description"])
-        if request_id in sheet_ids or item["url"] in sheet_links or sig in sheet_sigs:
+        url_is_duplicate = (not is_listing_url_for_dedupe(item)) and item["url"] in sheet_links
+        if request_id in sheet_ids or url_is_duplicate or sig in sheet_sigs:
             continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
@@ -2132,13 +2187,15 @@ def main():
         local_seen.add(request_id)
         new_items.append(item)
 
+    print(f"FILTER_STAGE after_dedupe={len(new_items)}")
     sent_count = 0
     for item in new_items[:MAX_SEND]:
         try:
             send_webhook(item)
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
             sheet_ids.add(item["request_id"])
-            sheet_links.add(item["url"])
+            if not is_listing_url_for_dedupe(item):
+                sheet_links.add(item["url"])
             for key in contact_dedupe_keys(item):
                 sheet_links.add(key)
             sheet_sigs.add(signature(item["title"], item["location"], item["description"]))
