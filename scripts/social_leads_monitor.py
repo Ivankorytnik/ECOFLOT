@@ -197,6 +197,7 @@ def main():
 
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
+        "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
         "sent": sent_count,
         "candidates": len(candidates),
         "errors": len(errors),
