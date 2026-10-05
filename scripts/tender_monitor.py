@@ -588,23 +588,9 @@ def send_webhook(entry):
         resp = parse_webhook_response(r.status, body, "Tender webhook")
 
     if not telegram_delivery_confirmed(resp):
-        send_notify_reliable(
-            (
-                "🔎 ECOFLOT Tender Watch\n"
-                "Новый тендер\n"
-                f"{entry['title'][:600]}\n"
-                f"Заказчик: {entry['customer'] or 'не указан'}\n"
-                f"Цена: {entry['price'] or 'не указана'}\n"
-                f"Регион: {entry['region']}\n"
-                f"Срок: {entry['deadline'] or 'не указан'}\n"
-                f"Ссылка: {entry['link']}\n"
-                f"Request ID: {request_id_for(entry)}"
-            ),
-            webhook=WEBHOOK,
-            user_agent="ECOFLOT-Tender-Monitor/3.0",
-            source="Tender Watch",
-            request_id=request_id_for(entry),
-        )
+        # Search success and Telegram delivery are separate stages.
+        # Never turn a valid search result into a search failure because delivery is pending.
+        print("TELEGRAM_DELIVERY_PENDING: queued/reconcile required for current cycle", flush=True)
 
 def send_no_results_message():
     return send_notify_reliable(
@@ -738,6 +724,7 @@ def main():
 
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
+        "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
         "candidates": len(candidates),
         "sent": sent_count,
         "errors": len(errors),
