@@ -85,6 +85,12 @@ NERUDONLINE_SOURCES = [
     ("НерудОнлайн / работа для самосвалов", "https://nerudonline.ru/rabota/samosvaly"),
 ]
 
+PROPOKUPKI_SOURCES = [
+    ("ProPokupki / Московская область", "https://propokupki.ru/moskovskaya_oblast/uslugi_dlya_biznesa/"),
+    ("ProPokupki / Москва", "https://propokupki.ru/moskva/uslugi_dlya_biznesa/"),
+    ("ProPokupki / Калужская область", "https://propokupki.ru/kaluzhskaya_oblast/uslugi_dlya_biznesa/"),
+]
+
 SPECTEX_SOURCES = [
     ("Spectex / заявки спецтехники", "https://www.spectex.su/"),
 ]
@@ -2082,6 +2088,98 @@ def human_lead_title(item):
     return original[:250] or ((work or "Заявка ECOFLOT") + ((" — " + location) if location else ""))[:250]
 
 
+def propokupki_listing_links(page, source_url):
+    out = []
+    for href, raw_title in re.findall(r'(?is)<a[^>]+href=["\']([^"\']+)["\'][^>]*>(.*?)</a>', page):
+        title = clean(raw_title)
+        low = normalize(title)
+        if not any(x in low for x in (
+            "самосвал", "тонар", "спецтех", "экскаватор", "погрузчик",
+            "вывоз грунта", "вывоз мусора", "грунт", "щебень", "песок"
+        )):
+            continue
+        url = urllib.parse.urljoin(source_url, html.unescape(href))
+        if "/uslugi_dlya_biznesa/" not in url:
+            continue
+        if url not in out:
+            out.append(url)
+    return out[:80]
+
+
+def parse_propokupki_order(url):
+    page = fetch(url, timeout=20)
+    lines = lines_from_html(page)
+    text = " ".join(lines)
+    h1 = re.search(r"(?is)<h1[^>]*>(.*?)</h1>", page)
+    title = clean(h1.group(1)) if h1 else ""
+    if not title:
+        title = next((x for x in lines if len(x) > 20), "Заявка на самосвалы / спецтехнику")
+    if not relevant(title, text):
+        return None
+
+    location = matched_geo(title + " " + text)
+    if not location:
+        return None
+
+    phone, contact_url = extract_public_contact(text)
+    if not phone:
+        return None
+
+    date_text = ""
+    exact_dates = re.findall(r"(?<!\d)(\d{1,2}[./-]\d{1,2}[./-](?:20)?\d{2})(?!\d)", title + " " + text)
+    for raw in exact_dates:
+        normalized_date = raw.replace("/", ".").replace("-", ".")
+        parts = normalized_date.split(".")
+        if len(parts) == 3 and len(parts[2]) == 2:
+            normalized_date = parts[0] + "." + parts[1] + ".20" + parts[2]
+        try:
+            dt = datetime.strptime(normalized_date, "%d.%m.%Y").replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        age = datetime.now(timezone.utc) - dt
+        if timedelta(days=-1) <= age <= timedelta(days=RECENT_DAYS):
+            date_text = dt.strftime("%d.%m.%Y")
+            break
+    if not date_text:
+        return None
+
+    req_key = hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
+    item = {
+        "request_id": "WEB-PROPOKUPKI-" + req_key,
+        "title": title[:250],
+        "description": text[:1800],
+        "contact_text": text,
+        "phone": phone,
+        "contact_url": contact_url,
+        "price": "договорная",
+        "date": date_text,
+        "location": location,
+        "volume": extract_volume(text) or "-",
+        "url": url,
+        "source": "ProPokupki.ru",
+        "priority": priority_for(title + " " + text),
+    }
+    return item
+
+
+def internet_quality_ready(item):
+    title = clean(item.get("title") or "")
+    source = normalize(item.get("source") or "")
+    url = str(item.get("url") or "").strip()
+    date_text = clean(item.get("date") or "")
+    if len(title) < 12 or title.lower() in ("telegram-заявка", "заявка на технику / перевозку", "актуальная заявка"):
+        return False, "unclear-title"
+    if not url.startswith(("http://", "https://")):
+        return False, "no-direct-link"
+    if date_text.lower() in ("", "-", "актуальная заявка"):
+        return False, "no-confirmed-date"
+    # Для Internet нужны телефон или допустимый утвержденный маршрут контакта.
+    ok, reason = ensure_public_contact(item)
+    if not ok:
+        return False, reason
+    return True, ""
+
+
 def send_webhook(item):
     item["title"] = human_lead_title(item)
     comment = (
@@ -2178,6 +2276,16 @@ def main():
     candidates = contact_ready
     print(f"FILTER_STAGE after_contact={len(candidates)}")
 
+    quality_ready = []
+    for item in candidates:
+        ok, reason = internet_quality_ready(item)
+        if ok:
+            quality_ready.append(item)
+        else:
+            print("EXCLUDED_QUALITY:", reason, item.get("source"), item.get("request_id"), item.get("url"))
+    candidates = quality_ready
+    print(f"FILTER_STAGE after_quality={len(candidates)}")
+
     for item in candidates:
         score, work, equipment = relevance_score(item)
         item["score"] = score
@@ -2223,7 +2331,7 @@ def main():
     if not SUPPRESS_NO_RESULTS and sent_count == 0 and len(errors) < (
         len(NPD_SOURCES) + len(PROFI_SOURCES) + len(YOUDO_SOURCES)
         + len(P24_SOURCES) + len(VEZETVSEM_SOURCES)
-        + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(SPECTEX_SOURCES)
+        + len(DOZZR_SOURCES) + len(NERUDONLINE_SOURCES) + len(PROPOKUPKI_SOURCES) + len(SPECTEX_SOURCES)
         + len(YELLTY_SOURCES) + len(BETON24_SOURCES) + len(EXKAVATOR_SOURCES)
         + len(VSEMPODRYAD_SOURCES) + len(SPCTEH_RU_SOURCES)
         + len(RENTAG_SOURCES) + len(PROMINDEX_SOURCES) + len(SAMOSVAL_INFO_SOURCES)
