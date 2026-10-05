@@ -81,13 +81,48 @@ def demand_ok(text):
 
 def parse_channel(label, channel):
     page = fetch(f"https://t.me/s/{channel}", timeout=20)
-    marks = list(re.finditer(r'data-post="([^"]+)/(\d+)"', page, re.I))
+
+    # Telegram periodically changes attributes around public post wrappers.
+    # Support both data-post and message-date href forms instead of assuming one layout.
+    markers = []
+    for m in re.finditer(r'data-post=["\']([^"\']+)/(\d+)["\']', page, re.I):
+        markers.append((m.start(), m.group(1), m.group(2)))
+    if not markers:
+        for m in re.finditer(
+            r'href=["\']https://t\.me/([^/"\']+)/(\d+)["\'][^>]*class=["\'][^"\']*tgme_widget_message_date',
+            page, re.I
+        ):
+            markers.append((m.start(), m.group(1), m.group(2)))
+    if not markers:
+        for m in re.finditer(r'href=["\']https://t\.me/([^/"\']+)/(\d+)["\']', page, re.I):
+            markers.append((m.start(), m.group(1), m.group(2)))
+
+    # Preserve order, de-duplicate repeated links within the same message wrapper.
+    seen_marker = set()
+    marks = []
+    for pos, post_channel, post_id in sorted(markers):
+        key = (post_channel.lower(), post_id)
+        if key in seen_marker:
+            continue
+        seen_marker.add(key)
+        marks.append((pos, post_channel, post_id))
+
+    print(f"TELEGRAM_HTML {label}: bytes={len(page)} post_markers={len(marks)}")
     out = []
-    for i, m in enumerate(marks):
-        start = m.start()
-        end = marks[i + 1].start() if i + 1 < len(marks) else min(len(page), start + 14000)
+    for i, (start, post_channel, post_id) in enumerate(marks):
+        end = marks[i + 1][0] if i + 1 < len(marks) else min(len(page), start + 18000)
         block = page[start:end]
+
         text = message_text(block)
+        if not text:
+            # Fallback for minor Telegram class changes.
+            tm = re.search(
+                r'(?is)<div[^>]+class=["\'][^"\']*tgme_widget_message_text[^"\']*["\'][^>]*>(.*?)</div>',
+                block,
+            )
+            if tm:
+                raw = re.sub(r"(?i)<br\s*/?>", "\n", tm.group(1))
+                text = clean(raw)
         if not text or not demand_ok(text):
             continue
 
@@ -95,7 +130,7 @@ def parse_channel(label, channel):
         if not location:
             continue
 
-        time_m = re.search(r'<time[^>]+datetime="([^"]+)"', block, re.I)
+        time_m = re.search(r'<time[^>]+datetime=["\']([^"\']+)["\']', block, re.I)
         dt = None
         if time_m:
             try:
@@ -103,13 +138,11 @@ def parse_channel(label, channel):
             except ValueError:
                 dt = None
         if not dt:
-            print("EXCLUDED_FRESHNESS: no-confirmed-date", label, m.group(2))
+            print("EXCLUDED_FRESHNESS: no-confirmed-date", label, post_id)
             continue
         if datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
             continue
 
-        post_channel = m.group(1)
-        post_id = m.group(2)
         url = f"https://t.me/{post_channel}/{post_id}"
         rid = "SOCIAL-TG-" + re.sub(r"[^A-Za-z0-9_-]+", "", post_channel)[:40] + "-" + post_id
         title = next((x.strip() for x in text.splitlines() if x.strip()), "Telegram-заявка")[:220]
