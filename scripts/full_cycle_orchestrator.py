@@ -16,13 +16,13 @@ WEBHOOK = os.environ.get(
 )
 
 CONTOURS = [
-    ("Internet Leads", [["python3", "scripts/internet_leads_monitor.py"]], ["internet_leads_state.json"]),
+    ("Internet Leads", [["python3", "scripts/internet_leads_monitor.py"]], ["internet_leads_state.json"], 720),
     ("Telegram/MAX/VK", [
         ["python3", "scripts/social_leads_monitor.py"],
         ["python3", "scripts/max_leads_monitor.py"],
-    ], ["social_public_leads_state.json", "max_public_leads_state.json"]),
-    ("Tender Watch", [["python3", "scripts/tender_monitor.py"]], ["tender_state.json"]),
-    ("Object Leads", [["python3", "scripts/object_leads_monitor.py"]], ["object_leads_state.json"]),
+    ], ["social_public_leads_state.json", "max_public_leads_state.json"], 360),
+    ("Tender Watch", [["python3", "scripts/tender_monitor.py"]], ["tender_state.json"], 720),
+    ("Object Leads", [["python3", "scripts/object_leads_monitor.py"]], ["object_leads_state.json"], 360),
 ]
 
 def cycle_key(now=None):
@@ -103,12 +103,16 @@ def main():
     env["ECOFLOT_ORCHESTRATED"] = "1"
 
     any_failed = False
-    for name, commands, state_paths in CONTOURS:
+    for name, commands, state_paths, timeout_seconds in CONTOURS:
         print("START_CONTOUR", name, cycle, flush=True)
         exit_codes = []
         for cmd in commands:
-            proc = subprocess.run(cmd, env=env, text=True)
-            exit_codes.append(proc.returncode)
+            try:
+                proc = subprocess.run(cmd, env=env, text=True, timeout=timeout_seconds)
+                exit_codes.append(proc.returncode)
+            except subprocess.TimeoutExpired:
+                print("CONTOUR_TIMEOUT", name, cmd, timeout_seconds, flush=True)
+                exit_codes.append(124)
         result = aggregate(state_paths)
         result["exit_codes"] = exit_codes
         result["status"] = "ok" if all(code == 0 for code in exit_codes) and result["state_found"] else "error"
