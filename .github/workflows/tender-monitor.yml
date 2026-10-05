@@ -11,8 +11,8 @@ permissions:
   contents: write
 
 concurrency:
-  group: ecoflot-tender-monitor
-  cancel-in-progress: true
+  group: ecoflot-search-state
+  cancel-in-progress: false
 
 jobs:
   monitor:
