@@ -1,0 +1,43 @@
+name: ECOFLOT full cycle
+
+on:
+  schedule:
+    - cron: "0 5,11,15 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "full-cycle-trigger.txt"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ecoflot-full-cycle
+  cancel-in-progress: false
+
+jobs:
+  full-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run one orchestrated cycle
+        env:
+          MAX_SEND: "100"
+          RECENT_DAYS: "7"
+          SUPPRESS_NO_RESULTS: "1"
+        run: python3 scripts/full_cycle_orchestrator.py
+
+      - name: Persist cycle and monitor state
+        if: always()
+        run: |
+          if [ -n "$(git status --porcelain full_cycle_state.json internet_leads_state.json social_public_leads_state.json max_public_leads_state.json tender_state.json object_leads_state.json telegram_retry_queue.json)" ]; then
+            git config user.name "ecoflot-bot"
+            git config user.email "ecoflot-bot@users.noreply.github.com"
+            git add full_cycle_state.json internet_leads_state.json social_public_leads_state.json max_public_leads_state.json tender_state.json object_leads_state.json telegram_retry_queue.json 2>/dev/null || true
+            git commit -m "Update ECOFLOT full-cycle state" || true
+            git pull --rebase origin main || true
+            git push origin main || true
+          fi
