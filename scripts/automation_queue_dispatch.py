@@ -39,6 +39,30 @@ def normalize(item):
     for key in ("type","name","status","requestId"):
         if not out[key]:
             raise ValueError("Missing required field: " + key)
+
+    # Hard QA gate: technical placeholders must never become CRM/Telegram leads.
+    bad_names = {"без названия", "заявка", "лид", "lead", "test", "тест"}
+    if out["name"].strip().lower() in bad_names:
+        raise ValueError("Invalid lead name: " + out["name"])
+
+    if out["source"].strip().lower() in {"ecoflot automation", "automation", "unknown", "-"}:
+        raise ValueError("Invalid lead source: " + out["source"])
+
+    # Real Internet/Social/Object leads require traceable source and contact path.
+    # Tender cards are allowed without phone, but still require direct source link
+    # to be carried in comment/link by the producing contour.
+    hay = " ".join([out["comment"], out["source"], out["name"], out["address"], out["when"]])
+    has_url = "http://" in hay or "https://" in hay
+    has_phone = bool(__import__("re").search(r"(?<!\d)(?:\+?7|8)[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)", hay))
+    kind = out["type"].lower()
+    is_tender = "тендер" in kind
+    if not is_tender and not (has_phone or has_url):
+        raise ValueError("Lead has no public phone or direct contact/source URL")
+
+    # Freshness/traceability: no blank date for ordinary leads.
+    if not is_tender and not out["when"]:
+        raise ValueError("Lead has no publication/need date")
+
     return out
 
 def send(item):
