@@ -2107,22 +2107,9 @@ def send_webhook(item):
         resp = parse_webhook_response(r.status, body, "Internet lead webhook")
 
     if not telegram_delivery_confirmed(resp):
-        send_notify_reliable(
-            (
-                "♻️ ECOFLOT Internet Leads\n"
-                "Новая заявка\n"
-                f"{item['title'][:500]}\n"
-                f"Адрес: {item['location']}\n"
-                f"Работа: {item.get('work') or 'Работа ECOFLOT'}\n"
-                f"Релевантность: {item.get('score',0)}/100\n"
-                f"Источник: {item['url']}\n"
-                f"Request ID: {item['request_id']}"
-            ),
-            webhook=WEBHOOK,
-            user_agent="ECOFLOT-Internet-Leads/2.0",
-            source="Internet Leads",
-            request_id=item["request_id"],
-        )
+        # Search success and Telegram delivery are separate stages.
+        # Never turn a valid search result into a search failure because delivery is pending.
+        print("TELEGRAM_DELIVERY_PENDING: queued/reconcile required for current cycle", flush=True)
 
 def send_no_results_message():
     return send_notify_reliable(
@@ -2221,6 +2208,7 @@ def main():
 
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
+        "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
         "candidates": len(candidates),
         "new": len(new_items),
         "sent": sent_count,
