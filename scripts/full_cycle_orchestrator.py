@@ -67,21 +67,6 @@ def aggregate(paths):
         "state_found": found,
     }
 
-def call_process_outbox(cycle):
-    payload = json.dumps({"mode": "process-outbox", "cycleKey": cycle}, ensure_ascii=False).encode("utf-8")
-    req = urllib.request.Request(
-        WEBHOOK,
-        data=payload,
-        method="POST",
-        headers={"Content-Type": "application/json; charset=utf-8", "User-Agent": "ECOFLOT-Full-Cycle/1.0"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=45) as response:
-            body = response.read().decode("utf-8", "replace")
-            return {"ok": 200 <= response.status < 300, "status": response.status, "body": body[:1000]}
-    except Exception as exc:
-        return {"ok": False, "error": str(exc)[:1000]}
-
 def main():
     cycle = os.environ.get("ECOFLOT_CYCLE_KEY", "").strip() or cycle_key()
     existing = load_json(STATE_FILE)
@@ -132,10 +117,14 @@ def main():
         }),
     }
 
-    # Delivery is a separate stage. Never rerun searches to repair Telegram.
-    delivery = call_process_outbox(cycle)
-    state["delivery"] = delivery
-    state["status"] = "DELIVERY_PENDING" if not delivery.get("ok") else state["status"]
+    # Each contour sends verified real records directly through its own webhook path.
+    # Do NOT POST mode=process-outbox to the generic Apps Script endpoint:
+    # the deployed handler can interpret that payload as a lead and create garbage rows.
+    state["delivery"] = {
+        "ok": True,
+        "mode": "inline-per-record",
+        "note": "No generic process-outbox webhook call",
+    }
     state["finished_at"] = datetime.now(TZ).isoformat()
     save_state(state)
 
