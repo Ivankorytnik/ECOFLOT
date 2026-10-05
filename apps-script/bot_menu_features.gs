@@ -16,10 +16,7 @@ const ECOFLOT_MENU = Object.freeze({
 });
 
 const ECOFLOT_MANUAL_SEARCH_WORKFLOWS = Object.freeze([
-  'internet-leads-monitor.yml',
-  'social-leads-monitor.yml',
-  'tender-monitor.yml',
-  'object-leads-monitor.yml'
+  'full-cycle.yml'
 ]);
 
 function ecoflotMainMenuKeyboard_() {
@@ -504,9 +501,9 @@ function ecoflotTriggerManualSearch_(chatId) {
       [
         '🚀 Внеплановый поиск запущен по действующему ТЗ.',
         '',
-        'Запущены 4 направления:',
+        'Запущен единый последовательный full-cycle:',
         '• Internet Leads',
-        '• Telegram / MAX',
+        '• Telegram / MAX / VK',
         '• Tender Watch',
         '• Object Leads',
         '',
