@@ -1,0 +1,34 @@
+name: ECOFLOT delivery watchdog
+
+on:
+  schedule:
+    - cron: "40 5,11,15 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ecoflot-delivery-watchdog
+  cancel-in-progress: false
+
+jobs:
+  delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retry only current-cycle Telegram outbox
+        shell: bash
+        run: |
+          set -euo pipefail
+          CYCLE=$(python3 - <<'PY'
+from datetime import datetime
+from zoneinfo import ZoneInfo
+now=datetime.now(ZoneInfo("Europe/Moscow"))
+slots=[8,14,18]
+h=max([x for x in slots if x<=now.hour] or [8])
+print(now.strftime("%Y-%m-%d")+f" {h:02d}:00")
+PY
+)
+          URL="https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          curl -fsS -L "$URL"             -H 'Content-Type: application/json; charset=utf-8'             --data "{"mode":"process-outbox","cycleKey":"$CYCLE"}" >/dev/null
