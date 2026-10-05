@@ -151,6 +151,11 @@ WEB_DISCOVERY_QUERIES = [
     '"нужен ассенизатор" Москва',
     '"нужен илосос" "Московская область"',
     '"откачка ЖБО" "Калужская область" заказ',
+    'site:propokupki.ru/moskovskaya_oblast "требуются самосвалы"',
+    'site:propokupki.ru/moskovskaya_oblast "вывоз грунта" самосвалы',
+    'site:propokupki.ru/moskovskaya_oblast "перевозка песка" самосвалы',
+    'site:propokupki.ru/moskva "самосвал" "телефон"',
+    'site:propokupki.ru/kaluzhskaya_oblast самосвал',
 ]
 
 # Жесткая география базового ТЗ: только Москва, Московская область, Калужская область.
