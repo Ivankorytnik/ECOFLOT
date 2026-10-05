@@ -234,12 +234,19 @@ def main():
         except Exception as exc:
             errors.append(f"no-results: {exc}")
 
+    unverified_sources = []
+    if urls and not candidates:
+        unverified_sources.append("MAX: найдены публичные URL, но свежая дата публикации <=7 дней не подтверждена")
+    if not urls:
+        unverified_sources.append("MAX: публичная поисковая выдача не дала проверяемых страниц")
+
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
         "sent": sent_count,
         "candidates": len(candidates),
         "errors": len(errors),
+        "unverified_sources": unverified_sources,
     }
     save_state(state)
 
