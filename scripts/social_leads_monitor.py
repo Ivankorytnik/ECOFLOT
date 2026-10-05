@@ -71,6 +71,34 @@ def message_text(block):
     raw = re.sub(r"(?i)<br\s*/?>", "\n", m.group(1))
     return clean(raw)
 
+def social_title(text):
+    parts = [x.strip(" -—–•\t") for x in re.split(r"[\r\n]+|(?<=[.!?])\s+", text or "") if x.strip()]
+    for line in parts:
+        low = line.lower().replace("ё","е")
+        if any(x in low for x in DEMAND_MARKERS) and len(line) >= 12:
+            return line[:220]
+    for line in parts:
+        if len(line) >= 12:
+            return line[:220]
+    return "Заявка на спецтехнику / перевозку"
+
+
+def social_quality_ready(item):
+    title = clean(item.get("title") or "")
+    url = str(item.get("url") or "").strip()
+    date_text = clean(item.get("date") or "")
+    if len(title) < 12 or title.lower().startswith(("telegram", "канал")):
+        return False, "unclear-title"
+    if not url.startswith("https://t.me/"):
+        return False, "no-direct-post-link"
+    if not re.fullmatch(r"20\d{2}-\d{2}-\d{2}", date_text):
+        return False, "no-confirmed-date"
+    ok, reason = ensure_public_contact(item)
+    if not ok:
+        return False, reason
+    return True, ""
+
+
 def demand_ok(text):
     low = text.lower().replace("ё", "е")
     if any(x in low for x in EXCLUDE):
@@ -145,7 +173,7 @@ def parse_channel(label, channel):
 
         url = f"https://t.me/{post_channel}/{post_id}"
         rid = "SOCIAL-TG-" + re.sub(r"[^A-Za-z0-9_-]+", "", post_channel)[:40] + "-" + post_id
-        title = next((x.strip() for x in text.splitlines() if x.strip()), "Telegram-заявка")[:220]
+        title = social_title(text)
 
         item = {
             "request_id": rid,
@@ -206,6 +234,15 @@ def main():
         else:
             print("EXCLUDED_CONTACT:", reason, item.get("source"), item.get("request_id"), item.get("url"))
     candidates = contact_ready
+
+    quality_ready = []
+    for item in candidates:
+        ok, reason = social_quality_ready(item)
+        if ok:
+            quality_ready.append(item)
+        else:
+            print("EXCLUDED_SOCIAL_QUALITY:", reason, item.get("source"), item.get("request_id"), item.get("url"))
+    candidates = quality_ready
 
     new_items = []
     for item in candidates:
