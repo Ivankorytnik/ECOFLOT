@@ -1,15 +1,7 @@
-name: ECOFLOT Telegram retry dispatcher
+name: ECOFLOT Telegram retry dispatcher (manual legacy reserve)
 
 on:
-  schedule:
-    - cron: "20 * * * *"
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "telegram_retry_queue.json"
-      - "scripts/telegram_retry_dispatch.py"
-      - ".github/workflows/telegram-retry-dispatch.yml"
 
 permissions:
   contents: write
@@ -23,17 +15,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Retry Telegram deliveries
+      - name: Retry legacy text-only queue
         run: python3 scripts/telegram_retry_dispatch.py
-
       - name: Save retry queue
         run: |
           if [ -n "$(git status --porcelain telegram_retry_queue.json)" ]; then
             git config user.name "ecoflot-bot"
             git config user.email "ecoflot-bot@users.noreply.github.com"
             git add telegram_retry_queue.json
-            git commit -m "Update Telegram retry queue"
-            git pull --rebase origin main
-            git push origin main
+            git commit -m "Update Telegram retry queue" || true
+            git pull --rebase origin main || true
+            git push origin main || true
           fi
