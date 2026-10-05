@@ -30,6 +30,7 @@ from internet_leads_monitor import (
     send_notify_reliable,
     ensure_public_contact,
     contact_dedupe_keys,
+    discovery_result_urls,
 )
 
 STATE_PATH = Path("max_public_leads_state.json")
@@ -101,19 +102,35 @@ def demand_ok(text):
     return relevant((text or "")[:250], text or "")
 
 def search_bing(query):
-    url = "https://www.google.com/search?q=" + urllib.parse.quote(query)
-    page = fetch(url, timeout=20)
-    out = []
-    for m in re.finditer(r'https://max\.ru/[^"&<> ]+', page, re.I):
-        u = html.unescape(m.group(0))
-        u = u.split("&",1)[0].rstrip(").,;")
-        out.append(u)
-    return list(dict.fromkeys(out))
+    # Multi-engine discovery is implemented in internet_leads_monitor.
+    return [u for u in discovery_result_urls(query) if "max.ru/" in u.lower()]
 
 def fetch_max_page(url):
     page = fetch(url, timeout=20)
     text = clean(page)
     return page, text
+
+def extract_confirmed_date(page, text):
+    patterns = [
+        r'(?i)(?:datePublished|article:published_time)[^>]{0,120}(20\d{2}-\d{2}-\d{2})',
+        r'(?<!\d)(\d{1,2}\.\d{1,2}\.20\d{2})(?!\d)',
+        r'(?<!\d)(20\d{2}-\d{2}-\d{2})(?!\d)',
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, page + " " + text)
+        if not m:
+            continue
+        raw = m.group(1)
+        for fmt in ("%Y-%m-%d", "%d.%m.%Y"):
+            try:
+                dt = datetime.strptime(raw, fmt).replace(tzinfo=timezone.utc)
+                if datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS):
+                    return dt
+                return None
+            except ValueError:
+                pass
+    return None
+
 
 def extract_candidates(url):
     page, text = fetch_max_page(url)
@@ -122,6 +139,9 @@ def extract_candidates(url):
     geo = matched_geo(text)
     if not geo:
         return []
+    dt = extract_confirmed_date(page, text)
+    if not dt:
+        return []
     title = next((x.strip() for x in text.splitlines() if x.strip()), "MAX-заявка")[:220]
     key = hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
     item = {
@@ -129,7 +149,7 @@ def extract_candidates(url):
         "title": title,
         "description": text[:1800],
         "price": "договорная",
-        "date": "актуальная публикация",
+        "date": dt.strftime("%Y-%m-%d"),
         "location": geo,
         "volume": extract_volume(text) or "-",
         "url": url,
