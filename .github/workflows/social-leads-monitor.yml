@@ -49,10 +49,3 @@ jobs:
             git pull --rebase origin main || true
             git push origin main || true
           fi
-
-      - name: Report search result to Telegram
-        if: always()
-        env:
-          TELEGRAM_OUTCOME: ${{ steps.telegram_scan.outcome }}
-          MAX_OUTCOME: ${{ steps.max_scan.outcome }}
-        run: python3 scripts/search_completion_report.py social
