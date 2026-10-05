@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: ecoflot-full-cycle
+  group: ecoflot-search-state
   cancel-in-progress: false
 
 jobs:
