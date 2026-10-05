@@ -1659,8 +1659,10 @@ def discovery_result_urls(query):
     urls = []
     blocked_hosts = (
         "google.", "gstatic.", "youtube.", "ecoflot.pro",
-        "bing.com", "duckduckgo.com",
-        "perevozka24.ru", "dozzr.ru",
+        "bing.com", "duckduckgo.com", "live.com", "bingj.com",
+        "microsoft.com", "msn.com", "softonic.com", "fandom.com",
+        "facebook.com", "storeopeninghours.com", "mystore411.com",
+        "apkpure.com", "perevozka24.ru", "dozzr.ru",
     )
 
     def add_url(raw):
@@ -1668,6 +1670,13 @@ def discovery_result_urls(query):
         raw = raw.rstrip(").,;")
         if raw.startswith("/url?q="):
             raw = urllib.parse.unquote(raw.split("/url?q=", 1)[1].split("&", 1)[0])
+        if "uddg=" in raw:
+            try:
+                qs = urllib.parse.parse_qs(urllib.parse.urlparse(raw).query)
+                if qs.get("uddg"):
+                    raw = qs["uddg"][0]
+            except Exception:
+                return
         try:
             parsed = urllib.parse.urlparse(raw)
             host = (parsed.hostname or "").lower()
@@ -1680,33 +1689,29 @@ def discovery_result_urls(query):
         if raw not in urls:
             urls.append(raw)
 
-    search_pages = [
-        "https://www.google.com/search?q=" + urllib.parse.quote(query),
-        "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query),
-        "https://www.bing.com/search?q=" + urllib.parse.quote(query),
-    ]
-    for search_url in search_pages:
-        try:
-            page = fetch(search_url, timeout=15, attempts=1)
-        except Exception:
-            continue
+    # Parse only actual search-result anchors, not every URL embedded in engine HTML.
+    try:
+        page = fetch("https://www.google.com/search?q=" + urllib.parse.quote(query), timeout=12, attempts=1)
+        for href in re.findall(r'href=["\'](/url\?q=[^"\']+)["\']', page, re.I):
+            add_url(href)
+    except Exception:
+        pass
 
-        for href in re.findall(r'(?is)href=[\"\']([^\"\']+)[\"\']', page):
-            candidate = html.unescape(href)
-            if "uddg=" in candidate:
-                try:
-                    qs = urllib.parse.parse_qs(urllib.parse.urlparse(candidate).query)
-                    if qs.get("uddg"):
-                        candidate = qs["uddg"][0]
-                except Exception:
-                    pass
-            add_url(candidate)
+    try:
+        page = fetch("https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query), timeout=12, attempts=1)
+        for m in re.finditer(r'(?is)<a[^>]+class=["\'][^"\']*result__a[^"\']*["\'][^>]+href=["\']([^"\']+)["\']', page):
+            add_url(m.group(1))
+    except Exception:
+        pass
 
-        for raw in re.findall(r"https?://[^\"'<>\s]+", page, re.I):
-            add_url(raw)
-
-        if len(urls) >= 25:
-            break
+    try:
+        page = fetch("https://www.bing.com/search?q=" + urllib.parse.quote(query), timeout=12, attempts=1)
+        for block in re.findall(r'(?is)<li[^>]+class=["\'][^"\']*b_algo[^"\']*["\'][^>]*>(.*?)</li>', page):
+            m = re.search(r'(?is)<a[^>]+href=["\'](https?://[^"\']+)["\']', block)
+            if m:
+                add_url(m.group(1))
+    except Exception:
+        pass
 
     return urls[:25]
 
@@ -2241,8 +2246,8 @@ def main():
     for error in errors:
         print("ERROR:", error, file=sys.stderr)
 
-    if errors and not candidates and sent_count == 0:
-        sys.exit(1)
+    if errors:
+        print(f"INTERNET_WARNINGS: {len(errors)} source/page errors; cycle continues", file=sys.stderr)
 
 if __name__ == "__main__":
     main()
