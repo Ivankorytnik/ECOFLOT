@@ -102,7 +102,10 @@ def parse_channel(label, channel):
                 dt = datetime.fromisoformat(time_m.group(1).replace("Z", "+00:00")).astimezone(timezone.utc)
             except ValueError:
                 dt = None
-        if dt and datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
+        if not dt:
+            print("EXCLUDED_FRESHNESS: no-confirmed-date", label, m.group(2))
+            continue
+        if datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
             continue
 
         post_channel = m.group(1)
@@ -116,7 +119,7 @@ def parse_channel(label, channel):
             "title": title,
             "description": text[:1800],
             "price": "договорная",
-            "date": dt.strftime("%Y-%m-%d") if dt else "актуальная заявка",
+            "date": dt.strftime("%Y-%m-%d"),
             "location": location,
             "volume": extract_volume(text) or "-",
             "url": url,
