@@ -147,8 +147,20 @@ def clean(s: str) -> str:
     s = html.unescape(re.sub(r"<[^>]+>", " ", s or ""))
     return re.sub(r"\s+", " ", s).strip()
 
+def canonical_tender_id(entry) -> str:
+    hay = " ".join([
+        str(entry.get("id") or ""),
+        str(entry.get("title") or ""),
+        str(entry.get("link") or ""),
+    ])
+    # Prefer real procurement numbers over parser/internal hashes.
+    matches = re.findall(r"(?<!\d)(\d{8,25})(?!\d)", hay)
+    if matches:
+        return max(matches, key=len)
+    return str(entry.get("id") or "").strip()
+
 def request_id_for(entry) -> str:
-    return "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", entry["id"])[:80]
+    return "TENDER-" + re.sub(r"[^A-Za-z0-9_-]", "", canonical_tender_id(entry))[:80]
 
 def valid_tender_card_link(entry) -> bool:
     """Тендер допускается только с прямой ссылкой на карточку конкретной закупки."""
@@ -556,7 +568,9 @@ def save_state(state):
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
 def send_webhook(entry):
+    procurement_id = canonical_tender_id(entry)
     comment = (
+        f"Закупка №{procurement_id}\n"
         f"Заказчик: {entry['customer'] or 'не указан'}\n"
         f"Цена: {entry['price'] or 'не указана'}\n"
         f"Закон/тип: {entry['law'] or 'не указан'}\n"
@@ -588,9 +602,8 @@ def send_webhook(entry):
         resp = parse_webhook_response(r.status, body, "Tender webhook")
 
     if not telegram_delivery_confirmed(resp):
-        # Search success and Telegram delivery are separate stages.
-        # Never turn a valid search result into a search failure because delivery is pending.
         print("TELEGRAM_DELIVERY_PENDING: queued/reconcile required for current cycle", flush=True)
+    return resp
 
 def send_no_results_message():
     return send_notify_reliable(
