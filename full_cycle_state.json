@@ -1,0 +1,64 @@
+{
+  "cycleKey": "2026-10-05 08:00",
+  "started_at": "2026-10-05T10:50:53.134561+03:00",
+  "status": "SEARCH_COMPLETE",
+  "contours": {
+    "Internet Leads": {
+      "new": 0,
+      "duplicates": 0,
+      "errors": 4,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
+    },
+    "Telegram/MAX/VK": {
+      "new": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "status": "ok"
+    },
+    "Tender Watch": {
+      "new": 0,
+      "duplicates": 0,
+      "errors": 8,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
+    },
+    "Object Leads": {
+      "new": 0,
+      "duplicates": 0,
+      "errors": 0,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
+    }
+  },
+  "search_finished_at": "2026-10-05T10:56:24.473254+03:00",
+  "totals": {
+    "new": 0,
+    "duplicates": 0,
+    "unchecked_sources": []
+  },
+  "delivery": {
+    "ok": true,
+    "mode": "inline-per-record",
+    "note": "No generic process-outbox webhook call"
+  },
+  "finished_at": "2026-10-05T10:56:24.473280+03:00"
+}
