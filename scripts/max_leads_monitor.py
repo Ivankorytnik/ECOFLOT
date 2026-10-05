@@ -93,6 +93,18 @@ def save_state(state):
         state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:5000])
     STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
 
+def max_title(text):
+    parts = [x.strip(" -—–•\t") for x in re.split(r"[\r\n]+|(?<=[.!?])\s+", text or "") if x.strip()]
+    for line in parts:
+        low = line.lower().replace("ё","е")
+        if any(x in low for x in DEMAND_MARKERS) and len(line) >= 12:
+            return line[:220]
+    for line in parts:
+        if len(line) >= 12:
+            return line[:220]
+    return "Заявка MAX на спецтехнику / перевозку"
+
+
 def demand_ok(text):
     low = (text or "").lower().replace("ё", "е")
     if any(x in low for x in EXCLUDE):
@@ -142,7 +154,7 @@ def extract_candidates(url):
     dt = extract_confirmed_date(page, text)
     if not dt:
         return []
-    title = next((x.strip() for x in text.splitlines() if x.strip()), "MAX-заявка")[:220]
+    title = max_title(text)
     key = hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
     item = {
         "request_id": "SOCIAL-MAX-" + key,
@@ -205,6 +217,18 @@ def main():
         else:
             print("EXCLUDED_CONTACT:", reason, item.get("source"), item.get("request_id"), item.get("url"))
     candidates = contact_ready
+
+    quality_ready = []
+    for item in candidates:
+        title = clean(item.get("title") or "")
+        url = str(item.get("url") or "").strip()
+        date_text = clean(item.get("date") or "")
+        ok = len(title) >= 12 and url.startswith("http") and re.fullmatch(r"20\d{2}-\d{2}-\d{2}", date_text)
+        if ok:
+            quality_ready.append(item)
+        else:
+            print("EXCLUDED_MAX_QUALITY:", item.get("request_id"), url)
+    candidates = quality_ready
 
     new_items = []
     for item in candidates:
