@@ -32,6 +32,7 @@ def normalize(item):
         "when": str(item.get("when") or "").strip(),
         "address": str(item.get("address") or "").strip(),
         "source": str(item.get("source") or "ECOFLOT automation").strip(),
+        "link": str(item.get("link") or "").strip(),
         "status": str(item.get("status") or "Новая").strip(),
         "comment": str(item.get("comment") or "").strip(),
         "requestId": str(item.get("requestId") or item.get("request_id") or "").strip(),
@@ -51,13 +52,15 @@ def normalize(item):
     # Real Internet/Social/Object leads require traceable source and contact path.
     # Tender cards are allowed without phone, but still require direct source link
     # to be carried in comment/link by the producing contour.
-    hay = " ".join([out["comment"], out["source"], out["name"], out["address"], out["when"]])
-    has_url = "http://" in hay or "https://" in hay
+    hay = " ".join([out["comment"], out["source"], out["name"], out["address"], out["when"], out["link"]])
+    has_url = out["link"].startswith(("http://", "https://"))
     has_phone = bool(__import__("re").search(r"(?<!\d)(?:\+?7|8)[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)", hay))
     kind = out["type"].lower()
     is_tender = "тендер" in kind
-    if not is_tender and not (has_phone or has_url):
-        raise ValueError("Lead has no public phone or direct contact/source URL")
+    if not has_url:
+        raise ValueError("Lead/tender has no direct source URL")
+    if not is_tender and not (has_phone or "profi.ru/" in out["link"].lower() or "vezetvsem.ru/" in out["link"].lower()):
+        raise ValueError("Lead has no public phone or approved direct response route")
 
     # Freshness/traceability: no blank date for ordinary leads.
     if not is_tender and not out["when"]:
