@@ -166,7 +166,7 @@ def parse_channel(label, channel):
         item["lead_class"] = lead_class(title, text)
         if score >= MIN_RELEVANCE_SCORE:
             out.append(item)
-    return out
+    return out, len(marks)
 
 def send_no_results():
     return send_notify_reliable(
@@ -182,14 +182,18 @@ def main():
     sheet_ids, sheet_links, sheet_sigs, _ = load_sheet_index()
     candidates = []
     errors = []
+    unverified_sources = []
 
     for label, channel in CHANNELS:
         try:
-            found = parse_channel(label, channel)
+            found, marker_count = parse_channel(label, channel)
             print(f"TELEGRAM_SOURCE {label}: {len(found)} candidates")
+            if marker_count == 0:
+                unverified_sources.append(f"Telegram/{label}: публичные посты недоступны")
             candidates.extend(found)
         except Exception as exc:
             errors.append(f"{label}: {exc}")
+            unverified_sources.append(f"Telegram/{label}: ошибка доступа")
 
     unique = {x["request_id"]: x for x in candidates}
     candidates = sorted(unique.values(), key=lambda x: (-x["score"], x["source"], x["title"]))
@@ -237,6 +241,7 @@ def main():
         "sent": sent_count,
         "candidates": len(candidates),
         "errors": len(errors),
+        "unverified_sources": sorted(set(unverified_sources)),
     }
     save_state(state)
     print(f"Social candidates: {len(candidates)}, new: {len(new_items)}, sent: {sent_count}, errors: {len(errors)}")
