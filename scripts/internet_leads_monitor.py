@@ -78,7 +78,6 @@ REGISTRATION_GATED_DOMAINS = (
 # контакты заказчика раскрываются только после входа. В таком случае сама
 # карточка заказа считается допустимым маршрутом контакта.
 CONTACT_GATED_ALLOWED_DOMAINS = (
-    "profi.ru", "www.profi.ru",
     "vezetvsem.ru", "www.vezetvsem.ru",
 )
 
@@ -371,12 +370,12 @@ def ensure_public_contact(item):
             contact_url = found_url
 
     if not phone and not contact_url:
-        # Исключение, отдельно утвержденное для ECOFLOT: Профи.ру и
-        # «Везёт Всем» не отбрасываем из-за скрытых контактов.
-        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS):
+        # Исключение допустимо только для площадки, где конкретная карточка
+        # заказа является маршрутом отклика. Общая страница категории не годится.
+        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and not is_listing_url_for_dedupe(item):
             contact_url = source_url
         else:
-            return False, "no-public-contact"
+            return False, "no-public-contact-or-direct-order-link"
 
     item["phone"] = phone
     item["contact_url"] = contact_url
@@ -2054,7 +2053,27 @@ def collect_candidates():
         unique[item["request_id"]] = item
     return list(unique.values()), errors
 
+def human_lead_title(item):
+    work = clean(item.get("work") or "")
+    location = clean(item.get("location") or "")
+    volume = clean(item.get("volume") or "")
+    original = clean(item.get("title") or "")
+    generic_tokens = (
+        "мастер", "специалист", "дизайнер", "демонтажник", "разнорабоч",
+        "telegram-заявка", "max-заявка", "заявка на технику",
+    )
+    if work and (not original or any(x in normalize(original) for x in generic_tokens)):
+        title = work
+        if location:
+            title += " — " + location
+        if volume and volume != "-":
+            title += ", " + volume
+        return title[:250]
+    return original[:250] or ((work or "Заявка ECOFLOT") + ((" — " + location) if location else ""))[:250]
+
+
 def send_webhook(item):
+    item["title"] = human_lead_title(item)
     comment = (
         f"Релевантность: {item.get('score',0)}/100\n"
         f"Тип лида: {item.get('lead_class','HOT')}\n"
