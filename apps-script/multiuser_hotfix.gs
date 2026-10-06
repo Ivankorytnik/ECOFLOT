@@ -50,7 +50,9 @@ function ecoflotApprovedChatIds_() {
     });
   }
 
-  return Object.keys(ids);
+  return Object.keys(ids).filter(function(id) {
+    return /^-?\d+$/.test(String(id || '').trim());
+  });
 }
 
 function ecoflotSendTextToAll_(text, extraPayload) {
