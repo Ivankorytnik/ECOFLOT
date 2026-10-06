@@ -48,7 +48,7 @@ def growth_page(ss,s,gs,g):
     works="".join(f"<li>{escape(x)}</li>" for x in s["works"])
     image=SERVICE_IMAGES.get(ss,"/assets/fleet/ecoflot-multilift.webp")
     schema=json.dumps({"@context":"https://schema.org","@graph":[
-      {"@type":"Service","@id":canonical+"#service","name":f"{s['name']} {g['loc']}","provider":{"@id":"https://ecoflot.pro/#business"},"areaServed":{"@type":"Place","name":g["name"]},"url":canonical,"image":BASE+image},
+      {"@type":"Service","@id":canonical+"#service","name":f"{s['name']} {g['loc']}","provider":{"@type":"LocalBusiness","@id":"https://ecoflot.pro/#business","name":"ECOFLOT","url":"https://ecoflot.pro/","telephone":"+79687614666"},"areaServed":{"@type":"Place","name":g["name"]},"url":canonical,"image":BASE+image},
       {"@type":"BreadcrumbList","itemListElement":[
         {"@type":"ListItem","position":1,"name":"ECOFLOT","item":BASE+"/"},
         {"@type":"ListItem","position":2,"name":"Услуги","item":BASE+"/uslugi/"},
@@ -95,7 +95,14 @@ def catalog_page(kind):
         intro="Основные разделы и все страницы услуг по географии."
         core='<div class="card"><h2>Основные страницы</h2><div class="linkgrid"><a href="/uslugi/">Все услуги</a><a href="/zony-raboty/">География</a><a href="/ceny/">Цены</a><a href="/faq/">Частые вопросы</a><a href="/vyvoz-stroitelnogo-musora/">Строительный мусор</a><a href="/vyvoz-grunta/">Вывоз грунта</a><a href="/arenda-konteynera/">Аренда контейнера</a><a href="/kalkulyator/">Калькулятор</a></div></div>'
         body=core+service_cards()
-    return f'<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="{desc}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{BASE}{canon}"><link rel="icon" href="/favicon.svg"><style>{CATALOG_STYLE}</style><script src="/marketing.js" defer></script><script src="/analytics.js" defer></script></head><body>{header()}<main><section class="wrap hero"><h1>{h1}</h1><p>{intro}</p></section><section class="section alt"><div class="wrap grid">{body}</div></section></main>{footer()}</body></html>'
+    schema=json.dumps({"@context":"https://schema.org","@graph":[
+        {"@type":"CollectionPage","name":h1,"url":BASE+canon,"description":desc,"isPartOf":{"@id":BASE+"/#website"}},
+        {"@type":"BreadcrumbList","itemListElement":[
+          {"@type":"ListItem","position":1,"name":"ECOFLOT","item":BASE+"/"},
+          {"@type":"ListItem","position":2,"name":h1,"item":BASE+canon}
+        ]}
+    ]},ensure_ascii=False)
+    return f'<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title><meta name="description" content="{desc}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="{BASE}{canon}"><link rel="icon" href="/favicon.svg"><meta property="og:type" content="website"><meta property="og:locale" content="ru_RU"><meta property="og:site_name" content="ECOFLOT"><meta property="og:title" content="{title}"><meta property="og:description" content="{desc}"><meta property="og:url" content="{BASE}{canon}"><script type="application/ld+json">{schema}</script><style>{CATALOG_STYLE}</style><script src="/marketing.js" defer></script><script src="/analytics.js" defer></script></head><body>{header()}<main><section class="wrap hero"><h1>{h1}</h1><p>{intro}</p></section><section class="section alt"><div class="wrap grid">{body}</div></section></main>{footer()}</body></html>'
 
 changed=0
 growth=set()
