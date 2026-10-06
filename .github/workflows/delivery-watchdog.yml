@@ -1,8 +1,6 @@
 name: ECOFLOT delivery watchdog
 
 on:
-  schedule:
-    - cron: "40 5,11,15 * * *"
   workflow_dispatch:
 
 permissions:
@@ -17,11 +15,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Retry only current-cycle Telegram outbox
-        shell: bash
-        run: |
-          set -euo pipefail
-          CYCLE=$(python3 -c 'from datetime import datetime; from zoneinfo import ZoneInfo; n=datetime.now(ZoneInfo("Europe/Moscow")); s=[8,14,18]; h=max([x for x in s if x<=n.hour] or [8]); print(n.strftime("%Y-%m-%d")+f" {h:02d}:00")')
-          URL="https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          BODY=$(printf '{"mode":"process-outbox","cycleKey":"%s"}' "$CYCLE")
-          curl -fsS -L "$URL" -H 'Content-Type: application/json; charset=utf-8' --data "$BODY" >/dev/null
+      - name: Legacy watchdog disabled
+        run: echo "Legacy process-outbox route is disabled; full-cycle delivery is inline."
