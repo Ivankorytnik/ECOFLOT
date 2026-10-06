@@ -9,7 +9,11 @@ URLS=[
   BASE+"/robots.txt",
   BASE+"/vyvoz-musora-odincovo/",
   BASE+"/vyvoz-stroitelnogo-musora/",
-  BASE+"/kalkulyator/"
+  BASE+"/kalkulyator/",
+  BASE+"/kontakty/",
+  BASE+"/uslugi/",
+  BASE+"/zony-raboty/",
+  BASE+"/ECOFLOT2026IndexNowK9sP4mT7vQ2xN6a.txt"
 ]
 
 errors=[]
@@ -62,9 +66,22 @@ if code==200:
 code,body,final=fetch(BASE+"/")
 if code==200:
     html=body.decode("utf-8","replace")
-    for marker in ['id="leadform"','id="leadSubmitBtn"','ECOFLOT_SHEET_WEBHOOK']:
+    for marker in ['id="leadform"','id="leadSubmitBtn"','ECOFLOT_SHEET_WEBHOOK','/analytics.js','/marketing.js']:
         if marker not in html:
-            errors.append(f"homepage missing form marker: {marker}")
+            errors.append(f"homepage missing critical marker: {marker}")
+
+code,body,final=fetch(BASE+"/analytics.js")
+if code==200:
+    js=body.decode("utf-8","replace")
+    if "113078729" not in js:
+        errors.append("Yandex Metrika counter ID missing from analytics.js")
+
+code,body,final=fetch(BASE+"/kontakty/")
+if code==200:
+    page=body.decode("utf-8","replace")
+    for marker in ["+7 968 761-46-66","ул. Восточная, 25"]:
+        if marker not in page:
+            errors.append(f"contacts page missing NAP marker: {marker}")
 
 if errors:
     print("ECOFLOT uptime/content check FAILED")
