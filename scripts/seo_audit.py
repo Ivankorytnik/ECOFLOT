@@ -25,9 +25,12 @@ class PageParser(HTMLParser):
         self.text_chunks = []
         self._in_title = False
         self._in_h1 = False
+        self._ignore_text_depth = 0
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag in ("script","style"):
+            self._ignore_text_depth += 1
         if tag == "title":
             self._in_title = True
         elif tag == "h1":
@@ -51,6 +54,8 @@ class PageParser(HTMLParser):
             self.jsonld_count += 1
 
     def handle_endtag(self, tag):
+        if tag in ("script","style") and self._ignore_text_depth:
+            self._ignore_text_depth -= 1
         if tag == "title":
             self._in_title = False
         elif tag == "h1":
@@ -61,7 +66,7 @@ class PageParser(HTMLParser):
             self.title += data.strip()
         if self._in_h1 and data.strip():
             self.h1.append(data.strip())
-        if data.strip():
+        if data.strip() and self._ignore_text_depth == 0:
             self.text_chunks.append(data.strip())
 
 def url_for(path):
@@ -118,6 +123,20 @@ for path in sorted(ROOT.rglob("index.html")):
         errors.append(f"{path}: canonical mismatch: {p.canonical} != {url}")
     if p.h1_count != 1:
         errors.append(f"{path}: expected exactly one H1, found {p.h1_count}")
+    visible_words = len(" ".join(p.text_chunks).split())
+    if visible_words < 120:
+        warnings.append(f"{path}: thin visible content ({visible_words} words)")
+    if not p.og_title or not p.og_desc or not p.og_url:
+        warnings.append(f"{path}: incomplete Open Graph metadata")
+    if p.og_url and p.og_url != url:
+        errors.append(f"{path}: og:url mismatch: {p.og_url} != {url}")
+    if p.jsonld_count == 0:
+        warnings.append(f"{path}: no JSON-LD structured data")
+    for src in p.images:
+        if src.startswith("http://"):
+            errors.append(f"{path}: insecure image URL {src}")
+        elif src.startswith("https://") and "ecoflot.pro" not in src:
+            warnings.append(f"{path}: external image dependency {src}")
 
     if p.title:
         titles.setdefault(p.title, []).append(str(path.relative_to(ROOT)))
