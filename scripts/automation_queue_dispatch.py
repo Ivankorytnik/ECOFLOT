@@ -31,13 +31,13 @@ def normalize(item):
         "volume": str(item.get("volume") or "-").strip(),
         "when": str(item.get("when") or "").strip(),
         "address": str(item.get("address") or "").strip(),
-        "source": str(item.get("source") or "ECOFLOT automation").strip(),
+        "source": str(item.get("source") or "").strip(),
         "link": str(item.get("link") or "").strip(),
         "status": str(item.get("status") or "Новая").strip(),
         "comment": str(item.get("comment") or "").strip(),
         "requestId": str(item.get("requestId") or item.get("request_id") or "").strip(),
     }
-    for key in ("type","name","status","requestId"):
+    for key in ("type","name","status","requestId","source"):
         if not out[key]:
             raise ValueError("Missing required field: " + key)
 
