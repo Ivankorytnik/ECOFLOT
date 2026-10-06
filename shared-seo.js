@@ -40,5 +40,11 @@
       });
       document.head.appendChild(s);
     }
+    if(!document.querySelector('script[src="/commercial-events.js"]')){
+      var ce=document.createElement('script');
+      ce.src='/commercial-events.js';
+      ce.defer=true;
+      document.head.appendChild(ce);
+    }
   } catch(e){}
 })();
