@@ -1,44 +1,74 @@
 {
-  "cycleKey": "2026-10-06 18:00",
-  "started_at": "2026-10-06T18:00:00+03:00",
-  "status": "DELIVERY_PENDING",
-  "reconciled": true,
-  "reconciled_from": "Google Sheets journal and current-cycle lead/queue data",
+  "cycleKey": "2026-10-06 19:13 EXTRA",
+  "started_at": "2026-10-06T19:26:10.317748+03:00",
+  "status": "SEARCH_COMPLETE",
   "contours": {
     "Internet Leads": {
       "new": 0,
-      "duplicates": 1,
-      "status": "ok_with_warning",
-      "unchecked_sources": ["GitHub crawler: trigger not confirmed"]
+      "duplicates": 0,
+      "errors": 6,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
     },
     "Telegram/MAX/VK": {
       "new": 0,
       "duplicates": 0,
-      "status": "ok_with_warning",
-      "unchecked_sources": ["MAX/VK and part of Telegram sources not fully verified"]
+      "errors": 0,
+      "unchecked_sources": [
+        "MAX: публичная поисковая выдача не дала проверяемых страниц",
+        "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+        "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+        "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны"
+      ],
+      "state_found": true,
+      "exit_codes": [
+        0,
+        0
+      ],
+      "status": "ok"
     },
     "Tender Watch": {
-      "new": 1,
-      "duplicates": 4,
-      "status": "ok",
-      "request_ids": ["TENDER-IMZ-2026-041742"]
+      "new": 24,
+      "duplicates": 2,
+      "errors": 4,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
     },
     "Object Leads": {
       "new": 0,
       "duplicates": 0,
-      "status": "ok",
-      "unchecked_sources": []
+      "errors": 0,
+      "unchecked_sources": [],
+      "state_found": true,
+      "exit_codes": [
+        0
+      ],
+      "status": "ok"
     }
   },
+  "search_finished_at": "2026-10-06T19:36:37.799228+03:00",
   "totals": {
-    "new": 1,
-    "duplicates": 5
+    "new": 24,
+    "duplicates": 2,
+    "unchecked_sources": [
+      "MAX: публичная поисковая выдача не дала проверяемых страниц",
+      "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+      "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+      "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны"
+    ]
   },
   "delivery": {
-    "ok": false,
-    "pending_cards": 3,
-    "summary": "SENT",
-    "reason": "lead_one rows are missing for 3 active recipients; Apps Script process-outbox endpoint returns HTTP 404"
+    "ok": true,
+    "mode": "inline-per-record",
+    "note": "No generic process-outbox webhook call"
   },
-  "finished_at": "2026-10-06T18:46:00+03:00"
+  "finished_at": "2026-10-06T19:36:37.799264+03:00"
 }
