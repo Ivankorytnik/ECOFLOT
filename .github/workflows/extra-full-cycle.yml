@@ -22,7 +22,7 @@ jobs:
 
       - name: Run one orchestrated extra cycle
         env:
-          ECOFLOT_CYCLE_KEY: "2026-10-05 11:16 EXTRA"
+          ECOFLOT_CYCLE_KEY: "2026-10-06 19:13 EXTRA"
           MAX_SEND: "100"
           RECENT_DAYS: "7"
           SUPPRESS_NO_RESULTS: "1"
