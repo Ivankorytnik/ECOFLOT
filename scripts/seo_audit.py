@@ -17,6 +17,12 @@ class PageParser(HTMLParser):
         self.h1 = []
         self.h1_count = 0
         self.links = []
+        self.images = []
+        self.og_title = ""
+        self.og_desc = ""
+        self.og_url = ""
+        self.jsonld_count = 0
+        self.text_chunks = []
         self._in_title = False
         self._in_h1 = False
 
@@ -29,10 +35,20 @@ class PageParser(HTMLParser):
             self.h1_count += 1
         elif tag == "meta" and a.get("name","").lower() == "description":
             self.desc = a.get("content","").strip()
+        elif tag == "meta" and a.get("property","").lower() == "og:title":
+            self.og_title = a.get("content","").strip()
+        elif tag == "meta" and a.get("property","").lower() == "og:description":
+            self.og_desc = a.get("content","").strip()
+        elif tag == "meta" and a.get("property","").lower() == "og:url":
+            self.og_url = a.get("content","").strip()
         elif tag == "link" and a.get("rel","").lower() == "canonical":
             self.canonical = a.get("href","").strip()
         elif tag == "a" and a.get("href"):
             self.links.append(a["href"].strip())
+        elif tag == "img" and a.get("src"):
+            self.images.append(a["src"].strip())
+        elif tag == "script" and a.get("type","").lower() == "application/ld+json":
+            self.jsonld_count += 1
 
     def handle_endtag(self, tag):
         if tag == "title":
@@ -45,6 +61,8 @@ class PageParser(HTMLParser):
             self.title += data.strip()
         if self._in_h1 and data.strip():
             self.h1.append(data.strip())
+        if data.strip():
+            self.text_chunks.append(data.strip())
 
 def url_for(path):
     rel = path.relative_to(ROOT).as_posix()
