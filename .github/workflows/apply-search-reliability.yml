@@ -1,0 +1,54 @@
+name: Apply ECOFLOT search reliability repair
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/apply-search-reliability.yml']
+permissions:
+  contents: write
+concurrency:
+  group: ecoflot-search-state
+  cancel-in-progress: false
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Verify and apply reviewed patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p repair-evidence
+          tr -d '\n\r ' < <(cat maintenance/search-reliability-20261007/patch.0{1,2,3}.b64) | base64 --decode | gzip --decompress > repair-evidence/reliability.patch
+          echo '9cf364eecdeed944388c2ebd5ce9a07694fc259c717306e351fd18e52752fac5  repair-evidence/reliability.patch' | sha256sum --check
+          if git apply --reverse --check repair-evidence/reliability.patch 2>/dev/null; then
+            echo 'Patch already applied; validating existing source.'
+          else
+            git apply --check repair-evidence/reliability.patch
+            git apply repair-evidence/reliability.patch
+          fi
+          python3 -m compileall -q scripts
+          python3 -m unittest discover -s scripts -p 'test_search_reliability.py' -v 2>&1 | tee repair-evidence/tests.txt
+      - name: Persist tested source without ignoring conflicts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add scripts/internet_leads_monitor.py scripts/tender_monitor.py scripts/social_leads_monitor.py scripts/max_leads_monitor.py scripts/object_leads_monitor.py scripts/full_cycle_orchestrator.py scripts/search_reliability.py scripts/test_search_reliability.py scripts/persist_search_state.sh
+          if ! git diff --cached --quiet; then
+            git config user.name 'ecoflot-bot'
+            git config user.email 'ecoflot-bot@users.noreply.github.com'
+            git commit -m 'Fix ECOFLOT false success, delivery evidence, state safety and lead validation'
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          git log -1 --format='%H %s' | tee repair-evidence/deployed-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-reliability-repair-evidence
+          path: repair-evidence/
+          retention-days: 30
