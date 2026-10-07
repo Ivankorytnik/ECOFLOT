@@ -13,8 +13,9 @@ import sys
 import time
 from urllib.parse import urlsplit
 import search_reliability as r
-from source_repair import ENGINES, UnverifiedSearch, parse_results, host_is, resolve_catalogue_card
+from source_repair import ENGINES, UnverifiedSearch, host_is, resolve_catalogue_card
 from urllib.parse import quote
+from search_topic import parse_results
 
 WORKERS = frozenset(('internet_leads_monitor', 'social_leads_monitor',
                      'max_leads_monitor', 'tender_monitor', 'object_leads_monitor'))
@@ -75,7 +76,7 @@ class DiscoverySession:
             try:
                 timeout = max(1, min(12, self.budget - self.spent))
                 page = self.fetcher(base + quote(query), timeout=timeout, attempts=1)
-                urls = parse_results(page, engine)
+                urls = parse_results(page, engine, query)
                 self.failures[engine] = 0
                 if urls:
                     return urls
