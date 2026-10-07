@@ -1,9 +1,9 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-07T12:25:17.028507+00:00",
-    "cycleKey": "2026-10-07 14:00 EXTRA 37620244066.1",
-    "run_id": "37620244066.1",
+    "at": "2026-10-07T17:17:43.090662+00:00",
+    "cycleKey": "2026-10-07 18:00 EXTRA 37657361170.1",
+    "run_id": "37657361170.1",
     "error_details": [],
     "sent": 0,
     "candidates": 0,
@@ -18,6 +18,12 @@
     "new": 0,
     "duplicates_server": 0,
     "delivery_pending": 0,
-    "metrics_version": 2
+    "metrics_version": 2,
+    "runtime_version": "2026-10-07.2",
+    "unchecked_sources": [
+      "duckduckgo: duckduckgo: challenge or access restriction",
+      "google: google: result markup not verified"
+    ],
+    "discovery_seconds": 5.71
   }
 }

@@ -129,6 +129,183 @@
         "ok": false
       },
       "finished_at": "2026-10-07T15:26:46.385802+03:00"
+    },
+    "2026-10-07 18:00 EXTRA 37657361170.1": {
+      "attempts": 1,
+      "schema_version": 2,
+      "cycleKey": "2026-10-07 18:00 EXTRA 37657361170.1",
+      "run_id": "37657361170.1",
+      "started_at": "2026-10-07T20:13:21.415300+03:00",
+      "status": "SEARCH_PARTIAL",
+      "contours": {
+        "Internet Leads": {
+          "new": 0,
+          "duplicates": 3,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 19,
+          "unchecked_sources": [
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
+            "Web discovery page https://www.sands.com/company/leadership/patrick-dumont/: HTTP Error 400: Bad Request",
+            "Web discovery page https://www.sands.com/news/sands-new-chairman-ceo-outlines-companys-strategic-priorities/: HTTP Error 400: Bad Request",
+            "Web discovery page https://www.theofficialboard.com/org-chart/las-vegas-sands: HTTP Error 403: Forbidden",
+            "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+            "Web discovery page https://businesstech.co.za/news/business/877587/the-man-who-received-a-special-r51-million-award-from-woolworths/: HTTP Error 403: Forbidden",
+            "Web discovery page https://dailyinvestor.com/retail/139912/new-woolworths-ceo-brings-in-the-big-guns/: HTTP Error 403: Forbidden",
+            "Web discovery page https://www.wikiwand.com/en/Monarchy_of_Monaco: HTTP Error 403: Forbidden",
+            "Web discovery page https://people.com/royals/all-about-monaco-royal-family-tree/: HTTP Error 403: Forbidden",
+            "Web discovery page https://www.theofficialboard.com/org-chart/bytedance: HTTP Error 403: Forbidden",
+            "Web discovery page https://www.theofficialboard.com/org-chart/apple-music: HTTP Error 403: Forbidden",
+            "Web discovery page https://www.businesswire.com/news/home/20250513712025/en/UnitedHealth-Group-Announces-Leadership-Transition: The read operation timed out",
+            "send WEB-PROFI-076b7b58fce393f87dde: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+            "send WEB-PROFI-252a092cb4bb14398b0d: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+            "send WEB-PROFI-08afd620ba38529d6b30: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+            "send WEB-PROFI-5c007790e7ad6ee5efa6: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+            "send WEB-PROFI-d2e0482284e5c8b99041: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Telegram/MAX/VK": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 0,
+          "unchecked_sources": [
+            "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+            "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+            "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified",
+            "VK: no primary-post collector configured"
+          ],
+          "missing_states": [],
+          "error_details": [],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0,
+            0
+          ]
+        },
+        "Tender Watch": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 1,
+          "unchecked_sources": [
+            "GenTender/TENDER-0348200086526000054: primary card not verified",
+            "GenTender/TENDER-0348200087526000085: primary card not verified",
+            "GenTender/TENDER-0373200039326000011: primary card not verified",
+            "GenTender/TENDER-0848300057726000038: primary card not verified",
+            "GenTender/TENDER-0848300060626000366: primary card not verified",
+            "GenTender/TENDER-10313165: primary card not verified",
+            "GenTender/TENDER-32616403656: primary card not verified",
+            "GenTender/TENDER-32616406750: primary card not verified",
+            "GenTender/TENDER-32616417366: primary card not verified",
+            "GenTender/TENDER-32616441034: primary card not verified",
+            "GenTender/TENDER-32616443194: primary card not verified",
+            "GenTender/TENDER-pp-need-6231987: primary card not verified",
+            "GenTender: primary-card resolution budget reached",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "Портал поставщиков Москвы: <urlopen error timed out>"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Object Leads": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 0,
+          "unchecked_sources": [],
+          "missing_states": [],
+          "error_details": [],
+          "state_found": true,
+          "status": "ok",
+          "exit_codes": [
+            0
+          ]
+        }
+      },
+      "search_mode": "Standard",
+      "preflight_errors": [],
+      "search_finished_at": "2026-10-07T20:19:39.931114+03:00",
+      "totals": {
+        "new": 0,
+        "duplicates": 3,
+        "accepted": 0,
+        "sent": 0,
+        "delivery_pending": 0,
+        "errors": 20,
+        "unchecked_sources": [
+          "GenTender/TENDER-0348200086526000054: primary card not verified",
+          "GenTender/TENDER-0348200087526000085: primary card not verified",
+          "GenTender/TENDER-0373200039326000011: primary card not verified",
+          "GenTender/TENDER-0848300057726000038: primary card not verified",
+          "GenTender/TENDER-0848300060626000366: primary card not verified",
+          "GenTender/TENDER-10313165: primary card not verified",
+          "GenTender/TENDER-32616403656: primary card not verified",
+          "GenTender/TENDER-32616406750: primary card not verified",
+          "GenTender/TENDER-32616417366: primary card not verified",
+          "GenTender/TENDER-32616441034: primary card not verified",
+          "GenTender/TENDER-32616443194: primary card not verified",
+          "GenTender/TENDER-pp-need-6231987: primary card not verified",
+          "GenTender: primary-card resolution budget reached",
+          "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+          "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+          "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+          "VK: no primary-post collector configured",
+          "duckduckgo: duckduckgo: challenge or access restriction",
+          "google: google: result markup not verified"
+        ]
+      },
+      "delivery": {
+        "checked": 0,
+        "confirmed": 0,
+        "pending": 5,
+        "missing_records": 5,
+        "duplicate_routes": 0,
+        "suppressed": 0,
+        "service_rows": 0,
+        "ok": false,
+        "mode": "read-only-sheet-reconciliation"
+      },
+      "backlog": {
+        "checked": 131,
+        "confirmed": 124,
+        "pending": 7,
+        "missing_records": 0,
+        "duplicate_routes": 4,
+        "suppressed": 8,
+        "service_rows": 0,
+        "ok": false
+      },
+      "finished_at": "2026-10-07T20:19:40.241681+03:00"
     }
   }
 }

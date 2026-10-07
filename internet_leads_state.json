@@ -147,25 +147,46 @@
     "WEB-PROFI-117d199ca492e6f83a39": "2026-10-07T12:25:00.695835+00:00"
   },
   "last_run": {
-    "at": "2026-10-07T12:25:00.696865+00:00",
-    "cycleKey": "2026-10-07 14:00 EXTRA 37620244066.1",
-    "run_id": "37620244066.1",
+    "at": "2026-10-07T17:17:31.262921+00:00",
+    "cycleKey": "2026-10-07 18:00 EXTRA 37657361170.1",
+    "run_id": "37657361170.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
+      "Web discovery page https://www.sands.com/company/leadership/patrick-dumont/: HTTP Error 400: Bad Request",
+      "Web discovery page https://www.sands.com/news/sands-new-chairman-ceo-outlines-companys-strategic-priorities/: HTTP Error 400: Bad Request",
+      "Web discovery page https://www.theofficialboard.com/org-chart/las-vegas-sands: HTTP Error 403: Forbidden",
+      "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-lyuboy-vozit-pesok-66176cc9: HTTP Error 410: Gone",
-      "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+      "Web discovery page https://businesstech.co.za/news/business/877587/the-man-who-received-a-special-r51-million-award-from-woolworths/: HTTP Error 403: Forbidden",
+      "Web discovery page https://dailyinvestor.com/retail/139912/new-woolworths-ceo-brings-in-the-big-guns/: HTTP Error 403: Forbidden",
+      "Web discovery page https://www.wikiwand.com/en/Monarchy_of_Monaco: HTTP Error 403: Forbidden",
+      "Web discovery page https://people.com/royals/all-about-monaco-royal-family-tree/: HTTP Error 403: Forbidden",
+      "Web discovery page https://www.theofficialboard.com/org-chart/bytedance: HTTP Error 403: Forbidden",
+      "Web discovery page https://www.theofficialboard.com/org-chart/apple-music: HTTP Error 403: Forbidden",
+      "Web discovery page https://www.businesswire.com/news/home/20250513712025/en/UnitedHealth-Group-Announces-Leadership-Transition: The read operation timed out",
+      "send WEB-PROFI-076b7b58fce393f87dde: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+      "send WEB-PROFI-252a092cb4bb14398b0d: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+      "send WEB-PROFI-08afd620ba38529d6b30: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+      "send WEB-PROFI-5c007790e7ad6ee5efa6: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed",
+      "send WEB-PROFI-d2e0482284e5c8b99041: DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed"
     ],
-    "candidates": 9,
-    "duplicates_local": 0,
+    "candidates": 8,
+    "duplicates_local": 3,
     "deferred": 0,
-    "new": 2,
+    "new": 0,
     "sent": 0,
-    "errors": 4,
+    "errors": 19,
     "search_mode": "Standard",
-    "accepted": 9,
-    "duplicates_server": 7,
-    "delivery_pending": 9,
-    "metrics_version": 2
+    "accepted": 0,
+    "duplicates_server": 0,
+    "delivery_pending": 0,
+    "metrics_version": 2,
+    "runtime_version": "2026-10-07.2",
+    "unchecked_sources": [
+      "duckduckgo: duckduckgo: challenge or access restriction",
+      "google: google: result markup not verified"
+    ],
+    "discovery_seconds": 4.53
   }
 }
