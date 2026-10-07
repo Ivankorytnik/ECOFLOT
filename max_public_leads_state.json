@@ -1,15 +1,38 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-07T17:17:43.090662+00:00",
-    "cycleKey": "2026-10-07 18:00 EXTRA 37657361170.1",
-    "run_id": "37657361170.1",
-    "error_details": [],
+    "at": "2026-10-07T19:24:48.583568+00:00",
+    "cycleKey": "2026-10-07 18:00 EXTRA 37673828331.1",
+    "run_id": "37673828331.1",
+    "error_details": [
+      "site:max.ru нужен самосвал Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "site:max.ru нужен контейнер мусор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: result markup not verified",
+      "site:max.ru нужен контейнер мусор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru требуется экскаватор Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru требуется экскаватор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru требуется экскаватор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru требуется спецтехника Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru требуется спецтехника Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru требуется спецтехника Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru демонтаж Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru демонтаж Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru демонтаж Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru работа для самосвалов Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru работа для самосвалов Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru работа для самосвалов Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru нужен тонар Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru нужен тонар Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru погрузка грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru перевозка ПГС Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+    ],
     "sent": 0,
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 0,
+    "errors": 22,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -21,9 +44,11 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: result markup not verified",
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 5.71
+    "discovery_seconds": 2.16
   }
 }
