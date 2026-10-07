@@ -9,6 +9,7 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from server_protocol import receipt_target
 
 MSK = ZoneInfo('Europe/Moscow')
 SLOTS = {'0,12,32 5 * * *': 8, '0,12,32 11 * * *': 14, '0,12,32 15 * * *': 18}
@@ -37,7 +38,7 @@ def refreshed_state(previous, rows, expected, receipts, audit, now=None):
     delivery = audit(rows, expected, ids)
     found_ids = {str(row[0]) for row in rows if row}
     unresolved_duplicates = {rid for rid, item in items.items()
-                             if item.get('duplicate') is True and rid not in found_ids}
+                             if item.get('duplicate') is True and receipt_target(rid, item) not in found_ids}
     delivery['unresolved_duplicate_references'] = len(unresolved_duplicates)
     delivery['pending_new_or_known_records'] = max(
         0, delivery.get('pending', 0) - len(unresolved_duplicates))

@@ -16,6 +16,7 @@ import search_reliability as r
 from source_repair import ENGINES, UnverifiedSearch, host_is, resolve_catalogue_card
 from urllib.parse import quote
 from search_topic import parse_results
+from server_protocol import verified_alias, remember_alias, canonical_request_ids
 
 WORKERS = frozenset(('internet_leads_monitor', 'social_leads_monitor',
                      'max_leads_monitor', 'tender_monitor', 'object_leads_monitor'))
@@ -28,7 +29,8 @@ def strict_acknowledged(response, request_id):
     if returned and returned != str(request_id):
         return False
     if response.get('duplicate') is True:
-        return returned == str(request_id) and response.get('duplicateReason') in (None, 'request_id')
+        return bool(verified_alias(response, request_id)) or (
+            returned == str(request_id) and response.get('duplicateReason') in (None, 'request_id'))
     return bool(returned or response.get('callbackKey') or r.int_value(response.get('row')) or
                 r.int_value(response.get('rowNumber')) or response.get('saved') is True or
                 response.get('created') is True)
@@ -113,7 +115,9 @@ def configured_worker(name):
             if not strict_acknowledged(response, request_id):
                 record_identity_conflict(request_id, response, source)
                 raise RuntimeError('DUPLICATE_IDENTITY_UNVERIFIED: retained for review, not processed')
-        return original_record(request_id, response, source)
+        result = original_record(request_id, response, source)
+        remember_alias(request_id, response, r)
+        return result
     # Import before binding so no import-time aliases outlive this context.
     internet = importlib.import_module('internet_leads_monitor')
     module = importlib.import_module(name)
@@ -199,6 +203,7 @@ def configured_worker(name):
 def audit_delivery(rows, expected, request_ids=None):
     """Suppressed expired records are not deliveries and not live retry backlog."""
     result = dict(checked=0, confirmed=0, pending=0, missing_records=0, duplicate_routes=0, suppressed=0, service_rows=0)
+    request_ids = canonical_request_ids(request_ids, r)
     found = set()
     for row in rows:
         rid, value, key, status = (list(row) + [''] * 4)[:4]
