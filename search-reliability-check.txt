@@ -1,1 +1,1 @@
-2026-10-07 reliability audit: one real controlled extra cycle after source and scheduling repairs. Do not replay historic leads.
+2026-10-07 verification of deployed search runtime 1a9936a0f1786687adeaff9774822187b3cc3b4e. Run one normal controlled extra cycle through the existing coordinator; preserve deduplication state and never replay previously sent cards.
