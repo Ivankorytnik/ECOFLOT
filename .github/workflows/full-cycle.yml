@@ -1,9 +1,10 @@
 name: ECOFLOT full cycle
 on:
   schedule:
-    # Target slots are 08:00, 14:00 and 18:00 Europe/Moscow.
-    # Backup wake-ups use the same persistent slot ledger, not another search.
-    - cron: '0,12,32 5,11,15 * * *'
+    # Separate expressions preserve each slot's identity after queue delays.
+    - cron: '0,12,32 5 * * *'
+    - cron: '0,12,32 11 * * *'
+    - cron: '0,12,32 15 * * *'
   workflow_dispatch:
     inputs:
       force:
@@ -39,14 +40,15 @@ jobs:
       - name: Validate search contracts
         run: |
           python3 -m compileall -q scripts
-          python3 -m unittest discover -s scripts -p 'test_search_reliability.py' -v
-      - name: Run one orchestrated cycle
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
+      - name: Run or reconcile one orchestrated cycle
         env:
           MAX_SEND: '100'
           RECENT_DAYS: '7'
           SUPPRESS_NO_RESULTS: '1'
+          ECOFLOT_SCHEDULE: ${{ github.event.schedule }}
           ECOFLOT_FORCE: ${{ (github.event_name == 'push' || inputs.force) && '1' || '0' }}
-        run: python3 -u scripts/full_cycle_orchestrator.py
+        run: python3 -u scripts/scheduled_cycle_runner.py
       - name: Persist state even after source or delivery failure
         if: always()
         run: bash scripts/persist_search_state.sh

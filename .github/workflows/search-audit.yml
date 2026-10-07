@@ -4,8 +4,10 @@ on:
   push:
     paths:
       - '.github/workflows/search-audit.yml'
+      - '.github/workflows/full-cycle.yml'
       - 'scripts/search_reliability.py'
-      - 'scripts/test_search_reliability.py'
+      - 'scripts/scheduled_cycle_runner.py'
+      - 'scripts/test_search_*.py'
 permissions:
   contents: read
 jobs:
@@ -17,13 +19,27 @@ jobs:
       - name: Validate Python syntax and reliability tests
         run: |
           python3 -m compileall -q scripts
-          if [ -f scripts/test_search_reliability.py ]; then python3 -m unittest discover -s scripts -p 'test_search_reliability.py' -v; fi
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
+      - name: Collect live receipt evidence without sends or remote writes
+        run: |
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, 'scripts')
+          import full_cycle_orchestrator as c
+          import scheduled_cycle_runner as r
+          previous = c.load_json(c.STATE_FILE)
+          if previous.get('status') in c.TERMINAL:
+              result = r.refresh_previous(c, previous, c.load_json(c.HISTORY_FILE, {'cycles': {}}))
+              print('EVIDENCE_CYCLE_EXIT_CODE', result)
+              # Partial search status is evidence, not a unit-test failure.
+              # This job has no write permission and never invokes a search or POST.
+          PY
       - name: Read-only audit snapshot
         if: always()
         run: |
           mkdir -p audit-snapshot
           cp -r scripts .github apps-script index.html audit-snapshot/
-          find . -maxdepth 1 -type f \( -name '*state.json' -o -name '*queue.json' -o -name '*config*.json' -o -name '*trigger.txt' -o -name '*.gs' -o -name '*.js' -o -name '*.md' \) -exec cp {} audit-snapshot/ \;
+          find . -maxdepth 1 -type f \( -name '*state.json' -o -name '*queue.json' -o -name '*config*.json' -o -name '*trigger.txt' -o -name '*.gs' -o -name '*.js' -o -name '*.md' -o -name 'search_cycle_history.json' -o -name 'search_delivery_receipts.json' \) -exec cp {} audit-snapshot/ \;
           find . -maxdepth 1 -type f -printf '%f\n' | sort > audit-snapshot/root-files.txt
       - uses: actions/upload-artifact@v4
         if: always()
