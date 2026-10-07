@@ -6,8 +6,9 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 from search_reliability import (MSK, load_json, atomic_json, run_id, scheduled_cycle,
-    aggregate, sheet_rows, active_chats, RECEIPTS)
+    aggregate, sheet_rows, RECEIPTS)
 from search_runtime import audit_delivery
+from search_recipients import active_chats
 
 STATE_FILE = Path('full_cycle_state.json')
 HISTORY_FILE = Path('search_cycle_history.json')
@@ -59,6 +60,8 @@ def main():
         env['ECOFLOT_EXPECTED_CHATS'] = ','.join(sorted(expected))
     except Exception as exc:
         state['preflight_errors'].append(str(exc))
+    state['expected_recipient_count'] = len(expected)
+    state['expected_chats'] = sorted(expected)
     for name, scripts, state_paths, timeout in CONTOURS:
         print('START_CONTOUR', name, cycle, flush=True)
         codes = []
