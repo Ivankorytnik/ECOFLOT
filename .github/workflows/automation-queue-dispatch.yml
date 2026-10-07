@@ -1,35 +1,16 @@
-name: ECOFLOT automation queue dispatcher
-
+name: ECOFLOT legacy automation queue (manual safety hold)
+# Legacy payloads are retained, never deleted or automatically replayed.
+# Search delivery is owned by full-cycle.yml and the native Telegram queue.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "automation_queue/**"
-      - "scripts/automation_queue_dispatch.py"
-      - ".github/workflows/automation-queue-dispatch.yml"
   workflow_dispatch:
-
 permissions:
-  contents: write
-
-concurrency:
-  group: ecoflot-automation-queue-dispatch
-  cancel-in-progress: false
-
+  contents: read
 jobs:
-  dispatch:
+  safety-hold:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Dispatch queued records through Apps Script
-        run: python3 scripts/automation_queue_dispatch.py
-      - name: Remove processed queue files
+      - name: Explain the blocked legacy dispatcher
         run: |
-          if [ -n "$(git status --porcelain automation_queue)" ]; then
-            git config user.name "ecoflot-bot"
-            git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add -A automation_queue
-            git commit -m "Consume ECOFLOT automation queue"
-            git pull --rebase origin main
-            git push origin main
-          fi
+          echo 'Legacy queue replay is disabled: duplicate=true and telegramSent counts are not delivery receipts.'
+          echo 'Review existing records and native Telegram routes before re-enqueueing missing recipients.'
+          exit 1

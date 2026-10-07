@@ -1,45 +1,11 @@
 name: ECOFLOT internet leads monitor
-
+# Legacy manual entry point. Automatic triggers belong to full-cycle.yml only.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - "internet-manual-trigger.txt"
-
 permissions:
   contents: write
-
-concurrency:
-  group: ecoflot-search-state
-  cancel-in-progress: false
-
 jobs:
-  monitor:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Scan public internet requests
-        id: scan
-        continue-on-error: true
-        env:
-          MAX_SEND: "50"
-          RECENT_DAYS: "7"
-          SUPPRESS_NO_RESULTS: "1"
-        run: python3 scripts/internet_leads_monitor.py
-
-      - name: Save processed request IDs
-        if: always()
-        continue-on-error: true
-        run: |
-          if [ -n "$(git status --porcelain internet_leads_state.json telegram_retry_queue.json)" ]; then
-            git config user.name "ecoflot-bot"
-            git config user.email "ecoflot-bot@users.noreply.github.com"
-            git add internet_leads_state.json telegram_retry_queue.json 2>/dev/null || git add internet_leads_state.json
-            git commit -m "Update internet leads monitor state" || true
-            git pull --rebase origin main || true
-            git push origin main || true
-          fi
-
+  coordinated-search:
+    uses: ./.github/workflows/full-cycle.yml
+    with:
+      force: true

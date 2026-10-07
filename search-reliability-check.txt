@@ -1,0 +1,1 @@
+2026-10-07 reliability audit: one real controlled extra cycle after source and scheduling repairs. Do not replay historic leads.
