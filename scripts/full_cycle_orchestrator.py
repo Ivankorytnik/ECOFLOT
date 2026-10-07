@@ -6,7 +6,8 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 from search_reliability import (MSK, load_json, atomic_json, run_id, scheduled_cycle,
-    aggregate, sheet_rows, active_chats, audit_delivery, RECEIPTS)
+    aggregate, sheet_rows, active_chats, RECEIPTS)
+from search_runtime import audit_delivery
 
 STATE_FILE = Path('full_cycle_state.json')
 HISTORY_FILE = Path('search_cycle_history.json')
@@ -61,9 +62,16 @@ def main():
     for name, scripts, state_paths, timeout in CONTOURS:
         print('START_CONTOUR', name, cycle, flush=True)
         codes = []
+        if state['preflight_errors']:
+            result = {key: 0 for key in ('new', 'duplicates', 'accepted', 'sent', 'delivery_pending')}
+            result.update(status='error', errors=1, unchecked_sources=[name + ': preflight failed'],
+                          error_details=list(state['preflight_errors']), exit_codes=[], state_found=False)
+            state['contours'][name] = result
+            atomic_json(STATE_FILE, state)
+            continue
         for script in scripts:
             try:
-                result = subprocess.run(['python3', '-u', 'scripts/'+script], env=env, timeout=timeout)
+                result = subprocess.run(['python3', '-u', 'scripts/search_runtime.py', script], env=env, timeout=timeout)
                 codes.append(result.returncode)
             except (subprocess.TimeoutExpired, OSError) as exc:
                 print('CONTOUR_ERROR', script, str(exc), flush=True)
