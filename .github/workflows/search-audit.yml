@@ -22,8 +22,9 @@ jobs:
         if: always()
         run: |
           mkdir -p audit-snapshot
-          cp -r scripts .github audit-snapshot/
-          find . -maxdepth 1 -type f \( -name '*state.json' -o -name '*queue.json' -o -name '*config*.json' -o -name '*trigger.txt' \) -exec cp {} audit-snapshot/ \;
+          cp -r scripts .github apps-script audit-snapshot/
+          find . -maxdepth 1 -type f \( -name '*state.json' -o -name '*queue.json' -o -name '*config*.json' -o -name '*trigger.txt' -o -name '*.gs' -o -name '*.js' -o -name '*.md' \) -exec cp {} audit-snapshot/ \;
+          find . -maxdepth 1 -type f -printf '%f\n' | sort > audit-snapshot/root-files.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
