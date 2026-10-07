@@ -1,12 +1,12 @@
 {
-  "cycleKey": "2026-10-06 18:00",
-  "started_at": "2026-10-06T23:07:27.960859+03:00",
+  "cycleKey": "2026-10-07 14:00",
+  "started_at": "2026-10-07T14:39:04.529782+03:00",
   "status": "SEARCH_COMPLETE",
   "contours": {
     "Internet Leads": {
       "new": 0,
       "duplicates": 0,
-      "errors": 5,
+      "errors": 4,
       "unchecked_sources": [],
       "state_found": true,
       "exit_codes": [
@@ -32,9 +32,9 @@
       "status": "ok"
     },
     "Tender Watch": {
-      "new": 5,
+      "new": 6,
       "duplicates": 0,
-      "errors": 2,
+      "errors": 7,
       "unchecked_sources": [],
       "state_found": true,
       "exit_codes": [
@@ -54,9 +54,9 @@
       "status": "ok"
     }
   },
-  "search_finished_at": "2026-10-06T23:14:03.126772+03:00",
+  "search_finished_at": "2026-10-07T14:45:18.895668+03:00",
   "totals": {
-    "new": 5,
+    "new": 6,
     "duplicates": 0,
     "unchecked_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц",
@@ -70,5 +70,5 @@
     "mode": "inline-per-record",
     "note": "No generic process-outbox webhook call"
   },
-  "finished_at": "2026-10-06T23:14:03.126794+03:00"
+  "finished_at": "2026-10-07T14:45:18.895703+03:00"
 }
