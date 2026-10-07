@@ -1,0 +1,33 @@
+name: ECOFLOT search audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/search-audit.yml'
+      - 'scripts/search_reliability.py'
+      - 'scripts/test_search_reliability.py'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python syntax and reliability tests
+        run: |
+          python3 -m compileall -q scripts
+          if [ -f scripts/test_search_reliability.py ]; then python3 -m unittest discover -s scripts -p 'test_search_reliability.py' -v; fi
+      - name: Read-only audit snapshot
+        if: always()
+        run: |
+          mkdir -p audit-snapshot
+          cp -r scripts .github audit-snapshot/
+          find . -maxdepth 1 -type f \( -name '*state.json' -o -name '*queue.json' -o -name '*config*.json' -o -name '*trigger.txt' \) -exec cp {} audit-snapshot/ \;
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-search-audit
+          path: audit-snapshot/
+          include-hidden-files: true
+          retention-days: 7
