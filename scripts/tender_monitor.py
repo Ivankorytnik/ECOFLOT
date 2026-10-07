@@ -9,6 +9,8 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+from search_reliability import (load_json as reliable_load, atomic_json, finish_metrics,
+    record_lead_result, delivery_confirmed, run_id, parse_deadline, tender_service_demand, MSK)
 
 from internet_leads_monitor import (
     parse_webhook_response,
@@ -180,7 +182,7 @@ def valid_tender_card_link(entry) -> bool:
 
     # Главные, каталожные и поисковые страницы не считаются карточкой.
     listing_only = (
-        "/search/" in path and not re.search(r"\d{5,}", full),
+        path.rstrip("/").endswith("/search") or "/search/" in path,
         path.rstrip("/") in ("/torgi", "/trades", "/tenders", "/search-tender"),
         path.rstrip("/").endswith("/catalog"),
     )
@@ -211,6 +213,8 @@ def load_sheet_request_ids():
         raw = fetch(url)
         m = re.search(r"google\.visualization\.Query\.setResponse\((.*)\);?\s*$", raw, re.S)
         payload = json.loads(m.group(1) if m else raw)
+        if payload.get("status") != "ok" or "table" not in payload:
+            raise RuntimeError("SHEET_DEDUPE_UNAVAILABLE")
         ids = set()
         for row in payload.get("table", {}).get("rows", []):
             cells = row.get("c") or []
@@ -226,7 +230,7 @@ def load_sheet_request_ids():
         return ids, True
     except Exception as exc:
         print("SHEET_DEDUPE_WARNING:", exc, file=sys.stderr)
-        return set(), False
+        raise RuntimeError("SHEET_DEDUPE_UNAVAILABLE: refusing unsafe resend") from exc
 
 def extract_cards(page: str, source_region: str):
     out = []
@@ -553,19 +557,14 @@ def relevant(entry):
     return False
 
 def load_state():
-    if not STATE_PATH.exists():
-        return {"sent": {}}
-    try:
-        return json.loads(STATE_PATH.read_text("utf-8"))
-    except Exception:
-        return {"sent": {}}
+    return reliable_load(STATE_PATH, {"sent": {}})
 
 def save_state(state):
     sent = state.get("sent", {})
     if len(sent) > 3000:
         recent = sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:3000]
         state["sent"] = dict(recent)
-    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    atomic_json(STATE_PATH, state)
 
 def send_webhook(entry):
     procurement_id = canonical_tender_id(entry)
@@ -582,7 +581,7 @@ def send_webhook(entry):
         "type": "Тендер",
         "name": entry["title"][:250],
         "phone": "-",
-        "wasteType": "Вывоз / транспортирование отходов",
+        "wasteType": entry["title"][:140],
         "volume": "-",
         "when": entry["deadline"] or "Активная закупка",
         "address": entry["region"],
@@ -600,6 +599,7 @@ def send_webhook(entry):
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
         resp = parse_webhook_response(r.status, body, "Tender webhook")
+    record_lead_result(request_id_for(entry), resp, "Tender Watch")
 
     if not telegram_delivery_confirmed(resp):
         print("TELEGRAM_DELIVERY_PENDING: queued/reconcile required for current cycle", flush=True)
@@ -616,6 +616,7 @@ def send_no_results_message():
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
+    legacy_local = state.get("last_run", {}).get("metrics_version") != 2
     sheet_request_ids, sheet_ok = load_sheet_request_ids()
     print(f"SHEET_DEDUPE: {'ok' if sheet_ok else 'fallback-to-state'}, ids={len(sheet_request_ids)}")
     candidates = []
@@ -637,7 +638,7 @@ def main():
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
                     continue
-                if entry["id"] in KNOWN_ALREADY_SENT or key in sent or key in seen:
+                if entry["id"] in KNOWN_ALREADY_SENT or (not legacy_local and key in sent) or key in seen:
                     continue
                 seen.add(key)
                 candidates.append((entry, key))
@@ -657,7 +658,7 @@ def main():
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
                     continue
-                if key in sent or key in seen:
+                if (not legacy_local and key in sent) or key in seen:
                     continue
                 seen.add(key)
                 candidates.append((entry, key))
@@ -683,7 +684,7 @@ def main():
             request_id = request_id_for(entry)
             if request_id in sheet_request_ids:
                 continue
-            if key in sent or key in seen:
+            if (not legacy_local and key in sent) or key in seen:
                 continue
             seen.add(key)
             candidates.append((entry, key))
@@ -704,7 +705,7 @@ def main():
                 request_id = request_id_for(entry)
                 if request_id in sheet_request_ids:
                     continue
-                if key in sent or key in seen:
+                if (not legacy_local and key in sent) or key in seen:
                     continue
                 seen.add(key)
                 candidates.append((entry, key))
@@ -712,7 +713,19 @@ def main():
             errors.append(f"{source_label}: {exc}")
 
     # Финальный предохранитель: без ссылки на карточку тендер не отправляется.
-    candidates = [(entry, key) for entry, key in candidates if valid_tender_card_link(entry) and allowed_region(entry)]
+    screened = []
+    rejected = []
+    for entry, key in candidates:
+        deadline = parse_deadline(entry.get("deadline"))
+        reason = ("no-specific-card" if not valid_tender_card_link(entry) else
+                  "wrong-region" if not allowed_region(entry) else
+                  "not-service-demand" if not tender_service_demand(entry.get("title")) else
+                  "deadline-unverified-or-closed" if deadline is None or deadline <= datetime.now(MSK) else "")
+        if reason:
+            rejected.append({"id": entry.get("id"), "reason": reason})
+        else:
+            screened.append((entry, key))
+    candidates = screened
 
     sent_count = 0
     for entry, key in candidates[:MAX_SEND]:
@@ -721,11 +734,12 @@ def main():
             sent[key] = datetime.now(timezone.utc).isoformat()
             sheet_request_ids.add(request_id_for(entry))
             sent_count += 1
-            print("SENT:", entry["id"], entry["title"][:140], entry["price"], entry["deadline"])
+            save_state(state)
+            print("ACCEPTED:", entry["id"], entry["title"][:140], entry["price"], entry["deadline"])
         except Exception as exc:
             errors.append(f"send {entry['id']}: {exc}")
 
-    if sent_count == 0 and len(errors) < (
+    if os.environ.get("SUPPRESS_NO_RESULTS", "0") != "1" and sent_count == 0 and len(errors) < (
         len(SOURCES) + len(DIRECT_SOURCES) + len(TELEGRAM_TENDER_SOURCES)
         + len(TENDER_WEB_DISCOVERY_QUERIES)
     ):
@@ -738,10 +752,15 @@ def main():
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
+        "run_id": run_id(),
+        "error_details": errors,
         "candidates": len(candidates),
+        "rejected": rejected,
+        "deferred": max(0, len(candidates) - MAX_SEND),
         "sent": sent_count,
         "errors": len(errors),
     }
+    finish_metrics(state)
     save_state(state)
     print(f"Found new active relevant: {len(candidates)}, sent: {sent_count}, errors: {len(errors)}")
     for e in errors:

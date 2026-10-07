@@ -9,6 +9,8 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from search_reliability import (load_json as reliable_load, atomic_json, finish_metrics,
+    record_lead_result, delivery_confirmed, run_id, parse_deadline, tender_service_demand, MSK)
 
 from internet_leads_monitor import (
     WEBHOOK,
@@ -82,16 +84,13 @@ EXCLUDE = (
 )
 
 def load_state():
-    try:
-        return json.loads(STATE_PATH.read_text("utf-8"))
-    except Exception:
-        return {"sent": {}}
+    return reliable_load(STATE_PATH, {"sent": {}})
 
 def save_state(state):
     sent = state.get("sent", {})
     if len(sent) > 5000:
         state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:5000])
-    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    atomic_json(STATE_PATH, state)
 
 def max_title(text):
     parts = [x.strip(" -—–•\t") for x in re.split(r"[\r\n]+|(?<=[.!?])\s+", text or "") if x.strip()]
@@ -186,6 +185,7 @@ def send_no_results():
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
+    legacy_local = state.get("last_run", {}).get("metrics_version") != 2
     sheet_ids, sheet_links, sheet_sigs, _ = load_sheet_index()
     urls = []
     errors = []
@@ -233,7 +233,7 @@ def main():
     new_items = []
     for item in candidates:
         sig = signature(item["title"], item["location"], item["description"])
-        if item["request_id"] in sent or item["request_id"] in sheet_ids:
+        if (not legacy_local and item["request_id"] in sent) or item["request_id"] in sheet_ids:
             continue
         if item["url"] in sheet_links or sig in sheet_sigs:
             continue
@@ -247,7 +247,8 @@ def main():
             send_webhook(item)
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
             sent_count += 1
-            print("SENT:", item["score"], item["request_id"], item["title"][:120])
+            save_state(state)
+            print("ACCEPTED:", item["score"], item["request_id"], item["title"][:120])
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
 
@@ -267,11 +268,16 @@ def main():
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
+        "run_id": run_id(),
+        "error_details": errors,
         "sent": sent_count,
         "candidates": len(candidates),
+        "duplicates_local": len(candidates) - len(new_items),
+        "deferred": max(0, len(new_items) - MAX_SEND),
         "errors": len(errors),
         "unverified_sources": unverified_sources,
     }
+    finish_metrics(state)
     save_state(state)
 
     print(f"MAX candidates: {len(candidates)}, new: {len(new_items)}, sent: {sent_count}, errors: {len(errors)}")

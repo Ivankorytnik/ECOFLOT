@@ -12,6 +12,8 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from search_reliability import (load_json as reliable_load, atomic_json, finish_metrics,
+    record_lead_result, delivery_confirmed, run_id, parse_deadline, tender_service_demand, MSK)
 
 WEBHOOK = os.environ.get(
     "ECOFLOT_WEBHOOK",
@@ -78,6 +80,7 @@ REGISTRATION_GATED_DOMAINS = (
 # контакты заказчика раскрываются только после входа. В таком случае сама
 # карточка заказа считается допустимым маршрутом контакта.
 CONTACT_GATED_ALLOWED_DOMAINS = (
+    "profi.ru", "www.profi.ru",
     "vezetvsem.ru", "www.vezetvsem.ru",
 )
 
@@ -363,6 +366,8 @@ def ensure_public_contact(item):
         return False, "registration-gated"
 
     phone = str(item.get("phone") or "").strip()
+    if len(normalize_phone(phone)) not in (10, 11):
+        phone = ""
     contact_url = str(item.get("contact_url") or "").strip()
     if contact_url and not (contact_url.startswith("mailto:") or is_public_contact_url(contact_url)):
         contact_url = ""
@@ -383,7 +388,13 @@ def ensure_public_contact(item):
     if not phone and not contact_url:
         # Исключение допустимо только для площадки, где конкретная карточка
         # заказа является маршрутом отклика. Общая страница категории не годится.
-        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and not is_listing_url_for_dedupe(item):
+        identified_profi = (
+            _host_matches(source_url, ("profi.ru",))
+            and re.fullmatch(r"WEB-PROFI-[a-f0-9]{20}", str(item.get("request_id", "")))
+            and len(str(item.get("description", ""))) >= 20
+            and item.get("location") and profi_recent(item.get("date", ""))
+        )
+        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and (not is_listing_url_for_dedupe(item) or identified_profi):
             contact_url = source_url
         else:
             return False, "no-public-contact-or-direct-order-link"
@@ -415,14 +426,7 @@ def is_listing_url_for_dedupe(item):
 
 
 def contact_dedupe_keys(item):
-    keys = []
-    phone = normalize_phone(item.get("phone"))
-    if phone:
-        keys.append("contact:tel:" + phone)
-    contact_url = str(item.get("contact_url") or "").strip().lower()
-    if contact_url and not is_listing_url_for_dedupe(item):
-        keys.append("contact:url:" + contact_url)
-    return keys
+    return []  # Dedupe by request ID, direct order URL and content signature instead.
 
 def parse_webhook_response(status, body, context="webhook"):
     if not (200 <= status < 300):
@@ -445,43 +449,9 @@ def _truthy_delivery(value):
     return False
 
 def telegram_delivery_confirmed(resp):
-    if not isinstance(resp, dict):
-        return False
+    return delivery_confirmed(resp)
 
-    if resp.get("duplicate") is True:
-        return True
-
-    direct_keys = (
-        "telegramOk", "telegram_ok", "telegramSent", "telegram_sent",
-        "telegramDelivered", "telegram_delivered",
-    )
-    for key in direct_keys:
-        if _truthy_delivery(resp.get(key)):
-            return True
-
-    telegram = resp.get("telegram")
-    if _truthy_delivery(telegram):
-        return True
-    if isinstance(telegram, dict) and any(
-        _truthy_delivery(telegram.get(key))
-        for key in ("ok", "sent", "delivered", "count")
-    ):
-        return True
-
-    delivery = resp.get("delivery")
-    if isinstance(delivery, dict):
-        tg = delivery.get("telegram")
-        if _truthy_delivery(tg):
-            return True
-        if isinstance(tg, dict) and any(
-            _truthy_delivery(tg.get(key))
-            for key in ("ok", "sent", "delivered", "count")
-        ):
-            return True
-
-    return False
-
-def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", attempts=3):
+def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", attempts=1):
     payload = json.dumps({
         "mode": "notify-only",
         "message": message,
@@ -501,6 +471,8 @@ def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", 
             with urllib.request.urlopen(req, timeout=30) as r:
                 body = r.read().decode("utf-8", "replace")
                 resp = parse_webhook_response(r.status, body, "Telegram notify-only")
+                if not telegram_delivery_confirmed(resp):
+                    raise RuntimeError("NOTIFY_DELIVERY_UNCONFIRMED")
                 print(
                     "TELEGRAM_NOTIFY_ACK:",
                     json.dumps(resp, ensure_ascii=False)[:500],
@@ -636,10 +608,11 @@ def parse_date(text):
         return None
 
 def is_recent(date_text):
-    dt = parse_date(date_text)
-    if not dt:
-        return True
-    return datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS)
+    dt = parse_date(date_text) or parse_profi_relative_date(date_text) or parse_deadline(date_text)
+    if dt is None:
+        return False
+    age = datetime.now(timezone.utc) - dt
+    return timedelta(0) <= age <= timedelta(days=RECENT_DAYS)
 
 def extract_volume(text):
     patterns = [
@@ -791,7 +764,7 @@ def load_sheet_index():
         "sheet": SHEET_NAME,
         "headers": "1",
         "tqx": "out:json",
-        "tq": "select C,D,H,K,L where L is not null",
+        "tq": "select C,D,H,K,L,N where L is not null",
     })
     url = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?{params}"
     ids, links, sigs = set(), set(), set()
@@ -799,6 +772,8 @@ def load_sheet_index():
         raw = fetch(url)
         m = re.search(r"google\.visualization\.Query\.setResponse\((.*)\);?\s*$", raw, re.S)
         payload = json.loads(m.group(1) if m else raw)
+        if payload.get("status") != "ok" or "table" not in payload:
+            raise RuntimeError("SHEET_DEDUPE_UNAVAILABLE")
         for row in payload.get("table", {}).get("rows", []):
             cells = row.get("c") or []
             vals = []
@@ -810,9 +785,11 @@ def load_sheet_index():
                 if v is None:
                     v = cell.get("f")
                 vals.append(str(v or "").strip())
-            while len(vals) < 5:
+            while len(vals) < 6:
                 vals.append("")
-            title, phone, address, comment, request_id = vals[:5]
+            title, phone, address, comment, request_id, direct_link = vals[:6]
+            if direct_link:
+                links.add(direct_link)
             if request_id:
                 ids.add(request_id)
             phone_key = normalize_phone(phone)
@@ -829,22 +806,17 @@ def load_sheet_index():
         return ids, links, sigs, True
     except Exception as exc:
         print("SHEET_DEDUPE_WARNING:", exc, file=sys.stderr)
-        return ids, links, sigs, False
+        raise RuntimeError("SHEET_DEDUPE_UNAVAILABLE: refusing unsafe resend") from exc
 
 def load_state():
-    if not STATE_PATH.exists():
-        return {"sent": {}}
-    try:
-        return json.loads(STATE_PATH.read_text("utf-8"))
-    except Exception:
-        return {"sent": {}}
+    return reliable_load(STATE_PATH, {"sent": {}})
 
 def save_state(state):
     sent = state.get("sent", {})
     if len(sent) > 5000:
         recent = sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:5000]
         state["sent"] = dict(recent)
-    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    atomic_json(STATE_PATH, state)
 
 def npd_listing_links(page):
     links = set()
@@ -1496,9 +1468,9 @@ def parse_profi_relative_date(text):
 
 def profi_recent(date_text):
     dt = parse_profi_relative_date(date_text)
-    if not dt:
-        return True
-    return datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS)
+    if dt is None:
+        return False
+    return timedelta(0) <= datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS)
 
 def parse_profi_orders(page, source_label, source_url):
     out = []
@@ -2173,7 +2145,9 @@ def internet_quality_ready(item):
         return False, "no-direct-link"
     if date_text.lower() in ("", "-", "актуальная заявка"):
         return False, "no-confirmed-date"
-    # Для Internet нужны телефон или допустимый утвержденный маршрут контакта.
+    if not is_recent(date_text):
+        return False, "date-unverified-stale-or-future"
+    # Contact validation follows date verification.
     ok, reason = ensure_public_contact(item)
     if not ok:
         return False, reason
@@ -2232,6 +2206,7 @@ def send_webhook(item):
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
         resp = parse_webhook_response(r.status, body, "Internet lead webhook")
+    record_lead_result(item["request_id"], resp, item.get("source", "Internet Leads"))
 
     if not telegram_delivery_confirmed(resp):
         # Search success and Telegram delivery are separate stages.
@@ -2249,6 +2224,7 @@ def send_no_results_message():
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
+    legacy_local = state.get("last_run", {}).get("metrics_version") != 2
     sheet_ids, sheet_links, sheet_sigs, sheet_ok = load_sheet_index()
     print(
         f"SHEET_DEDUPE: {'ok' if sheet_ok else 'fallback-to-state'}, "
@@ -2306,7 +2282,7 @@ def main():
             continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
-        if request_id in sent or request_id in local_seen:
+        if (not legacy_local and request_id in sent) or request_id in local_seen:
             continue
         local_seen.add(request_id)
         new_items.append(item)
@@ -2324,7 +2300,8 @@ def main():
                 sheet_links.add(key)
             sheet_sigs.add(signature(item["title"], item["location"], item["description"]))
             sent_count += 1
-            print("SENT:", item["source"], item["request_id"], item["title"][:140], item["location"])
+            save_state(state)
+            print("ACCEPTED:", item["source"], item["request_id"], item["title"][:140], item["location"])
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
 
@@ -2346,11 +2323,16 @@ def main():
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
+        "run_id": run_id(),
+        "error_details": errors,
         "candidates": len(candidates),
+        "duplicates_local": len(candidates) - len(new_items),
+        "deferred": max(0, len(new_items) - MAX_SEND),
         "new": len(new_items),
         "sent": sent_count,
         "errors": len(errors),
     }
+    finish_metrics(state)
     save_state(state)
     print(
         f"Internet candidates: {len(candidates)}, new after dedupe: {len(new_items)}, "

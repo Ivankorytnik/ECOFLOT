@@ -1,135 +1,120 @@
 #!/usr/bin/env python3
+"""One coordinator, durable slot ledger and evidence-based completion."""
 import json
 import os
 import subprocess
-import sys
-import urllib.request
 from datetime import datetime
 from pathlib import Path
-from zoneinfo import ZoneInfo
+from search_reliability import (MSK, load_json, atomic_json, run_id, scheduled_cycle,
+    aggregate, sheet_rows, active_chats, audit_delivery, RECEIPTS)
 
-TZ = ZoneInfo("Europe/Moscow")
-STATE_FILE = Path("full_cycle_state.json")
-WEBHOOK = os.environ.get(
-    "ECOFLOT_WEBHOOK",
-    "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec",
-)
-
+STATE_FILE = Path('full_cycle_state.json')
+HISTORY_FILE = Path('search_cycle_history.json')
+SHEET_ID = '1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws'
 CONTOURS = [
-    ("Internet Leads", [["python3", "scripts/internet_leads_monitor.py"]], ["internet_leads_state.json"], 720),
-    ("Telegram/MAX/VK", [
-        ["python3", "scripts/social_leads_monitor.py"],
-        ["python3", "scripts/max_leads_monitor.py"],
-    ], ["social_public_leads_state.json", "max_public_leads_state.json"], 360),
-    ("Tender Watch", [["python3", "scripts/tender_monitor.py"]], ["tender_state.json"], 720),
-    ("Object Leads", [["python3", "scripts/object_leads_monitor.py"]], ["object_leads_state.json"], 360),
+    ('Internet Leads', ['internet_leads_monitor.py'], ['internet_leads_state.json'], 720),
+    ('Telegram/MAX/VK', ['social_leads_monitor.py', 'max_leads_monitor.py'],
+     ['social_public_leads_state.json', 'max_public_leads_state.json'], 360),
+    ('Tender Watch', ['tender_monitor.py'], ['tender_state.json'], 720),
+    ('Object Leads', ['object_leads_monitor.py'], ['object_leads_state.json'], 360),
 ]
+TERMINAL = {'COMPLETE', 'SEARCH_PARTIAL', 'SEARCH_FAILED', 'DELIVERY_PENDING'}
+
 
 def cycle_key(now=None):
-    now = now or datetime.now(TZ)
-    slots = [8, 14, 18]
-    eligible = [h for h in slots if h <= now.hour]
-    if not eligible:
-        prev = now.replace(day=now.day)  # schedule never calls before 08:00
-        return prev.strftime("%Y-%m-%d") + " 08:00"
-    return now.strftime("%Y-%m-%d") + f" {max(eligible):02d}:00"
+    return scheduled_cycle(now)
 
-def load_json(path):
-    try:
-        return json.loads(Path(path).read_text("utf-8"))
-    except Exception:
-        return {}
 
-def save_state(data):
-    STATE_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", "utf-8")
+def exit_code(status):
+    return 0 if status == 'COMPLETE' else 1
 
-def aggregate(paths):
-    sent = candidates = errors = 0
-    unchecked = []
-    found = False
-    for path in paths:
-        state = load_json(path)
-        last = state.get("last_run") or {}
-        if last:
-            found = True
-        sent += int(last.get("sent", 0) or 0)
-        candidates += int(last.get("candidates", 0) or 0)
-        errors += int(last.get("errors", 0) or 0)
-        raw = last.get("unchecked_sources") or last.get("unverified_sources") or []
-        if isinstance(raw, str):
-            raw = [raw]
-        unchecked.extend(str(x) for x in raw if x)
-    return {
-        "new": sent,
-        "duplicates": max(candidates - sent, 0),
-        "errors": errors,
-        "unchecked_sources": sorted(set(unchecked)),
-        "state_found": found,
-    }
 
 def main():
-    cycle = os.environ.get("ECOFLOT_CYCLE_KEY", "").strip() or cycle_key()
-    existing = load_json(STATE_FILE)
-    if existing.get("cycleKey") == cycle and existing.get("status") in {"COMPLETE", "SEARCH_COMPLETE", "DELIVERY_PENDING"}:
-        print("CYCLE_ALREADY_RECORDED", cycle, existing.get("status"))
-        return 0
-
-    state = {
-        "cycleKey": cycle,
-        "started_at": datetime.now(TZ).isoformat(),
-        "status": "STARTED",
-        "contours": {},
-    }
-    save_state(state)
-
+    cycle = os.environ.get('ECOFLOT_CYCLE_KEY', '').strip() or cycle_key()
+    extra = os.environ.get('ECOFLOT_FORCE') == '1'
+    if extra:
+        cycle += ' EXTRA ' + run_id()
+    history = load_json(HISTORY_FILE, {'cycles': {}})
+    previous = history['cycles'].get(cycle)
+    retry_failed = previous and previous.get('status') == 'SEARCH_FAILED' and previous.get('attempts', 1) < 2
+    if previous and previous.get('status') in TERMINAL and not retry_failed:
+        print('CYCLE_ALREADY_RECORDED', cycle, previous['status'], flush=True)
+        # Repeated cron wake-ups do not repeat POSTs or pretend a failed slot passed.
+        return exit_code(previous['status'])
+    state = {'attempts': (previous or {}).get('attempts', 0) + 1, 'schema_version': 2, 'cycleKey': cycle, 'run_id': run_id(),
+             'started_at': datetime.now(MSK).isoformat(), 'status': 'STARTED', 'contours': {}}
+    atomic_json(STATE_FILE, state)
     env = os.environ.copy()
-    env["ECOFLOT_CYCLE_KEY"] = cycle
-    env["SUPPRESS_NO_RESULTS"] = "1"
-    env["ECOFLOT_ORCHESTRATED"] = "1"
-
-    any_failed = False
-    for name, commands, state_paths, timeout_seconds in CONTOURS:
-        print("START_CONTOUR", name, cycle, flush=True)
-        exit_codes = []
-        for cmd in commands:
+    mode = 'Deep' if ' 08:00' in cycle else 'Standard'
+    env.update(ECOFLOT_CYCLE_KEY=cycle, ECOFLOT_RUN_ID=run_id(),
+               ECOFLOT_SEARCH_MODE=mode, SUPPRESS_NO_RESULTS='1', ECOFLOT_ORCHESTRATED='1')
+    state['search_mode'] = mode
+    state['preflight_errors'] = []
+    expected = set()
+    try:
+        expected = active_chats(sheet_rows(SHEET_ID, '\u041f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u0442\u0435\u043b\u0438 \u0431\u043e\u0442\u0430', 'A,E'))
+        if not expected:
+            raise RuntimeError('NO_VERIFIED_RECIPIENTS')
+        env['ECOFLOT_EXPECTED_CHATS'] = ','.join(sorted(expected))
+    except Exception as exc:
+        state['preflight_errors'].append(str(exc))
+    for name, scripts, state_paths, timeout in CONTOURS:
+        print('START_CONTOUR', name, cycle, flush=True)
+        codes = []
+        for script in scripts:
             try:
-                proc = subprocess.run(cmd, env=env, text=True, timeout=timeout_seconds)
-                exit_codes.append(proc.returncode)
-            except subprocess.TimeoutExpired:
-                print("CONTOUR_TIMEOUT", name, cmd, timeout_seconds, flush=True)
-                exit_codes.append(124)
-        result = aggregate(state_paths)
-        result["exit_codes"] = exit_codes
-        result["status"] = "ok" if all(code == 0 for code in exit_codes) and result["state_found"] else "error"
-        if result["status"] != "ok":
-            any_failed = True
-        state["contours"][name] = result
-        save_state(state)
-        print("END_CONTOUR", name, json.dumps(result, ensure_ascii=False), flush=True)
+                result = subprocess.run(['python3', '-u', 'scripts/'+script], env=env, timeout=timeout)
+                codes.append(result.returncode)
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                print('CONTOUR_ERROR', script, str(exc), flush=True)
+                codes.append(124)
+        result = aggregate(state_paths, cycle, run_id())
+        result['exit_codes'] = codes
+        if any(codes):
+            result['status'] = 'error'
+        if name == 'Telegram/MAX/VK':
+            result['unchecked_sources'].append('VK: no primary-post collector configured')
+            if result['status'] == 'ok':
+                result['status'] = 'partial'
+        state['contours'][name] = result
+        atomic_json(STATE_FILE, state)
+        print('END_CONTOUR', name, json.dumps(result, ensure_ascii=False), flush=True)
+    state['search_finished_at'] = datetime.now(MSK).isoformat()
+    state['totals'] = {key: sum(x.get(key, 0) for x in state['contours'].values())
+                       for key in ('new', 'duplicates', 'accepted', 'sent', 'delivery_pending', 'errors')}
+    state['totals']['unchecked_sources'] = sorted({s for x in state['contours'].values()
+                                                  for s in x.get('unchecked_sources', [])})
+    receipts = load_json(RECEIPTS, {'items': {}}).get('items', {})
+    current_ids = {rid for rid, item in receipts.items() if item.get('run_id') == run_id()}
+    try:
+        rows = sheet_rows(SHEET_ID, '\u0417\u0430\u044f\u0432\u043a\u0438', 'L,M,U,V')
+        state['delivery'] = audit_delivery(rows, expected, current_ids)
+        state['backlog'] = audit_delivery(rows, expected)
+        state['delivery']['mode'] = 'read-only-sheet-reconciliation'
+    except Exception as exc:
+        state['delivery'] = {'ok': False, 'error': str(exc), 'pending': len(current_ids)}
+    statuses = {x['status'] for x in state['contours'].values()}
+    state['status'] = ('SEARCH_FAILED' if 'error' in statuses or state['preflight_errors'] else
+                       'SEARCH_PARTIAL' if 'partial' in statuses else
+                       'DELIVERY_PENDING' if not state['delivery']['ok'] else 'COMPLETE')
+    state['finished_at'] = datetime.now(MSK).isoformat()
+    atomic_json(STATE_FILE, state)
+    history['cycles'][cycle] = state
+    history['cycles'] = dict(list(history['cycles'].items())[-120:])
+    atomic_json(HISTORY_FILE, history)
+    summary = '# ECOFLOT '+cycle+'\n\nStatus: **'+state['status']+'**\n\n'
+    summary += '| Contour | Status | New | Duplicates | Errors |\n|---|---|---:|---:|---:|\n'
+    for name, values in state['contours'].items():
+        summary += f"| {name} | {values['status']} | {values['new']} | {values['duplicates']} | {values['errors']} |\n"
+    summary += '\nDelivery: `'+json.dumps(state['delivery'])+'`\n'
+    summary += '\nUnverified sources: '+ '; '.join(state['totals']['unchecked_sources'])+'\n'
+    Path('search_cycle_report.md').write_text(summary, encoding='utf-8')
+    if os.environ.get('GITHUB_STEP_SUMMARY'):
+        with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as output:
+            output.write(summary)
+    print('FULL_CYCLE_STATE', json.dumps(state, ensure_ascii=False), flush=True)
+    return exit_code(state['status'])
 
-    state["search_finished_at"] = datetime.now(TZ).isoformat()
-    state["status"] = "SEARCH_FAILED" if any_failed else "SEARCH_COMPLETE"
-    state["totals"] = {
-        "new": sum(x.get("new", 0) for x in state["contours"].values()),
-        "duplicates": sum(x.get("duplicates", 0) for x in state["contours"].values()),
-        "unchecked_sources": sorted({
-            src for x in state["contours"].values() for src in x.get("unchecked_sources", [])
-        }),
-    }
 
-    # Each contour sends verified real records directly through its own webhook path.
-    # Do NOT POST mode=process-outbox to the generic Apps Script endpoint:
-    # the deployed handler can interpret that payload as a lead and create garbage rows.
-    state["delivery"] = {
-        "ok": True,
-        "mode": "inline-per-record",
-        "note": "No generic process-outbox webhook call",
-    }
-    state["finished_at"] = datetime.now(TZ).isoformat()
-    save_state(state)
-
-    print("FULL_CYCLE_STATE", json.dumps(state, ensure_ascii=False), flush=True)
-    return 1 if any_failed else 0
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     raise SystemExit(main())

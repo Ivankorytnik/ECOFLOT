@@ -11,12 +11,15 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
+from search_reliability import (load_json as reliable_load, atomic_json, finish_metrics,
+    record_lead_result, delivery_confirmed, run_id, parse_deadline, tender_service_demand, MSK)
 
 from internet_leads_monitor import (
     parse_webhook_response,
     telegram_delivery_confirmed,
     send_notify_reliable,
     ensure_public_contact,
+    load_sheet_index,
 )
 
 WEBHOOK = os.environ.get(
@@ -203,16 +206,13 @@ def parse_feed(xml_text, query_geo):
     return out
 
 def load_state():
-    try:
-        return json.loads(STATE_PATH.read_text("utf-8"))
-    except Exception:
-        return {"sent": {}}
+    return reliable_load(STATE_PATH, {"sent": {}})
 
 def save_state(state):
     sent = state.get("sent", {})
     if len(sent) > 5000:
         state["sent"] = dict(sorted(sent.items(), key=lambda kv: kv[1], reverse=True)[:5000])
-    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    atomic_json(STATE_PATH, state)
 
 def send(item):
     suggested = {
@@ -261,6 +261,7 @@ def send(item):
     with urllib.request.urlopen(req, timeout=30) as r:
         body = r.read().decode("utf-8", "replace")
         resp = parse_webhook_response(r.status, body, "Object lead webhook")
+    record_lead_result(item["request_id"], resp, "Object Leads")
 
     if not telegram_delivery_confirmed(resp):
         # Search success and Telegram delivery are separate stages.
@@ -278,6 +279,8 @@ def notify_none():
 def main():
     state = load_state()
     sent = state.setdefault("sent", {})
+    legacy_local = state.get("last_run", {}).get("metrics_version") != 2
+    sheet_ids, _, _, _ = load_sheet_index()
     found = {}
     errors = []
     for query_geo, query in queries():
@@ -307,17 +310,18 @@ def main():
             print("EXCLUDED_CONTACT:", reason, item.get("request_id"), item.get("url"))
     items = contact_ready
 
-    fresh = [x for x in items if x["request_id"] not in sent]
+    fresh = [x for x in items if (legacy_local or x["request_id"] not in sent) and x["request_id"] not in sheet_ids]
     sent_count = 0
     for item in fresh[:MAX_SEND]:
         try:
             send(item)
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
             sent_count += 1
-            print("SENT", item["score"], item["location"], item["signal"], item["title"][:120])
+            save_state(state)
+            print("ACCEPTED", item["score"], item["location"], item["signal"], item["title"][:120])
         except Exception as exc:
             errors.append(f"send {item['request_id']}: {exc}")
-    if sent_count == 0 and len(errors) < len(queries()):
+    if os.environ.get("SUPPRESS_NO_RESULTS", "0") != "1" and sent_count == 0 and len(errors) < len(queries()):
         try:
             notify_none()
             print("NO_RESULTS_NOTICE_SENT")
@@ -326,11 +330,16 @@ def main():
     state["last_run"] = {
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
+        "run_id": run_id(),
+        "error_details": errors,
         "candidates": len(items),
+        "duplicates_local": len(items) - len(fresh),
+        "deferred": max(0, len(fresh) - MAX_SEND),
         "new": len(fresh),
         "sent": sent_count,
         "errors": len(errors),
     }
+    finish_metrics(state)
     save_state(state)
     print(f"Object leads candidates={len(items)}, new={len(fresh)}, sent={sent_count}, errors={len(errors)}")
     for err in errors:
