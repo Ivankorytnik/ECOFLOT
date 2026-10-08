@@ -79,6 +79,18 @@ class SourceRepairTests(unittest.TestCase):
         result=s.resolve_catalogue_card(entry,fetch,t.valid_tender_card_link,r.parse_deadline)
         self.assertEqual(result['link'],url)
         self.assertEqual(result['deadline'],deadline)
+    def test_runtime_catalogue_fallback_to_verified_public_card(self):
+        rid='1234567890123456789'
+        entry={'id':rid,'link':'https://gentender.ru/search?q='+rid,'title':'A concrete tender title'}
+        from datetime import datetime, timedelta
+        deadline=(datetime.now(r.MSK)+timedelta(days=3)).strftime('%d.%m.%Y %H:%M')
+        mirror_text=rid+' A concrete tender title \\u0417\\u0430\\u044f\\u0432\\u043a\\u0438 \\u0434\\u043e '+deadline
+        with patch.object(t,'fetch',side_effect=['<html>No primary link</html>',mirror_text]) as fetch:
+            self.assertTrue(t.valid_tender_card_link(entry))
+            self.assertEqual(fetch.call_count,2)
+        self.assertEqual(entry['link'],'https://poisktenderov.ru/item/'+rid+'/')
+        self.assertEqual(entry['deadline'],deadline)
+
     def test_snow_haul_not_excluded(self):
         self.assertTrue(t.relevant({'title':'\u041f\u043e\u0433\u0440\u0443\u0437\u043a\u0430 \u0438 \u0432\u044b\u0432\u043e\u0437 \u0441\u043d\u0435\u0433\u0430 \u0441 \u0442\u0435\u0440\u0440\u0438\u0442\u043e\u0440\u0438\u0438'}))
     def test_equipment_sale_not_snow_service(self):
