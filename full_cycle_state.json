@@ -1,26 +1,29 @@
 {
   "attempts": 1,
   "schema_version": 2,
-  "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
-  "run_id": "37757055040.1",
-  "started_at": "2026-10-08T12:30:02.841007+03:00",
+  "cycleKey": "2026-10-08 14:00",
+  "run_id": "37819571798.1",
+  "started_at": "2026-10-08T20:49:54.491671+03:00",
   "status": "SEARCH_PARTIAL",
   "contours": {
     "Internet Leads": {
-      "new": 2,
-      "duplicates": 8,
-      "accepted": 2,
+      "new": 7,
+      "duplicates": 3,
+      "accepted": 7,
       "sent": 0,
-      "delivery_pending": 2,
-      "errors": 4,
+      "delivery_pending": 7,
+      "errors": 6,
       "unchecked_sources": [
+        "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
         "google: google: result markup not verified"
       ],
       "missing_states": [],
       "error_details": [
         "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-        "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
+        "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
         "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone"
       ],
@@ -36,7 +39,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 2,
+      "errors": 12,
       "unchecked_sources": [
         "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
         "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
@@ -48,8 +51,18 @@
       ],
       "missing_states": [],
       "error_details": [
-        "site:max.ru нужен контейнер мусор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "site:max.ru демонтаж Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+        "site:max.ru вывоз мусора Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru требуется спецтехника Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru работа для самосвалов Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru работа для самосвалов Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru работа для самосвалов Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru нужен тонар Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru нужен тонар Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru погрузка грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru перевозка ПГС Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
       ],
       "state_found": true,
       "status": "partial",
@@ -59,18 +72,13 @@
       ]
     },
     "Tender Watch": {
-      "new": 1,
+      "new": 0,
       "duplicates": 0,
-      "accepted": 1,
+      "accepted": 0,
       "sent": 0,
-      "delivery_pending": 1,
-      "errors": 3,
+      "delivery_pending": 0,
+      "errors": 4,
       "unchecked_sources": [
-        "GenTender/TENDER-32616403656: primary card not verified",
-        "GenTender/TENDER-32616441034: primary card not verified",
-        "GenTender/TENDER-pp-need-6231987: primary card not verified",
-        "GenTender/TENDER-pp-need-6239379: primary card not verified",
-        "GenTender: primary-card resolution budget reached",
         "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
         "google: google: result markup not verified"
@@ -78,7 +86,8 @@
       "missing_states": [],
       "error_details": [
         "Портал поставщиков Москвы: <urlopen error timed out>",
-        "А101: HTTP Error 502: Bad Gateway",
+        "А101: HTTP Error 401: Unauthorized",
+        "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
       ],
       "state_found": true,
@@ -104,7 +113,7 @@
       ]
     }
   },
-  "search_mode": "Deep",
+  "search_mode": "Standard",
   "preflight_errors": [],
   "expected_recipient_count": 3,
   "expected_chats": [
@@ -112,20 +121,15 @@
     "584620734",
     "6795645088"
   ],
-  "search_finished_at": "2026-10-08T12:36:07.743819+03:00",
+  "search_finished_at": "2026-10-08T20:56:05.716629+03:00",
   "totals": {
-    "new": 3,
-    "duplicates": 8,
-    "accepted": 3,
+    "new": 7,
+    "duplicates": 3,
+    "accepted": 7,
     "sent": 0,
-    "delivery_pending": 3,
-    "errors": 9,
+    "delivery_pending": 7,
+    "errors": 22,
     "unchecked_sources": [
-      "GenTender/TENDER-32616403656: primary card not verified",
-      "GenTender/TENDER-32616441034: primary card not verified",
-      "GenTender/TENDER-pp-need-6231987: primary card not verified",
-      "GenTender/TENDER-pp-need-6239379: primary card not verified",
-      "GenTender: primary-card resolution budget reached",
       "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
       "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
       "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
@@ -136,9 +140,9 @@
     ]
   },
   "delivery": {
-    "checked": 3,
+    "checked": 7,
     "confirmed": 0,
-    "pending": 3,
+    "pending": 7,
     "missing_records": 0,
     "duplicate_routes": 0,
     "suppressed": 0,
@@ -147,14 +151,14 @@
     "mode": "read-only-sheet-reconciliation"
   },
   "backlog": {
-    "checked": 139,
-    "confirmed": 120,
-    "pending": 19,
+    "checked": 146,
+    "confirmed": 123,
+    "pending": 23,
     "missing_records": 0,
     "duplicate_routes": 4,
     "suppressed": 8,
     "service_rows": 0,
     "ok": false
   },
-  "finished_at": "2026-10-08T12:36:08.021970+03:00"
+  "finished_at": "2026-10-08T20:56:05.988534+03:00"
 }

@@ -132,18 +132,39 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-08T09:35:56.383020+00:00",
-    "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
-    "run_id": "37757055040.1",
+    "at": "2026-10-08T17:55:54.072292+00:00",
+    "cycleKey": "2026-10-08 14:00",
+    "run_id": "37819571798.1",
     "error_details": [
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "А101: HTTP Error 502: Bad Gateway",
+      "А101: HTTP Error 401: Unauthorized",
+      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
-    "candidates": 1,
+    "candidates": 0,
     "rejected": [
       {
+        "id": "direct-fb8102e942babe84089b2743",
+        "reason": "not-service-demand"
+      },
+      {
         "id": "direct-16b5547151682dd08306a312",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-a8036bb8b52b0a90ca7495a8",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-5d53c4d27c7dbe6fcde3340b",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-99ea91f2fd962ebee39f96d0",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-f3e93338416f38ff281389b9",
         "reason": "not-service-demand"
       },
       {
@@ -167,38 +188,29 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-650ffe2fb407cd5c110b0b5b",
+        "id": "direct-30ba4fcebda7304db99b18e2",
         "reason": "not-service-demand"
       },
       {
         "id": "direct-67876bb3b085a3c9ec283b98",
         "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-e39f8e22e490f87bb6cc1b14",
-        "reason": "not-service-demand"
       }
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 3,
-    "search_mode": "Deep",
-    "accepted": 1,
-    "new": 1,
+    "errors": 4,
+    "search_mode": "Standard",
+    "accepted": 0,
+    "new": 0,
     "duplicates_server": 0,
-    "delivery_pending": 1,
+    "delivery_pending": 0,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
-      "GenTender/TENDER-32616403656: primary card not verified",
-      "GenTender/TENDER-32616441034: primary card not verified",
-      "GenTender/TENDER-pp-need-6231987: primary card not verified",
-      "GenTender/TENDER-pp-need-6239379: primary card not verified",
-      "GenTender: primary-card resolution budget reached",
       "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.17
+    "discovery_seconds": 3.35
   }
 }

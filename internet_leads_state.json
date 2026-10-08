@@ -151,34 +151,44 @@
     "WEB-PROFI-5c007790e7ad6ee5efa6": "2026-10-07T19:24:33.163176+00:00",
     "WEB-PROFI-d2e0482284e5c8b99041": "2026-10-07T19:24:41.897566+00:00",
     "WEB-PROFI-b51e6cbe0aa87679e152": "2026-10-08T09:33:57.306355+00:00",
-    "WEB-PROFI-f8232b5c9ee124bf631e": "2026-10-08T09:34:06.277864+00:00"
+    "WEB-PROFI-f8232b5c9ee124bf631e": "2026-10-08T09:34:06.277864+00:00",
+    "WEB-PROFI-4a93ddfac589ad8c27ef": "2026-10-08T17:53:35.426049+00:00",
+    "WEB-PROFI-d1371282c3ba5c020f78": "2026-10-08T17:53:41.259357+00:00",
+    "WEB-PROFI-252a092cb4bb14398b0d": "2026-10-08T17:53:48.855572+00:00",
+    "WEB-PROFI-9bacdec4cb8303ea7e5f": "2026-10-08T17:53:54.941099+00:00",
+    "WEB-PROFI-49a84d105fec72704e07": "2026-10-08T17:54:07.481863+00:00",
+    "WEB-PROFI-de4d03830571a0a2f12a": "2026-10-08T17:54:14.200287+00:00",
+    "WEB-PROFI-a19ab60a4ef913bff5fe": "2026-10-08T17:54:21.469789+00:00"
   },
   "last_run": {
-    "at": "2026-10-08T09:34:06.278895+00:00",
-    "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
-    "run_id": "37757055040.1",
+    "at": "2026-10-08T17:54:21.470913+00:00",
+    "cycleKey": "2026-10-08 14:00",
+    "run_id": "37819571798.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
+      "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone"
     ],
     "candidates": 10,
-    "duplicates_local": 8,
+    "duplicates_local": 3,
     "deferred": 0,
-    "new": 2,
+    "new": 7,
     "sent": 0,
-    "errors": 4,
-    "search_mode": "Deep",
-    "accepted": 2,
+    "errors": 6,
+    "search_mode": "Standard",
+    "accepted": 7,
     "duplicates_server": 0,
-    "delivery_pending": 2,
+    "delivery_pending": 7,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.24
+    "discovery_seconds": 3.94
   }
 }
