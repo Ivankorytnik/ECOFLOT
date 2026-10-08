@@ -84,7 +84,7 @@ class SourceRepairTests(unittest.TestCase):
         entry={'id':rid,'link':'https://gentender.ru/search?q='+rid,'title':'A concrete tender title'}
         from datetime import datetime, timedelta
         deadline=(datetime.now(r.MSK)+timedelta(days=3)).strftime('%d.%m.%Y %H:%M')
-        mirror_text=rid+' A concrete tender title \\u0417\\u0430\\u044f\\u0432\\u043a\\u0438 \\u0434\\u043e '+deadline
+        mirror_text=rid+' A concrete tender title Заявки до '+deadline
         with patch.object(t,'fetch',side_effect=['<html>No primary link</html>',mirror_text]) as fetch:
             self.assertTrue(t.valid_tender_card_link(entry))
             self.assertEqual(fetch.call_count,2)
