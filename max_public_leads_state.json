@@ -1,12 +1,12 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-07T20:17:33.413234+00:00",
-    "cycleKey": "2026-10-07 18:00",
-    "run_id": "37680411630.1",
+    "at": "2026-10-08T09:09:51.623423+00:00",
+    "cycleKey": "2026-10-08 08:00",
+    "run_id": "37754330220.1",
     "error_details": [
-      "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "site:max.ru нужен контейнер мусор Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru работа для самосвалов Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "sent": 0,
     "candidates": 0,
@@ -16,7 +16,7 @@
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
-    "search_mode": "Standard",
+    "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
     "duplicates_server": 0,
@@ -28,6 +28,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 5.93
+    "discovery_seconds": 7.3
   }
 }

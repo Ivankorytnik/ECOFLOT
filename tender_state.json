@@ -131,67 +131,26 @@
     "454de7fb73231a538ca5bdaab84386d103fe2f98": "2026-10-07T11:44:58.282792+00:00"
   },
   "last_run": {
-    "at": "2026-10-07T20:19:40.779800+00:00",
-    "cycleKey": "2026-10-07 18:00",
-    "run_id": "37680411630.1",
+    "at": "2026-10-08T09:11:26.806754+00:00",
+    "cycleKey": "2026-10-08 08:00",
+    "run_id": "37754330220.1",
     "error_details": [
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "B2B-Center / спецтехника / Калужская область: The read operation timed out",
-      "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:fabrikant.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+      "А101: HTTP Error 502: Bad Gateway",
+      "B2B-Center / самосвалы / Москва: HTTP Error 403: Forbidden",
+      "B2B-Center / самосвалы / Московская область: HTTP Error 403: Forbidden",
+      "B2B-Center / самосвалы / Калужская область: HTTP Error 403: Forbidden",
+      "B2B-Center / спецтехника / Москва: HTTP Error 403: Forbidden",
+      "B2B-Center / спецтехника / Московская область: HTTP Error 403: Forbidden",
+      "B2B-Center / спецтехника / Калужская область: HTTP Error 403: Forbidden",
+      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
-    "rejected": [
-      {
-        "id": "direct-16b5547151682dd08306a312",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-f6b4a7fde63359400b292504",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-458d793c40b0db68f889afd6",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-7186ed52c4473edbae7b27fb",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-f9e150ab406bbe56d98b4763",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-650ffe2fb407cd5c110b0b5b",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-67876bb3b085a3c9ec283b98",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-e39f8e22e490f87bb6cc1b14",
-        "reason": "not-service-demand"
-      }
-    ],
+    "rejected": [],
     "deferred": 0,
     "sent": 0,
-    "errors": 17,
-    "search_mode": "Standard",
+    "errors": 9,
+    "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
     "duplicates_server": 0,
@@ -206,7 +165,7 @@
       "GenTender/TENDER-0848300060626000366: primary card not verified",
       "GenTender/TENDER-32616403656: primary card not verified",
       "GenTender/TENDER-32616406750: primary card not verified",
-      "GenTender/TENDER-32616417366: primary card not verified",
+      "GenTender/TENDER-32616422206: primary card not verified",
       "GenTender/TENDER-32616441034: primary card not verified",
       "GenTender/TENDER-32616443194: primary card not verified",
       "GenTender/TENDER-pp-need-6231987: primary card not verified",
@@ -216,6 +175,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 0.76
+    "discovery_seconds": 2.68
   }
 }

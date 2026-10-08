@@ -152,23 +152,21 @@
     "WEB-PROFI-d2e0482284e5c8b99041": "2026-10-07T19:24:41.897566+00:00"
   },
   "last_run": {
-    "at": "2026-10-07T20:17:22.096278+00:00",
-    "cycleKey": "2026-10-07 18:00",
-    "run_id": "37680411630.1",
+    "at": "2026-10-08T09:09:38.794783+00:00",
+    "cycleKey": "2026-10-08 08:00",
+    "run_id": "37754330220.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
-      "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone"
     ],
-    "candidates": 9,
-    "duplicates_local": 9,
+    "candidates": 5,
+    "duplicates_local": 5,
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 5,
-    "search_mode": "Standard",
+    "errors": 3,
+    "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
     "delivery_pending": 0,
@@ -178,6 +176,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 4.15
+    "discovery_seconds": 4.0
   }
 }
