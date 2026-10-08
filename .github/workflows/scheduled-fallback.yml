@@ -1,36 +1,16 @@
-name: ECOFLOT full cycle
+name: ECOFLOT scheduled fallback
 on:
-  schedule:
-    # GitHub warns scheduled workflows may be delayed around the top of the hour.
-    # Use off-peak minutes; all three wake-ups map to the same logical slot.
-    - cron: '7,17,27 5 * * *'
-    - cron: '7,17,27 11 * * *'
-    - cron: '7,17,27 15 * * *'
-  workflow_dispatch:
-    inputs:
-      force:
-        description: 'Run one extra cycle, without reusing a scheduled cycle key'
-        type: boolean
-        default: false
-  workflow_call:
-    inputs:
-      force:
-        type: boolean
-        default: false
   push:
     branches: [main]
     paths:
-      - 'full-cycle-trigger.txt'
-      - 'internet-manual-trigger.txt'
-      - 'manual-trigger-token.txt'
-      - 'search-reliability-check.txt'
+      - 'scheduled-fallback-trigger.txt'
 permissions:
   contents: write
 concurrency:
   group: ecoflot-search-state
   cancel-in-progress: false
 jobs:
-  full-cycle:
+  fallback:
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -38,17 +18,25 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      - name: Resolve guarded logical slot
+        shell: bash
+        run: |
+          key="$(tr -d '\r\n' < scheduled-fallback-trigger.txt)"
+          if ! printf '%s' "$key" | grep -Eq '^20[0-9]{2}-[0-9]{2}-[0-9]{2} (08|14|18):00$'; then
+            echo "Invalid fallback cycle key: $key" >&2
+            exit 2
+          fi
+          echo "ECOFLOT_CYCLE_KEY=$key" >> "$GITHUB_ENV"
       - name: Validate search contracts
         run: |
           python3 -m compileall -q scripts
           python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
-      - name: Run or reconcile one orchestrated cycle
+      - name: Run missing slot or reconcile if native cron arrived first
         env:
           MAX_SEND: '100'
           RECENT_DAYS: '7'
           SUPPRESS_NO_RESULTS: '1'
-          ECOFLOT_SCHEDULE: ${{ github.event.schedule }}
-          ECOFLOT_FORCE: ${{ (github.event_name == 'push' || inputs.force) && '1' || '0' }}
+          ECOFLOT_FORCE: '0'
         run: python3 -u scripts/scheduled_cycle_runner.py
       - name: Persist state even after source or delivery failure
         if: always()
@@ -57,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ecoflot-cycle-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ecoflot-fallback-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             full_cycle_state.json
             search_cycle_history.json

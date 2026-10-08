@@ -5,25 +5,28 @@ from scheduled_cycle_runner import MSK, scheduled_slot, refreshed_state
 
 class SchedulerContracts(unittest.TestCase):
     def test_delayed_morning_stays_morning(self):
-        self.assertEqual(scheduled_slot('0,12,32 5 * * *', datetime(2026, 10, 7, 15, 2, tzinfo=MSK)), '2026-10-07 08:00')
+        self.assertEqual(scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 15, 2, tzinfo=MSK)), '2026-10-07 08:00')
 
     def test_delayed_afternoon_stays_afternoon(self):
-        self.assertEqual(scheduled_slot('0,12,32 11 * * *', datetime(2026, 10, 7, 19, 2, tzinfo=MSK)), '2026-10-07 14:00')
+        self.assertEqual(scheduled_slot('7,17,27 11 * * *', datetime(2026, 10, 7, 19, 2, tzinfo=MSK)), '2026-10-07 14:00')
 
     def test_delayed_evening_crosses_midnight(self):
-        self.assertEqual(scheduled_slot('0,12,32 15 * * *', datetime(2026, 10, 8, 0, 2, tzinfo=MSK)), '2026-10-07 18:00')
+        self.assertEqual(scheduled_slot('7,17,27 15 * * *', datetime(2026, 10, 8, 0, 2, tzinfo=MSK)), '2026-10-07 18:00')
 
     def test_all_backup_minutes_share_key(self):
-        keys = {scheduled_slot('0,12,32 5 * * *', datetime(2026, 10, 7, 8, minute, tzinfo=MSK)) for minute in (0, 12, 32, 59)}
+        keys = {scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 8, minute, tzinfo=MSK)) for minute in (7, 17, 27, 59)}
         self.assertEqual(keys, {'2026-10-07 08:00'})
+
+    def test_legacy_expression_still_maps_after_deployment(self):
+        self.assertEqual(scheduled_slot('0,12,32 5 * * *', datetime(2026, 10, 8, 12, 0, tzinfo=MSK)), '2026-10-08 08:00')
 
     def test_ambiguous_combined_schedule_rejected(self):
         with self.assertRaises(ValueError):
-            scheduled_slot('0,12,32 5,11,15 * * *')
+            scheduled_slot('7,17,27 5,11,15 * * *')
 
     def test_naive_time_rejected(self):
         with self.assertRaises(ValueError):
-            scheduled_slot('0,12,32 5 * * *', datetime(2026, 10, 7, 8))
+            scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 8))
 
     @staticmethod
     def audit(rows, expected, ids=None):

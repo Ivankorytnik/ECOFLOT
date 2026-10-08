@@ -12,11 +12,20 @@ from zoneinfo import ZoneInfo
 from server_protocol import receipt_target
 
 MSK = ZoneInfo('Europe/Moscow')
-SLOTS = {'0,12,32 5 * * *': 8, '0,12,32 11 * * *': 14, '0,12,32 15 * * *': 18}
+# Keep the previous expressions temporarily so a heavily delayed legacy GitHub
+# schedule can still be mapped to the correct logical slot after deployment.
+SLOTS = {
+    '7,17,27 5 * * *': 8,
+    '7,17,27 11 * * *': 14,
+    '7,17,27 15 * * *': 18,
+    '0,12,32 5 * * *': 8,
+    '0,12,32 11 * * *': 14,
+    '0,12,32 15 * * *': 18,
+}
 
 
 def scheduled_slot(expression, now=None):
-    """A delayed 08:00 cron remains 08:00, even when started after 14:00."""
+    """A delayed scheduled event remains bound to the slot that created it."""
     if expression not in SLOTS:
         raise ValueError('Unsupported scheduled expression; refusing an ambiguous cycle key')
     now = now or datetime.now(MSK)
