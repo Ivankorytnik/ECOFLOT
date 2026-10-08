@@ -239,6 +239,36 @@
       "accepted_at": "2026-10-08T17:54:21.468403+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-08T17:54:21.468416+00:00"
+    },
+    "WEB-PROFI-f1d1593da22a49ecdd55": {
+      "requestId": "WEB-PROFI-f1d1593da22a49ecdd55",
+      "cycleKey": "2026-10-08 18:00",
+      "run_id": "37841021717.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T20:43:31.549332+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T20:43:31.549346+00:00"
+    },
+    "WEB-PROFI-c81960b7be17cbb6d7fb": {
+      "requestId": "WEB-PROFI-c81960b7be17cbb6d7fb",
+      "cycleKey": "2026-10-08 18:00",
+      "run_id": "37841021717.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T20:43:42.069104+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T20:43:42.069118+00:00"
+    },
+    "WEB-PROFI-4b01d2a7986811a02af4": {
+      "requestId": "WEB-PROFI-4b01d2a7986811a02af4",
+      "cycleKey": "2026-10-08 18:00",
+      "run_id": "37841021717.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T20:43:53.334329+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T20:43:53.334342+00:00"
     }
   }
 }
