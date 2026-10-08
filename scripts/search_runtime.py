@@ -6,6 +6,7 @@ lifetime of ONE worker process; restore all bindings after tests or completion.
 """
 from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone
+import html
 import importlib
 import os
 import re
@@ -175,6 +176,37 @@ def configured_worker(name):
                         resolved[rid] = resolve_catalogue_card(entry, module.fetch, original_card, r.parse_deadline)
                     except Exception as exc:
                         unchecked.add('GenTender/' + rid + ': ' + str(exc)[:160])
+                    if not resolved.get(rid):
+                        try:
+                            canonical = module.canonical_tender_id(entry)
+                            if re.fullmatch(r'\\d{19}', canonical):
+                                mirror = 'https://poisktenderov.ru/item/' + canonical + '/'
+                                page = module.fetch(mirror, timeout=12)
+                                text = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', page))).strip()
+                                norm = lambda value: re.sub(r'\\W+', ' ', str(value or '').lower().replace('\\u0451', '\\u0435')).strip()
+                                deadline_match = re.search(
+                                    r'(?:\\u0417\\u0430\\u044f\\u0432\\u043a\\u0438\\s+\\u0434\\u043e|'
+                                    r'\\u041e\\u043a\\u043e\\u043d\\u0447\\u0430\\u043d\\u0438\\u0435\\s+\\u043f\\u043e\\u0434\\u0430\\u0447\\u0438(?:\\s+\\u0437\\u0430\\u044f\\u0432\\u043e\\u043a)?)'
+                                    r'\\s*[:\\-]?\\s*(\\d{2}\\.\\d{2}\\.20\\d{2}(?:\\s+\\d{2}:\\d{2})?)',
+                                    text, re.I)
+                                deadline = r.parse_deadline(deadline_match.group(1)) if deadline_match else None
+                                title = norm(entry.get('title'))
+                                if (canonical in text and title and title in norm(text) and deadline is not None
+                                        and deadline > datetime.now(r.MSK)):
+                                    resolved[rid] = dict(
+                                        entry,
+                                        link=mirror,
+                                        deadline=deadline_match.group(1),
+                                        source='PoiskTenderov verified card / EIS procurement number',
+                                        verification={
+                                            'id_confirmed': True,
+                                            'title_confirmed': True,
+                                            'deadline_confirmed': True,
+                                            'resolver': 'poisktenderov.ru',
+                                        },
+                                    )
+                        except Exception as exc:
+                            unchecked.add('GenTender/' + rid + ': public-card resolver ' + str(exc)[:160])
                     if not resolved.get(rid):
                         unchecked.add('GenTender/' + rid + ': primary card not verified')
                 if resolved.get(rid):
