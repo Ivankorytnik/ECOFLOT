@@ -149,33 +149,36 @@
     "WEB-PROFI-08afd620ba38529d6b30": "2026-10-07T19:24:14.969042+00:00",
     "WEB-PROFI-df7f0ee7e0892557d4c0": "2026-10-07T19:24:25.067258+00:00",
     "WEB-PROFI-5c007790e7ad6ee5efa6": "2026-10-07T19:24:33.163176+00:00",
-    "WEB-PROFI-d2e0482284e5c8b99041": "2026-10-07T19:24:41.897566+00:00"
+    "WEB-PROFI-d2e0482284e5c8b99041": "2026-10-07T19:24:41.897566+00:00",
+    "WEB-PROFI-b51e6cbe0aa87679e152": "2026-10-08T09:33:57.306355+00:00",
+    "WEB-PROFI-f8232b5c9ee124bf631e": "2026-10-08T09:34:06.277864+00:00"
   },
   "last_run": {
-    "at": "2026-10-08T09:09:38.794783+00:00",
-    "cycleKey": "2026-10-08 08:00",
-    "run_id": "37754330220.1",
+    "at": "2026-10-08T09:34:06.278895+00:00",
+    "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
+    "run_id": "37757055040.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
+      "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone"
     ],
-    "candidates": 5,
-    "duplicates_local": 5,
+    "candidates": 10,
+    "duplicates_local": 8,
     "deferred": 0,
-    "new": 0,
+    "new": 2,
     "sent": 0,
-    "errors": 3,
+    "errors": 4,
     "search_mode": "Deep",
-    "accepted": 0,
+    "accepted": 2,
     "duplicates_server": 0,
-    "delivery_pending": 0,
+    "delivery_pending": 2,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 4.0
+    "discovery_seconds": 3.24
   }
 }

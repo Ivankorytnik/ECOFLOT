@@ -153,6 +153,36 @@
       "accepted_at": "2026-10-07T19:24:25.065401+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-07T19:24:25.065420+00:00"
+    },
+    "WEB-PROFI-b51e6cbe0aa87679e152": {
+      "requestId": "WEB-PROFI-b51e6cbe0aa87679e152",
+      "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
+      "run_id": "37757055040.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T09:33:57.305032+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T09:33:57.305045+00:00"
+    },
+    "WEB-PROFI-f8232b5c9ee124bf631e": {
+      "requestId": "WEB-PROFI-f8232b5c9ee124bf631e",
+      "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
+      "run_id": "37757055040.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T09:34:06.276517+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T09:34:06.276531+00:00"
+    },
+    "TENDER-0848300060626000366": {
+      "requestId": "TENDER-0848300060626000366",
+      "cycleKey": "2026-10-08 08:00 EXTRA 37757055040.1",
+      "run_id": "37757055040.1",
+      "source": "Tender Watch",
+      "duplicate": false,
+      "accepted_at": "2026-10-08T09:35:56.380694+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-08T09:35:56.380708+00:00"
     }
   }
 }
