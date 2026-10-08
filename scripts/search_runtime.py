@@ -168,7 +168,7 @@ def configured_worker(name):
                 if parts.hostname != 'gentender.ru' or parts.path != '/search' or rid in known_ids:
                     return False
                 if rid not in attempted:
-                    if len(attempted) >= 12:
+                    if len(attempted) >= 6:
                         unchecked.add('GenTender: primary-card resolution budget reached')
                         return False
                     attempted.add(rid)
