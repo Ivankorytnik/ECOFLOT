@@ -179,15 +179,15 @@ def configured_worker(name):
                     if not resolved.get(rid):
                         try:
                             canonical = module.canonical_tender_id(entry)
-                            if re.fullmatch(r'\\d{19}', canonical):
+                            if re.fullmatch(r'\d{19}', canonical):
                                 mirror = 'https://poisktenderov.ru/item/' + canonical + '/'
                                 page = module.fetch(mirror, timeout=12)
-                                text = re.sub(r'\\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', page))).strip()
-                                norm = lambda value: re.sub(r'\\W+', ' ', str(value or '').lower().replace('\\u0451', '\\u0435')).strip()
+                                text = re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', page))).strip()
+                                norm = lambda value: re.sub(r'\W+', ' ', str(value or '').lower().replace('ё', 'е')).strip()
                                 deadline_match = re.search(
-                                    r'(?:\\u0417\\u0430\\u044f\\u0432\\u043a\\u0438\\s+\\u0434\\u043e|'
-                                    r'\\u041e\\u043a\\u043e\\u043d\\u0447\\u0430\\u043d\\u0438\\u0435\\s+\\u043f\\u043e\\u0434\\u0430\\u0447\\u0438(?:\\s+\\u0437\\u0430\\u044f\\u0432\\u043e\\u043a)?)'
-                                    r'\\s*[:\\-]?\\s*(\\d{2}\\.\\d{2}\\.20\\d{2}(?:\\s+\\d{2}:\\d{2})?)',
+                                    r'(?:Заявки\s+до|'
+                                    r'Окончание\s+подачи(?:\s+заявок)?)'
+                                    r'\s*[:\-]?\s*(\d{2}\.\d{2}\.20\d{2}(?:\s+\d{2}:\d{2})?)',
                                     text, re.I)
                                 deadline = r.parse_deadline(deadline_match.group(1)) if deadline_match else None
                                 title = norm(entry.get('title'))
