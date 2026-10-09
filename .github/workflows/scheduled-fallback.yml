@@ -1,8 +1,8 @@
 name: ECOFLOT scheduled fallback
+
 on:
   schedule:
-    # Separate recovery wake-up 30 minutes after the primary slot.
-    # It reuses the same logical cycle key and therefore cannot create a second slot.
+    # Recovery wake-up 30 minutes after each primary slot.
     - cron: '37 5 * * *'
     - cron: '37 11 * * *'
     - cron: '37 15 * * *'
@@ -44,46 +44,11 @@ jobs:
             echo "ECOFLOT_FALLBACK_FORCE=0" >> "$GITHUB_ENV"
             exit 0
           fi
+
           key="$(sed -n '1p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
           mode="$(sed -n '2p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
-          if ! printf '%s' "$key" | grep -Eq '^20[0-9]{2}-[0-9]{2}-[0-9]{2} (08|14|18):00
-      - name: Validate search contracts
-        run: |
-          python3 -m compileall -q scripts
-          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
 
-      - name: Run missing slot or reconcile if native cron arrived first
-        env:
-          MAX_SEND: '100'
-          RECENT_DAYS: '7'
-          SUPPRESS_NO_RESULTS: '1'
-          ECOFLOT_FORCE: ${{ env.ECOFLOT_FALLBACK_FORCE }}
-          ECOFLOT_SCHEDULE: ${{ env.ECOFLOT_SCHEDULE }}
-        run: python3 -u scripts/scheduled_cycle_runner.py
-
-      - name: Persist state even after source or delivery failure
-        if: always()
-        run: bash scripts/persist_search_state.sh
-
-      - name: Preserve recovery state and readable report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: ecoflot-fallback-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            full_cycle_state.json
-            search_cycle_history.json
-            search_delivery_receipts.json
-            search_cycle_report.md
-            internet_leads_state.json
-            social_public_leads_state.json
-            max_public_leads_state.json
-            tender_state.json
-            object_leads_state.json
-            telegram_retry_queue.json
-          if-no-files-found: warn
-          retention-days: 30
-; then
+          if ! printf '%s' "$key" | grep -Eq '^20[0-9]{2}-[0-9]{2}-[0-9]{2} (08|14|18):00$'; then
             echo "Invalid fallback cycle key: $key" >&2
             exit 2
           fi
@@ -91,6 +56,7 @@ jobs:
             echo "Invalid fallback mode: $mode" >&2
             exit 2
           fi
+
           echo "ECOFLOT_CYCLE_KEY=$key" >> "$GITHUB_ENV"
           if [ "$mode" = "force" ]; then
             echo "ECOFLOT_FALLBACK_FORCE=1" >> "$GITHUB_ENV"
@@ -109,6 +75,7 @@ jobs:
           RECENT_DAYS: '7'
           SUPPRESS_NO_RESULTS: '1'
           ECOFLOT_FORCE: ${{ env.ECOFLOT_FALLBACK_FORCE }}
+          ECOFLOT_SCHEDULE: ${{ env.ECOFLOT_SCHEDULE }}
         run: python3 -u scripts/scheduled_cycle_runner.py
 
       - name: Persist state even after source or delivery failure
