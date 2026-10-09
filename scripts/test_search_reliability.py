@@ -110,9 +110,9 @@ class SafetyContracts(unittest.TestCase):
     def test_distinct_orders_same_phone_not_collapsed(self):
         self.assertEqual(internet.contact_dedupe_keys({'phone':'+79999999999'}), [])
 
-    def test_specific_profi_card_allowed(self):
+    def test_profi_listing_not_treated_as_direct_card(self):
         item = {'phone':'-', 'url':'https://profi.ru/rabota/remont/test/', 'request_id':'WEB-PROFI-'+'a'*20, 'source':'Profi', 'description':'A specific customer demand with individual requirements', 'location':'Moscow', 'date':'\u0441\u0435\u0433\u043e\u0434\u043d\u044f'}
-        self.assertTrue(internet.ensure_public_contact(item)[0])
+        self.assertFalse(internet.ensure_public_contact(item)[0])
         self.assertTrue(internet.is_listing_url_for_dedupe(item))
 
     def test_generic_profi_category_not_allowed(self):
