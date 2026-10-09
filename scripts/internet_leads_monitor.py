@@ -386,15 +386,10 @@ def ensure_public_contact(item):
             contact_url = found_url
 
     if not phone and not contact_url:
-        # Исключение допустимо только для площадки, где конкретная карточка
-        # заказа является маршрутом отклика. Общая страница категории не годится.
-        identified_profi = (
-            _host_matches(source_url, ("profi.ru",))
-            and re.fullmatch(r"WEB-PROFI-[a-f0-9]{20}", str(item.get("request_id", "")))
-            and len(str(item.get("description", ""))) >= 20
-            and item.get("location") and profi_recent(item.get("date", ""))
-        )
-        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and (not is_listing_url_for_dedupe(item) or identified_profi):
+        # Contact-gated exceptions (Profi/VezetVsem) are allowed only when the
+        # URL points to an individual order/card. A category/listing URL is not
+        # a usable contact route even if the text block itself looks specific.
+        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and not is_listing_url_for_dedupe(item):
             contact_url = source_url
         else:
             return False, "no-public-contact-or-direct-order-link"
