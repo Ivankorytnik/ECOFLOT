@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """One coordinator, durable slot ledger and evidence-based completion."""
+import copy
 import json
 import os
 import subprocess
+import time
 from datetime import datetime
 from pathlib import Path
 from search_reliability import (MSK, load_json, atomic_json, run_id, scheduled_cycle,
@@ -28,7 +30,31 @@ def cycle_key(now=None):
 
 
 def exit_code(status):
-    return 0 if status == 'COMPLETE' else 1
+    # SEARCH_PARTIAL is a completed search with explicit coverage warnings, not a
+    # crashed workflow. Keep hard failures red, and keep unconfirmed delivery red.
+    return 1 if status in ('SEARCH_FAILED', 'DELIVERY_PENDING') else 0
+
+
+def reconcile_delivery(expected, current_ids):
+    """Wait briefly for the Apps Script -> Google Sheets delivery write to settle."""
+    wait_seconds = max(0, int(os.environ.get('ECOFLOT_DELIVERY_WAIT_SECONDS', '210')))
+    interval = max(5, int(os.environ.get('ECOFLOT_DELIVERY_POLL_SECONDS', '30')))
+    deadline = time.monotonic() + wait_seconds
+    attempts = 0
+    while True:
+        rows = sheet_rows(SHEET_ID, '\u0417\u0430\u044f\u0432\u043a\u0438', 'L,M,U,V')
+        delivery = audit_delivery(rows, expected, current_ids)
+        attempts += 1
+        delivery['reconcile_attempts'] = attempts
+        if delivery.get('ok') or not current_ids or time.monotonic() >= deadline:
+            return rows, delivery
+        remaining = max(0, int(deadline - time.monotonic()))
+        print('DELIVERY_WAIT', json.dumps({
+            'attempt': attempts,
+            'pending': delivery.get('pending', 0),
+            'remaining_seconds': remaining,
+        }), flush=True)
+        time.sleep(min(interval, max(1, remaining)))
 
 
 def main():
@@ -39,12 +65,17 @@ def main():
     history = load_json(HISTORY_FILE, {'cycles': {}})
     previous = history['cycles'].get(cycle)
     retry_failed = previous and previous.get('status') == 'SEARCH_FAILED' and previous.get('attempts', 1) < 2
-    if previous and previous.get('status') in TERMINAL and not retry_failed:
+    retry_partial = (previous and previous.get('status') == 'SEARCH_PARTIAL'
+                     and os.environ.get('ECOFLOT_RETRY_PARTIAL') == '1'
+                     and previous.get('attempts', 1) < 2)
+    if previous and previous.get('status') in TERMINAL and not retry_failed and not retry_partial:
         print('CYCLE_ALREADY_RECORDED', cycle, previous['status'], flush=True)
         # Repeated cron wake-ups do not repeat POSTs or pretend a failed slot passed.
         return exit_code(previous['status'])
     state = {'attempts': (previous or {}).get('attempts', 0) + 1, 'schema_version': 2, 'cycleKey': cycle, 'run_id': run_id(),
              'started_at': datetime.now(MSK).isoformat(), 'status': 'STARTED', 'contours': {}}
+    if retry_partial:
+        state['retrying_partial_from'] = previous.get('run_id')
     atomic_json(STATE_FILE, state)
     env = os.environ.copy()
     mode = 'Deep' if ' 08:00' in cycle else 'Standard'
@@ -65,6 +96,14 @@ def main():
     for name, scripts, state_paths, timeout in CONTOURS:
         print('START_CONTOUR', name, cycle, flush=True)
         codes = []
+        previous_contour = (previous or {}).get('contours', {}).get(name, {})
+        if retry_partial and previous_contour.get('status') == 'ok':
+            result = copy.deepcopy(previous_contour)
+            result['reused_from_previous_attempt'] = True
+            state['contours'][name] = result
+            atomic_json(STATE_FILE, state)
+            print('REUSE_CONTOUR', name, 'previous attempt already complete', flush=True)
+            continue
         if state['preflight_errors']:
             result = {key: 0 for key in ('new', 'duplicates', 'accepted', 'sent', 'delivery_pending')}
             result.update(status='error', errors=1, unchecked_sources=[name + ': preflight failed'],
@@ -98,8 +137,7 @@ def main():
     receipts = load_json(RECEIPTS, {'items': {}}).get('items', {})
     current_ids = {rid for rid, item in receipts.items() if item.get('run_id') == run_id()}
     try:
-        rows = sheet_rows(SHEET_ID, '\u0417\u0430\u044f\u0432\u043a\u0438', 'L,M,U,V')
-        state['delivery'] = audit_delivery(rows, expected, current_ids)
+        rows, state['delivery'] = reconcile_delivery(expected, current_ids)
         state['backlog'] = audit_delivery(rows, expected)
         state['delivery']['mode'] = 'read-only-sheet-reconciliation'
     except Exception as exc:
