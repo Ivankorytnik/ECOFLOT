@@ -132,23 +132,39 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-09T06:19:00.293111+00:00",
-    "cycleKey": "2026-10-09 08:00 EXTRA 37892332708.1",
-    "run_id": "37892332708.1",
+    "at": "2026-10-09T11:52:53.667294+00:00",
+    "cycleKey": "2026-10-09 08:00",
+    "run_id": "37926000485.1",
     "error_details": [
       "Портал поставщиков Москвы: <urlopen error timed out>",
+      "Tender discovery site:fabrikant.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
+      {
+        "id": "direct-a2405566514bd67d4a787db7",
+        "reason": "not-service-demand"
+      },
       {
         "id": "direct-fb8102e942babe84089b2743",
         "reason": "not-service-demand"
       },
       {
         "id": "direct-16b5547151682dd08306a312",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-bef5cb7ff5a278fcf5601f51",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-148ec7f6e67d780f35bde6da",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-4aa39b773743c952b883a49c",
         "reason": "not-service-demand"
       },
       {
@@ -188,10 +204,6 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-f9e150ab406bbe56d98b4763",
-        "reason": "not-service-demand"
-      },
-      {
         "id": "direct-30ba4fcebda7304db99b18e2",
         "reason": "not-service-demand"
       },
@@ -212,9 +224,9 @@
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
       "bing: bing: results do not match the requested topic or site",
-      "duckduckgo: <urlopen error timed out>",
+      "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 27.05
+    "discovery_seconds": 1.89
   }
 }
