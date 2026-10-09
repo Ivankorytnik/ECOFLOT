@@ -9,9 +9,9 @@
     "OBJECT-9cdcbf2b7b66fb859ec3": "2026-09-28T18:25:18.200212+00:00"
   },
   "last_run": {
-    "at": "2026-10-08T20:45:36.575979+00:00",
-    "cycleKey": "2026-10-08 18:00",
-    "run_id": "37841021717.1",
+    "at": "2026-10-09T06:19:08.336319+00:00",
+    "cycleKey": "2026-10-09 08:00 EXTRA 37892332708.1",
+    "run_id": "37892332708.1",
     "error_details": [],
     "candidates": 0,
     "duplicates_local": 0,
@@ -19,7 +19,7 @@
     "new": 0,
     "sent": 0,
     "errors": 0,
-    "search_mode": "Standard",
+    "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
     "delivery_pending": 0,
