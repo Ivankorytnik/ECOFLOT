@@ -1,9 +1,16 @@
 name: ECOFLOT scheduled fallback
+
 on:
+  schedule:
+    # Recovery wake-up 30 minutes after each primary slot.
+    - cron: '37 5 * * *'
+    - cron: '37 11 * * *'
+    - cron: '37 15 * * *'
   push:
     branches: [main]
     paths:
       - 'scheduled-fallback-trigger.txt'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,9 +31,23 @@ jobs:
 
       - name: Resolve guarded logical slot
         shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
         run: |
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            echo "ECOFLOT_SCHEDULE=$EVENT_SCHEDULE" >> "$GITHUB_ENV"
+            echo "ECOFLOT_FALLBACK_FORCE=0" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "ECOFLOT_FALLBACK_FORCE=0" >> "$GITHUB_ENV"
+            exit 0
+          fi
+
           key="$(sed -n '1p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
           mode="$(sed -n '2p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
+
           if ! printf '%s' "$key" | grep -Eq '^20[0-9]{2}-[0-9]{2}-[0-9]{2} (08|14|18):00$'; then
             echo "Invalid fallback cycle key: $key" >&2
             exit 2
@@ -35,6 +56,7 @@ jobs:
             echo "Invalid fallback mode: $mode" >&2
             exit 2
           fi
+
           echo "ECOFLOT_CYCLE_KEY=$key" >> "$GITHUB_ENV"
           if [ "$mode" = "force" ]; then
             echo "ECOFLOT_FALLBACK_FORCE=1" >> "$GITHUB_ENV"
@@ -53,6 +75,7 @@ jobs:
           RECENT_DAYS: '7'
           SUPPRESS_NO_RESULTS: '1'
           ECOFLOT_FORCE: ${{ env.ECOFLOT_FALLBACK_FORCE }}
+          ECOFLOT_SCHEDULE: ${{ env.ECOFLOT_SCHEDULE }}
         run: python3 -u scripts/scheduled_cycle_runner.py
 
       - name: Persist state even after source or delivery failure
