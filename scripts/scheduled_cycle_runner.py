@@ -116,7 +116,12 @@ def main():
     previous = history.get('cycles', {}).get(cycle)
     if os.environ.get('ECOFLOT_FORCE') != '1' and previous:
         retry_failed = previous.get('status') == 'SEARCH_FAILED' and previous.get('attempts', 1) < 2
-        if previous.get('status') in coordinator.TERMINAL and not retry_failed:
+        retry_partial = previous.get('status') == 'SEARCH_PARTIAL' and previous.get('attempts', 1) < 2
+        if retry_partial:
+            # A later wake-up gets one safe chance to re-run only incomplete contours.
+            # Completed contours are reused by the coordinator; dedupe remains authoritative.
+            os.environ['ECOFLOT_RETRY_PARTIAL'] = '1'
+        if previous.get('status') in coordinator.TERMINAL and not retry_failed and not retry_partial:
             return refresh_previous(coordinator, previous, history)
     return coordinator.main()
 
