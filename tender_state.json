@@ -132,11 +132,12 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-09T20:07:47.052606+00:00",
+    "at": "2026-10-09T20:22:05.413851+00:00",
     "cycleKey": "2026-10-09 18:00",
-    "run_id": "37984462113.1",
+    "run_id": "37986036804.1",
     "error_details": [
-      "Портал поставщиков Москвы: <urlopen error timed out>"
+      "Портал поставщиков Москвы: <urlopen error timed out>",
+      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
@@ -223,7 +224,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 1,
+    "errors": 2,
     "search_mode": "Standard",
     "accepted": 0,
     "new": 0,
@@ -232,9 +233,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.05
+    "discovery_seconds": 2.52
   }
 }

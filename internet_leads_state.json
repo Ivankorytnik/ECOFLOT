@@ -164,23 +164,22 @@
     "WEB-PROFI-4b01d2a7986811a02af4": "2026-10-08T20:43:53.335742+00:00"
   },
   "last_run": {
-    "at": "2026-10-09T20:06:07.835828+00:00",
+    "at": "2026-10-09T20:20:35.353664+00:00",
     "cycleKey": "2026-10-09 18:00",
-    "run_id": "37984462113.1",
+    "run_id": "37986036804.1",
     "error_details": [
-      "NPD listing Наро-Фоминск: HTTP Error 502: Bad Gateway",
-      "NPD listing Апрелевка: HTTP Error 502: Bad Gateway",
-      "NPD listing Красногорск: HTTP Error 502: Bad Gateway",
-      "NPD listing Одинцово: HTTP Error 502: Bad Gateway",
-      "NPD listing Истра: HTTP Error 502: Bad Gateway",
-      "NPD listing Звенигород: HTTP Error 502: Bad Gateway",
-      "NPD listing Краснознаменск: HTTP Error 502: Bad Gateway",
+      "NPD listing Наро-Фоминск: The read operation timed out",
+      "NPD listing Краснознаменск: The read operation timed out",
+      "NPD listing Красногорск: The read operation timed out",
+      "NPD listing Апрелевка: The read operation timed out",
+      "NPD listing Истра: The read operation timed out",
+      "NPD listing Одинцово: The read operation timed out",
+      "NPD listing Звенигород: The read operation timed out",
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 0,
@@ -188,7 +187,7 @@
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 14,
+    "errors": 13,
     "search_mode": "Standard",
     "accepted": 0,
     "duplicates_server": 0,
@@ -200,6 +199,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 4.2
+    "discovery_seconds": 3.23
   }
 }

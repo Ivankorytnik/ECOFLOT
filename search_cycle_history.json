@@ -1975,11 +1975,11 @@
       "finished_at": "2026-10-09T20:42:22.774596+03:00"
     },
     "2026-10-09 18:00": {
-      "attempts": 1,
+      "attempts": 2,
       "schema_version": 2,
       "cycleKey": "2026-10-09 18:00",
-      "run_id": "37984462113.1",
-      "started_at": "2026-10-09T23:04:08.162094+03:00",
+      "run_id": "37986036804.1",
+      "started_at": "2026-10-09T23:18:05.765365+03:00",
       "status": "SEARCH_PARTIAL",
       "contours": {
         "Internet Leads": {
@@ -1988,7 +1988,7 @@
           "accepted": 0,
           "sent": 0,
           "delivery_pending": 0,
-          "errors": 14,
+          "errors": 13,
           "unchecked_sources": [
             "bing: bing: results do not match the requested topic or site",
             "duckduckgo: duckduckgo: challenge or access restriction",
@@ -1996,19 +1996,18 @@
           ],
           "missing_states": [],
           "error_details": [
-            "NPD listing Наро-Фоминск: HTTP Error 502: Bad Gateway",
-            "NPD listing Апрелевка: HTTP Error 502: Bad Gateway",
-            "NPD listing Красногорск: HTTP Error 502: Bad Gateway",
-            "NPD listing Одинцово: HTTP Error 502: Bad Gateway",
-            "NPD listing Истра: HTTP Error 502: Bad Gateway",
-            "NPD listing Звенигород: HTTP Error 502: Bad Gateway",
-            "NPD listing Краснознаменск: HTTP Error 502: Bad Gateway",
+            "NPD listing Наро-Фоминск: The read operation timed out",
+            "NPD listing Краснознаменск: The read operation timed out",
+            "NPD listing Красногорск: The read operation timed out",
+            "NPD listing Апрелевка: The read operation timed out",
+            "NPD listing Истра: The read operation timed out",
+            "NPD listing Одинцово: The read operation timed out",
+            "NPD listing Звенигород: The read operation timed out",
             "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-            "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-            "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
             "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
-            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
             "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
             "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
           ],
           "state_found": true,
@@ -2023,7 +2022,7 @@
           "accepted": 0,
           "sent": 0,
           "delivery_pending": 0,
-          "errors": 4,
+          "errors": 3,
           "unchecked_sources": [
             "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
             "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
@@ -2035,10 +2034,9 @@
           ],
           "missing_states": [],
           "error_details": [
-            "site:max.ru требуется экскаватор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-            "site:max.ru требуется спецтехника Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-            "site:max.ru демонтаж Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-            "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+            "site:max.ru вывоз мусора Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru нужен контейнер мусор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru демонтаж Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
           ],
           "state_found": true,
           "status": "partial",
@@ -2053,14 +2051,16 @@
           "accepted": 0,
           "sent": 0,
           "delivery_pending": 0,
-          "errors": 1,
+          "errors": 2,
           "unchecked_sources": [
+            "bing: bing: results do not match the requested topic or site",
             "duckduckgo: duckduckgo: challenge or access restriction",
             "google: google: result markup not verified"
           ],
           "missing_states": [],
           "error_details": [
-            "Портал поставщиков Москвы: <urlopen error timed out>"
+            "Портал поставщиков Москвы: <urlopen error timed out>",
+            "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
           ],
           "state_found": true,
           "status": "partial",
@@ -2082,9 +2082,11 @@
           "status": "ok",
           "exit_codes": [
             0
-          ]
+          ],
+          "reused_from_previous_attempt": true
         }
       },
+      "retrying_partial_from": "37984462113.1",
       "search_mode": "Standard",
       "preflight_errors": [],
       "expected_recipient_count": 3,
@@ -2093,14 +2095,14 @@
         "584620734",
         "6795645088"
       ],
-      "search_finished_at": "2026-10-09T23:07:58.222929+03:00",
+      "search_finished_at": "2026-10-09T23:22:05.473539+03:00",
       "totals": {
         "new": 0,
         "duplicates": 0,
         "accepted": 0,
         "sent": 0,
         "delivery_pending": 0,
-        "errors": 19,
+        "errors": 18,
         "unchecked_sources": [
           "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
           "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
@@ -2133,7 +2135,7 @@
         "service_rows": 0,
         "ok": false
       },
-      "finished_at": "2026-10-09T23:07:58.545326+03:00"
+      "finished_at": "2026-10-09T23:22:05.883259+03:00"
     }
   }
 }
