@@ -135,6 +135,23 @@ class SafetyContracts(unittest.TestCase):
     def test_spectehinfo_listing_is_not_direct_route(self):
         self.assertFalse(internet.is_verified_order_route('https://mosobl.spectehinfo.ru/arenda/samosvaly/po_oblasti'))
 
+    def test_samosval_parser_uses_publication_date_not_future_deadline(self):
+        today=datetime.now(timezone.utc).strftime('%d.%m.%Y')
+        future=(datetime.now(timezone.utc)+timedelta(days=5)).strftime('%d.%m.%Y')
+        page=f'''
+        <h2>Работа для самосвалов в Московской области</h2>
+        <a href="/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=999999">
+          Требуются самосвалы на перевозку песка
+        </a>
+        Дата публикации: {today}
+        Объявление актуально до: {future}
+        Московская область, Красногорск
+        Телефон +7 999 111-22-33
+        '''
+        items=internet.parse_samosval_info(page,'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/')
+        self.assertTrue(items)
+        self.assertEqual(items[0]['date'], today)
+
     def test_unknown_date_rejected(self):
         self.assertFalse(internet.is_recent('current'))
 
