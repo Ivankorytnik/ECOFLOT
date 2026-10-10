@@ -135,6 +135,7 @@ class SafetyContracts(unittest.TestCase):
     def test_spectehinfo_listing_is_not_direct_route(self):
         self.assertFalse(internet.is_verified_order_route('https://mosobl.spectehinfo.ru/arenda/samosvaly/po_oblasti'))
 
+    # Regression: publication time controls freshness; active-until is only a deadline.
     def test_samosval_parser_uses_publication_date_not_future_deadline(self):
         today=datetime.now(timezone.utc).strftime('%d.%m.%Y')
         future=(datetime.now(timezone.utc)+timedelta(days=5)).strftime('%d.%m.%Y')
