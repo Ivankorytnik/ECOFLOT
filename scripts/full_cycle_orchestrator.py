@@ -57,6 +57,35 @@ def reconcile_delivery(expected, current_ids):
         time.sleep(min(interval, max(1, remaining)))
 
 
+def send_cycle_notice(state):
+    """Send one concise Telegram summary so a completed search is never silent."""
+    if os.environ.get('ECOFLOT_NOTIFY_SUMMARY', '1') == '0':
+        return
+    totals = state.get('totals', {})
+    unchecked = totals.get('unchecked_sources', []) or []
+    status = state.get('status', 'UNKNOWN')
+    icon = '✅' if status == 'COMPLETE' else '⚠️'
+    message = (
+        f"{icon} ECOFLOT: поиск завершён\n"
+        f"Цикл: {state.get('cycleKey', '-')}\n"
+        f"Режим: {state.get('search_mode', '-')}\n"
+        f"Статус: {status}\n"
+        f"Новых заявок: {totals.get('new', 0)}\n"
+        f"Принято: {totals.get('accepted', 0)}\n"
+        f"Ошибок источников: {totals.get('errors', 0)}\n"
+        f"Недоступных групп/поисков: {len(unchecked)}"
+    )
+    if status == 'SEARCH_PARTIAL':
+        message += "\nЧасть источников не отработала полностью."
+    try:
+        from internet_leads_monitor import send_notify_only
+        send_notify_only(message, user_agent='ECOFLOT-Cycle-Summary/1.0', attempts=2)
+        state['cycle_notice'] = 'sent'
+    except Exception as exc:
+        state['cycle_notice'] = 'error: ' + str(exc)
+        print('CYCLE_NOTICE_ERROR', str(exc), flush=True)
+
+
 def main():
     cycle = os.environ.get('ECOFLOT_CYCLE_KEY', '').strip() or cycle_key()
     extra = os.environ.get('ECOFLOT_FORCE') == '1'
@@ -89,6 +118,7 @@ def main():
         if not expected:
             raise RuntimeError('NO_VERIFIED_RECIPIENTS')
         env['ECOFLOT_EXPECTED_CHATS'] = ','.join(sorted(expected))
+        os.environ['ECOFLOT_EXPECTED_CHATS'] = env['ECOFLOT_EXPECTED_CHATS']
     except Exception as exc:
         state['preflight_errors'].append(str(exc))
     state['expected_recipient_count'] = len(expected)
@@ -147,6 +177,7 @@ def main():
                        'SEARCH_PARTIAL' if 'partial' in statuses else
                        'DELIVERY_PENDING' if not state['delivery']['ok'] else 'COMPLETE')
     state['finished_at'] = datetime.now(MSK).isoformat()
+    send_cycle_notice(state)
     atomic_json(STATE_FILE, state)
     history['cycles'][cycle] = state
     history['cycles'] = dict(list(history['cycles'].items())[-120:])
