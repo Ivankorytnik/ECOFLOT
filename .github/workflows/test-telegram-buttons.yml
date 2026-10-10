@@ -34,28 +34,42 @@ jobs:
                   raise
           PY
 
-      - name: POST notify-only delivery test
+      - name: Probe structured cycle-report contract
         run: |
           python3 - <<'PY'
           import json
           import urllib.request
 
           base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          payload = json.dumps({
-              "mode": "notify-only",
-              "message": "ECOFLOT тест доставки: проверка прямого webhook -> Telegram"
-          }, ensure_ascii=False).encode("utf-8")
-          req = urllib.request.Request(
-              base,
-              data=payload,
-              method="POST",
-              headers={
-                  "Content-Type": "application/json; charset=utf-8",
-                  "User-Agent": "ECOFLOT-Delivery-Diagnostic/1.0",
-              },
-          )
-          with urllib.request.urlopen(req, timeout=30) as r:
-              body = r.read().decode("utf-8", "replace")
-              print("POST_NOTIFY_TEST_HTTP:", r.status)
-              print("POST_NOTIFY_TEST_BODY:", body)
+          cycle = "2026-10-10 09:00 DIAGNOSTIC"
+          message = "ECOFLOT тест доставки structured cycle report"
+          candidates = [
+              {"mode":"search-report","cycleKey":cycle,"message":message},
+              {"mode":"cycle-report","cycleKey":cycle,"message":message},
+              {"mode":"search-complete","cycleKey":cycle,"message":message},
+              {"mode":"structured-search-report","cycleKey":cycle,"message":message},
+              {"mode":"search_report","cycleKey":cycle,"message":message},
+              {"mode":"cycle_report","cycleKey":cycle,"message":message},
+          ]
+
+          for payload in candidates:
+              req = urllib.request.Request(
+                  base,
+                  data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+                  method="POST",
+                  headers={
+                      "Content-Type":"application/json; charset=utf-8",
+                      "User-Agent":"ECOFLOT-Protocol-Probe/1.0",
+                  },
+              )
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  body = r.read().decode("utf-8", "replace")
+              print("PROBE", payload["mode"], body)
+              try:
+                  parsed = json.loads(body)
+              except Exception:
+                  parsed = {}
+              if parsed.get("telegramSent") is True or parsed.get("sent") is True or parsed.get("routes"):
+                  print("PROBE_SUCCESS", payload["mode"], body)
+                  break
           PY
