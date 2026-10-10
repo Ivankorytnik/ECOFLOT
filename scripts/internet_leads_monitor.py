@@ -716,6 +716,27 @@ def relevant(title, description):
     hay = (title + " " + description).lower()
     if any(x in hay for x in EXCLUDE):
         return False
+
+    # Reject labor/vacancy-style orders that only mention construction cleanup
+    # as one of the worker duties. Keep them only when there is an explicit
+    # ECOFLOT transport/equipment demand in the same order.
+    labor_markers = (
+        "ищу подсобного", "нужен подсобный", "подсобный рабочий",
+        "разнорабочий", "разнорабочие", "официальное трудоустройство",
+        "испытательный срок", "оплата за рабочий день", "человек на работу",
+    )
+    explicit_ecoflot_demand = (
+        "нужен самосвал", "нужны самосвалы", "требуется самосвал",
+        "требуются самосвалы", "нужен тонар", "требуется тонар",
+        "нужен контейнер", "заказать контейнер", "вывоз мусора",
+        "вывоз грунта", "вывезти мусор", "вывезти грунт",
+        "перевозка песка", "перевозка щебня", "перевозка пгс",
+        "нужен экскаватор", "требуется экскаватор", "нужен погрузчик",
+        "ассенизатор", "илосос", "откачка септика",
+    )
+    if any(x in hay for x in labor_markers) and not any(x in hay for x in explicit_ecoflot_demand):
+        return False
+
     return any(x in hay for x in POSITIVE)
 
 def lead_class(title, description):
