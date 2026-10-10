@@ -118,6 +118,23 @@ class SafetyContracts(unittest.TestCase):
     def test_generic_profi_category_not_allowed(self):
         self.assertFalse(internet.ensure_public_contact({'url':'https://profi.ru/rabota/remont/test/'})[0])
 
+    def test_profi_individual_response_route_allowed(self):
+        url='https://profi.ru/backoffice/n.php?o=12345678'
+        self.assertTrue(internet.is_verified_order_route(url))
+        item={'url':url,'source':'Профи.ру','phone':'-'}
+        self.assertTrue(internet.ensure_public_contact(item)[0])
+        self.assertFalse(internet.is_listing_url_for_dedupe(item))
+
+    def test_spectehinfo_individual_request_route_allowed(self):
+        url='https://mosobl.spectehinfo.ru/zayavki/arenda/samosvaly/b264943'
+        self.assertTrue(internet.is_verified_order_route(url))
+        item={'url':url,'source':'СПЕЦТЕХНИКА-ИНФО','phone':'-'}
+        self.assertTrue(internet.ensure_public_contact(item)[0])
+        self.assertFalse(internet.is_listing_url_for_dedupe(item))
+
+    def test_spectehinfo_listing_is_not_direct_route(self):
+        self.assertFalse(internet.is_verified_order_route('https://mosobl.spectehinfo.ru/arenda/samosvaly/po_oblasti'))
+
     def test_unknown_date_rejected(self):
         self.assertFalse(internet.is_recent('current'))
 
