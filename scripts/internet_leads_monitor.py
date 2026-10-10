@@ -604,8 +604,23 @@ def send_notify_reliable(
             + str(request_id)
         )
     try:
-        return send_notify_only(
+        cycle_key = (
+            os.environ.get("ECOFLOT_CYCLE_KEY", "").strip()
+            or datetime.now(MSK).strftime("%Y-%m-%d %H:%M") + " SERVICE"
+        )
+        report = {
+            "status": "SERVICE_NOTICE",
+            "searchMode": source,
+            "new": 0,
+            "accepted": 0,
+            "errors": 0,
+            "uncheckedSources": [],
+            "message": message,
+        }
+        return send_structured_cycle_report(
             message,
+            cycle_key,
+            report,
             webhook=webhook,
             user_agent=user_agent,
             attempts=attempts,
