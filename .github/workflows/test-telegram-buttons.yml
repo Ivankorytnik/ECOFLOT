@@ -95,3 +95,39 @@ jobs:
               except Exception as exc:
                   print("OUTBOX_ACTION_ERROR", action, repr(exc))
           PY
+
+      - name: Dispatch B264943 card through normal lead webhook
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.parse
+          import urllib.request
+
+          base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          payload = {
+              "type": "Интернет-заявка",
+              "name": "Коммунарка — нужны 5 самосвалов 30 м³",
+              "phone": "-",
+              "wasteType": "Перевозка песка / самосвалы",
+              "volume": "5 самосвалов 30 м³",
+              "when": "10.10.2026",
+              "address": "Москва, Коммунарка",
+              "source": "Спецтехника-Инфо",
+              "link": "https://spectehinfo.ru/zayavki/arenda",
+              "status": "Новая",
+              "comment": "Песок, плечо 50 км, 3 рейса/день, ставка 350 ₽/т. Источник: Спецтехника-Инфо, заявка B264943.",
+              "requestId": "WEB-SPECTEHINFO-B264943",
+          }
+          req = urllib.request.Request(
+              base,
+              data=urllib.parse.urlencode(payload).encode("utf-8"),
+              method="POST",
+              headers={"User-Agent":"ECOFLOT-Manual-Card-Dispatch/1.0"},
+          )
+          with urllib.request.urlopen(req, timeout=60) as r:
+              body = r.read().decode("utf-8","replace")
+          print("B264943_RESPONSE", body)
+          parsed = json.loads(body)
+          if not parsed.get("ok"):
+              raise SystemExit("B264943 webhook rejected")
+          PY
