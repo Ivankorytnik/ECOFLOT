@@ -46,6 +46,8 @@ PROFI_SOURCES = [
     ("Профи / земляные работы", "https://profi.ru/rabota/remont/zakazy-na-zemlyanye-raboty/"),
     ("Профи / расчистка участка", "https://profi.ru/rabota/remont/zakazy-na-raschistku-uchastka/"),
     ("Профи / демонтаж", "https://profi.ru/rabota/remont/zakazy-na-demontazh-kvartir/"),
+    ("Профи / обслуживание септиков", "https://profi.ru/rabota/remont/zakazy-na-obsluzhivanie-septikov/"),
+    ("Профи / установка септиков", "https://profi.ru/rabota/remont/zakazy-na-ustanovku-septikov/"),
 ]
 
 # YouDo/Yandex/Avito are intentionally not treated as automatic demand feeds here.
@@ -139,6 +141,7 @@ PROMINDEX_SOURCES = [
 SPECTEHINFO_SOURCES = [
     ("СПЕЦТЕХНИКА-ИНФО / Москва / самосвалы", "https://moskva.spectehinfo.ru/arenda/samosvaly"),
     ("СПЕЦТЕХНИКА-ИНФО / Московская область / самосвалы", "https://mosobl.spectehinfo.ru/arenda/samosvaly"),
+    ("СПЕЦТЕХНИКА-ИНФО / Московская область / заявки по области", "https://mosobl.spectehinfo.ru/arenda/samosvaly/po_oblasti"),
     ("СПЕЦТЕХНИКА-ИНФО / Калужская область / самосвалы", "https://kaluga.spectehinfo.ru/arenda/samosvaly"),
 ]
 
@@ -360,6 +363,26 @@ def extract_public_contact(text):
 
     return phone, contact_url
 
+def is_verified_order_route(url):
+    """Known individual order/card routes that are usable contact paths."""
+    try:
+        parsed = urllib.parse.urlparse(str(url or "").strip())
+        host = (parsed.hostname or "").lower()
+        path = parsed.path or ""
+        query = urllib.parse.parse_qs(parsed.query or "")
+    except Exception:
+        return False
+    if not host or not path:
+        return False
+    if host.endswith("profi.ru"):
+        return path.rstrip("/") == "/backoffice/n.php" and bool(query.get("o"))
+    if host.endswith("spectehinfo.ru"):
+        return bool(re.search(r"/zayavki/(?:arenda|uslugi)/[^/]+/b\d+/?$", path, re.I))
+    if host.endswith("vezetvsem.ru"):
+        return "/request/" in path.lower() or "/perevozka_" in path.lower()
+    return False
+
+
 def ensure_public_contact(item):
     source_url = str(item.get("url") or "")
     if _host_matches(source_url, REGISTRATION_GATED_DOMAINS):
@@ -386,10 +409,12 @@ def ensure_public_contact(item):
             contact_url = found_url
 
     if not phone and not contact_url:
-        # Contact-gated exceptions (Profi/VezetVsem) are allowed only when the
-        # URL points to an individual order/card. A category/listing URL is not
-        # a usable contact route even if the text block itself looks specific.
-        if _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and not is_listing_url_for_dedupe(item):
+        # Individual order routes are acceptable contact paths. Profi/VezetVsem
+        # are explicit user-approved contact-gated exceptions; Spectehinfo
+        # individual request cards expose the customer-contact action publicly.
+        if is_verified_order_route(source_url):
+            contact_url = source_url
+        elif _host_matches(source_url, CONTACT_GATED_ALLOWED_DOMAINS) and not is_listing_url_for_dedupe(item):
             contact_url = source_url
         else:
             return False, "no-public-contact-or-direct-order-link"
@@ -409,6 +434,8 @@ def normalize_phone(value):
 def is_listing_url_for_dedupe(item):
     source = normalize(item.get("source") or "")
     url = str(item.get("url") or "").lower()
+    if is_verified_order_route(url):
+        return False
     if "профи" in source or "profi.ru/rabota/" in url or "profi.ru/registration/" in url:
         return True
     if "спецтехника-инфо" in source or "spectehinfo.ru/arenda/" in url:
@@ -1513,6 +1540,19 @@ def parse_profi_orders(page, source_label, source_url):
     for raw_title, raw_body in blocks:
         title = clean(raw_title)
 
+        # Profi exposes a stable per-order response route in the "Откликнуться"
+        # anchor. Keep it instead of replacing every order with the category URL.
+        order_url = ""
+        for href, anchor_html in re.findall(
+            r'(?is)<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+            raw_body,
+        ):
+            if "откликнуться" in normalize(clean(anchor_html)):
+                candidate = urllib.parse.urljoin(source_url, html.unescape(href))
+                if is_verified_order_route(candidate):
+                    order_url = candidate
+                    break
+
         body_lines = lines_from_html(raw_body)
         if not any("Откликнуться" in x for x in body_lines):
             continue
@@ -1572,7 +1612,8 @@ def parse_profi_orders(page, source_label, source_url):
             "date": date_text or "актуальная заявка",
             "location": location[:250],
             "volume": extract_volume(description) or "-",
-            "url": source_url,
+            "url": order_url or source_url,
+            "contact_url": order_url,
             "source": "Профи.ру",
             "priority": priority_for(title + " " + description),
         })
@@ -1618,26 +1659,52 @@ def extract_youdo_candidates(page, source_label, source_url):
         })
     return candidates[:50]
 
-def parse_spectehinfo_requests(page, source_label, source_url):
-    lines = lines_from_html(page)
-    start = next((i for i, line in enumerate(lines) if "последние заявки" in normalize(line)), -1)
-    if start < 0:
-        return []
-    segment = lines[start + 1:start + 220]
-    stop = next(
-        (i for i, line in enumerate(segment)
-         if normalize(line) in ("все заявки", "добавить заявку") or normalize(line).startswith("свободен")),
-        len(segment),
-    )
-    segment = segment[:stop]
-    starts = [i for i, line in enumerate(segment) if normalize(line).startswith("заявка на аренду")]
-    out = []
-    for pos, block_start in enumerate(starts):
-        block_end = starts[pos + 1] if pos + 1 < len(starts) else min(len(segment), block_start + 28)
-        block_lines = segment[block_start:block_end]
-        block = " ".join(block_lines)
-        if not block or not relevant(block_lines[0], block):
+def spectehinfo_activity_current(date_text):
+    low = normalize(date_text)
+    if any(marker in low for marker in (
+        "сегодня", "завтра", "в течение недели", "на этой неделе",
+        "срочно", "как можно скорее",
+    )):
+        return True
+    for fmt in ("%d.%m.%Y", "%Y-%m-%d"):
+        try:
+            dt = datetime.strptime(clean(date_text), fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
             continue
+        delta = dt.date() - datetime.now(timezone.utc).date()
+        return -1 <= delta.days <= RECENT_DAYS
+    return False
+
+
+def parse_spectehinfo_requests(page, source_label, source_url):
+    out = []
+    anchors = []
+    for m in re.finditer(
+        r'(?is)<a\b[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)</a>',
+        page or "",
+    ):
+        anchor_text = clean(m.group(2))
+        if "заявка на аренду" not in normalize(anchor_text):
+            continue
+        direct_url = urllib.parse.urljoin(source_url, html.unescape(m.group(1)))
+        if not is_verified_order_route(direct_url):
+            continue
+        anchors.append((m.start(), m.end(), direct_url, anchor_text))
+
+    for pos, (block_start, anchor_end, direct_url, anchor_text) in enumerate(anchors):
+        block_end = anchors[pos + 1][0] if pos + 1 < len(anchors) else min(len(page), anchor_end + 5000)
+        raw_block = page[block_start:block_end]
+        # Stop before the site's "all requests"/provider listings when possible.
+        stop = re.search(r'(?is)>\s*Все заявки\s*<|>\s*Добавить заявку\s*<|>\s*Свободен\s*<', raw_block)
+        if stop:
+            raw_block = raw_block[:stop.start()]
+        block_lines = lines_from_html(raw_block)
+        if not block_lines:
+            continue
+        block = " ".join(block_lines)
+        if not relevant(anchor_text, block):
+            continue
+
         location = ""
         date_text = ""
         for idx, line in enumerate(block_lines):
@@ -1650,21 +1717,28 @@ def parse_spectehinfo_requests(page, source_label, source_url):
                 date_text = clean(re.sub(r"(?i)^дата начала работ\s*:\s*", "", line))
                 if not date_text and idx + 1 < len(block_lines):
                     date_text = block_lines[idx + 1]
-        if not geo_allowed(location, block_lines[0], block):
+
+        if not geo_allowed(location, anchor_text, block):
             continue
-        rid = "WEB-SPECTEHINFO-" + hashlib.sha1(
-            (source_url + "|" + block[:900]).encode("utf-8")
-        ).hexdigest()[:20]
+        if not spectehinfo_activity_current(date_text):
+            continue
+
+        bid = re.search(r"/(b\d+)/?$", urllib.parse.urlparse(direct_url).path, re.I)
+        rid = "WEB-SPECTEHINFO-" + (
+            bid.group(1).upper() if bid else hashlib.sha1(direct_url.encode("utf-8")).hexdigest()[:20]
+        )
         out.append({
             "request_id": rid,
-            "title": block_lines[0][:250],
+            "title": anchor_text[:250],
             "description": block[:1800],
             "contact_text": block,
+            "contact_url": direct_url,
             "price": "договорная",
-            "date": date_text or "актуальная заявка",
+            "date": date_text,
+            "activity_confirmed": True,
             "location": location or matched_geo(block),
             "volume": extract_volume(block) or "-",
-            "url": source_url,
+            "url": direct_url,
             "source": source_label,
             "priority": priority_for(block),
         })
@@ -2177,7 +2251,7 @@ def internet_quality_ready(item):
         return False, "no-direct-link"
     if date_text.lower() in ("", "-", "актуальная заявка"):
         return False, "no-confirmed-date"
-    if not is_recent(date_text):
+    if not is_recent(date_text) and not item.get("activity_confirmed"):
         return False, "date-unverified-stale-or-future"
     # Contact validation follows date verification.
     ok, reason = ensure_public_contact(item)
@@ -2195,7 +2269,7 @@ def send_webhook(item):
         f"Техника: {item.get('equipment','')}\n"
         f"Описание: {item['description']}\n"
         f"Цена: {item['price']}\n"
-        f"Дата публикации: {item['date']}\n"
+        f"Дата/актуальность: {item['date']}\n"
         f"Телефон: {item.get('phone') or '-'}\n"
         f"Контакт: {item.get('contact_url') or '-'}\n"
         f"Ссылка: {item['url']}\n"
