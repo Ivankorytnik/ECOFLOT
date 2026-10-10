@@ -1,19 +1,13 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-10T19:05:40.394524+00:00",
+    "at": "2026-10-10T19:32:23.925433+00:00",
     "cycleKey": "2026-10-10 18:00",
-    "run_id": "38078147457.1",
+    "run_id": "38079918733.1",
     "error_details": [
-      "site:max.ru нужен самосвал Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru вывоз грунта Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "site:max.ru вывоз мусора Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru вывоз мусора Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "site:max.ru вывоз мусора Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "site:max.ru нужен контейнер мусор Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "site:max.ru нужен контейнер мусор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "site:max.ru нужен контейнер мусор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru нужен контейнер мусор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru нужен контейнер мусор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "site:max.ru требуется экскаватор Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "site:max.ru требуется экскаватор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "site:max.ru требуется экскаватор Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -38,7 +32,7 @@
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 28,
+    "errors": 22,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -54,6 +48,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.02
+    "discovery_seconds": 1.93
   }
 }

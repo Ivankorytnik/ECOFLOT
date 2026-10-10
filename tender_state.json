@@ -132,18 +132,13 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-10T19:07:03.808177+00:00",
+    "at": "2026-10-10T19:33:47.727486+00:00",
     "cycleKey": "2026-10-10 18:00",
-    "run_id": "38078147457.1",
+    "run_id": "38079918733.1",
     "error_details": [
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:fabrikant.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -234,7 +229,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 16,
+    "errors": 11,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -247,6 +242,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 0.99
+    "discovery_seconds": 1.19
   }
 }
