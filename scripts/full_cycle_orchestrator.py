@@ -78,9 +78,24 @@ def send_cycle_notice(state):
     if status == 'SEARCH_PARTIAL':
         message += "\nЧасть источников не отработала полностью."
     try:
-        from internet_leads_monitor import send_notify_only
-        send_notify_only(message, user_agent='ECOFLOT-Cycle-Summary/1.0', attempts=2)
-        state['cycle_notice'] = 'sent'
+        from internet_leads_monitor import send_structured_cycle_report
+        report = {
+            'status': status,
+            'searchMode': state.get('search_mode', '-'),
+            'new': totals.get('new', 0),
+            'accepted': totals.get('accepted', 0),
+            'errors': totals.get('errors', 0),
+            'uncheckedSources': unchecked,
+            'message': message,
+        }
+        resp = send_structured_cycle_report(
+            message,
+            state.get('cycleKey', ''),
+            report,
+            user_agent='ECOFLOT-Cycle-Summary/2.0',
+            attempts=2,
+        )
+        state['cycle_notice'] = 'sent' if resp.get('telegramSent') is True else 'queued'
     except Exception as exc:
         state['cycle_notice'] = 'error: ' + str(exc)
         print('CYCLE_NOTICE_ERROR', str(exc), flush=True)
