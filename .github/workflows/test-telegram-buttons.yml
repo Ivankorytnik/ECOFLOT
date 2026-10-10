@@ -34,7 +34,7 @@ jobs:
                   raise
           PY
 
-      - name: Probe structured cycle-report contract
+      - name: Probe notify-only structured report contract
         run: |
           python3 - <<'PY'
           import json
@@ -42,34 +42,41 @@ jobs:
 
           base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
           cycle = "2026-10-10 09:00 DIAGNOSTIC"
-          message = "ECOFLOT тест доставки structured cycle report"
+          message = "ECOFLOT тест structured report delivery"
+          report = {
+              "status":"COMPLETE",
+              "searchMode":"Diagnostic",
+              "new":0,
+              "accepted":0,
+              "errors":0,
+              "uncheckedSources":[],
+              "message":message,
+          }
           candidates = [
-              {"mode":"search-report","cycleKey":cycle,"message":message},
-              {"mode":"cycle-report","cycleKey":cycle,"message":message},
-              {"mode":"search-complete","cycleKey":cycle,"message":message},
-              {"mode":"structured-search-report","cycleKey":cycle,"message":message},
-              {"mode":"search_report","cycleKey":cycle,"message":message},
-              {"mode":"cycle_report","cycleKey":cycle,"message":message},
+              {"mode":"notify-only","cycleKey":cycle,"report":{"message":message}},
+              {"mode":"notify-only","cycle":cycle,"report":{"message":message}},
+              {"mode":"notify-only","cycleKey":cycle,"searchReport":{"message":message}},
+              {"mode":"notify-only","cycleKey":cycle,"report":report},
+              {"mode":"notify-only","cycle":cycle,"searchReport":report},
+              {"mode":"notify-only","cycleKey":cycle,"message":message,"report":report},
           ]
 
-          for payload in candidates:
+          for i,payload in enumerate(candidates,1):
               req = urllib.request.Request(
                   base,
                   data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
                   method="POST",
-                  headers={
-                      "Content-Type":"application/json; charset=utf-8",
-                      "User-Agent":"ECOFLOT-Protocol-Probe/1.0",
-                  },
+                  headers={"Content-Type":"application/json; charset=utf-8",
+                           "User-Agent":"ECOFLOT-Protocol-Probe/2.0"},
               )
               with urllib.request.urlopen(req, timeout=30) as r:
                   body = r.read().decode("utf-8", "replace")
-              print("PROBE", payload["mode"], body)
+              print("PROBE", i, body)
               try:
                   parsed = json.loads(body)
               except Exception:
                   parsed = {}
               if parsed.get("telegramSent") is True or parsed.get("sent") is True or parsed.get("routes"):
-                  print("PROBE_SUCCESS", payload["mode"], body)
+                  print("PROBE_SUCCESS", i, body)
                   break
           PY
