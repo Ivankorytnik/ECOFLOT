@@ -124,7 +124,9 @@ def main():
         state['retrying_partial_from'] = previous.get('run_id')
     atomic_json(STATE_FILE, state)
     env = os.environ.copy()
-    mode = 'Deep' if ' 08:00' in cycle else 'Standard'
+    # User contract: every scheduled slot (08:00, 14:00, 18:00 MSK)
+    # is a full Deep Search. Manual/forced cycles use the same complete coverage.
+    mode = 'Deep'
     env.update(ECOFLOT_CYCLE_KEY=cycle, ECOFLOT_RUN_ID=run_id(),
                ECOFLOT_SEARCH_MODE=mode, SUPPRESS_NO_RESULTS='1', ECOFLOT_ORCHESTRATED='1')
     state['search_mode'] = mode
