@@ -446,6 +446,43 @@ def _truthy_delivery(value):
 def telegram_delivery_confirmed(resp):
     return delivery_confirmed(resp)
 
+def send_structured_cycle_report(message, cycle_key, report, webhook=WEBHOOK,
+                                 user_agent="ECOFLOT-Cycle-Report/2.0", attempts=2):
+    payload = json.dumps({
+        "mode": "notify-only",
+        "cycleKey": str(cycle_key or "").strip(),
+        "message": str(message or ""),
+        "report": report if isinstance(report, dict) else {},
+    }, ensure_ascii=False).encode("utf-8")
+    last_exc = None
+    for attempt in range(1, max(1, attempts) + 1):
+        try:
+            req = urllib.request.Request(
+                webhook,
+                data=payload,
+                method="POST",
+                headers={
+                    "User-Agent": user_agent,
+                    "Content-Type": "application/json; charset=utf-8",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=30) as r:
+                body = r.read().decode("utf-8", "replace")
+                resp = parse_webhook_response(r.status, body, "Telegram structured cycle report")
+            if resp.get("ignored") is True:
+                raise RuntimeError("STRUCTURED_REPORT_IGNORED")
+            if not (telegram_delivery_confirmed(resp) or resp.get("telegramQueued") is True):
+                raise RuntimeError("STRUCTURED_REPORT_NOT_ACCEPTED")
+            print("TELEGRAM_STRUCTURED_REPORT_ACK:", json.dumps(resp, ensure_ascii=False)[:500])
+            return resp
+        except Exception as exc:
+            last_exc = exc
+            print(f"TELEGRAM_STRUCTURED_REPORT_RETRY {attempt}/{max(1, attempts)}: {exc}", file=sys.stderr)
+            if attempt < max(1, attempts):
+                time.sleep(min(3 * attempt, 6))
+    raise last_exc
+
+
 def send_notify_only(message, webhook=WEBHOOK, user_agent="ECOFLOT-Notify/2.0", attempts=1):
     payload = json.dumps({
         "mode": "notify-only",
