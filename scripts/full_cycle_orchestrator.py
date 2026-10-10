@@ -37,7 +37,9 @@ def exit_code(status):
 
 def reconcile_delivery(expected, current_ids):
     """Wait briefly for the Apps Script -> Google Sheets delivery write to settle."""
-    wait_seconds = max(0, int(os.environ.get('ECOFLOT_DELIVERY_WAIT_SECONDS', '210')))
+    # The deployed Apps Script outbox processes larger batches in chunks.
+    # Allow enough time for a normal queue drain before declaring delivery pending.
+    wait_seconds = max(0, int(os.environ.get('ECOFLOT_DELIVERY_WAIT_SECONDS', '600')))
     interval = max(5, int(os.environ.get('ECOFLOT_DELIVERY_POLL_SECONDS', '30')))
     deadline = time.monotonic() + wait_seconds
     attempts = 0
