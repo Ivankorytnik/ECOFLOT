@@ -3,9 +3,9 @@ on:
   schedule:
     # GitHub warns scheduled workflows may be delayed around the top of the hour.
     # Use off-peak minutes; all three wake-ups map to the same logical slot.
-    - cron: '7,17,27 5 * * *'
-    - cron: '7,17,27 11 * * *'
-    - cron: '7,17,27 15 * * *'
+    - cron: '0,7,17,27 5 * * *'
+    - cron: '0,7,17,27 11 * * *'
+    - cron: '0,7,17,27 15 * * *'
   workflow_dispatch:
     inputs:
       force:
