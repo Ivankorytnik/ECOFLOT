@@ -1158,8 +1158,10 @@ def parse_samosval_info(page, source_url):
             continue
         if not geo_allowed("", title, context):
             continue
-        until_m = re.search(r'(?i)(?:актуал[^0-9]{0,20}до|до)\\s*(\\d{1,2}\\.\\d{1,2}(?:\\.20\\d{2})?)', combined)
-        date_text = until_m.group(1) if until_m else "актуальная заявка"
+        published_m = re.search(r'(?i)дата публикации:\\s*(\\d{1,2}\\.\\d{1,2}\\.20\\d{2})', combined)
+        if not published_m:
+            continue
+        date_text = published_m.group(1)
         link = urllib.parse.urljoin(source_url, href)
         key = hashlib.sha1(link.encode("utf-8")).hexdigest()[:16]
         item = build_open_feed_item(
@@ -1202,8 +1204,10 @@ def parse_samosval_info(page, source_url):
             if not title:
                 title = f"Заявка Samosval.info {order_id}"
 
-            until_m = re.search(r"(?i)объявление актуально до:\s*([^|]+?)(?=\s{2,}|$)", block)
-            date_text = until_m.group(1).strip() if until_m else "актуальная заявка"
+            published_m = re.search(r"(?i)дата публикации:\s*(\d{1,2}\.\d{1,2}\.20\d{2})", block)
+            if not published_m:
+                continue
+            date_text = published_m.group(1)
             link = "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=" + order_id
             item = build_open_feed_item(
                 "Samosval.info", source_url, order_id, title[:180], block[:1800], date_text,
