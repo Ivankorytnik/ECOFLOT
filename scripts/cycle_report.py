@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-from internet_leads_monitor import WEBHOOK, send_notify_reliable
+from internet_leads_monitor import WEBHOOK, send_structured_cycle_report
 
 MSK = timezone(timedelta(hours=3))
 MAX_AGE = timedelta(hours=2, minutes=15)
@@ -70,11 +70,23 @@ def main():
     lines.append("Если есть ❌ или ⚠️, это видно сразу: тихого пропуска отчёта больше быть не должно.")
 
     message = "\n".join(lines)
-    send_notify_reliable(
+    cycle_key = datetime.now(MSK).strftime("%Y-%m-%d %H:%M") + " CONTROL"
+    report = {
+        "status": "CONTROL",
+        "searchMode": "Control",
+        "new": 0,
+        "accepted": 0,
+        "errors": message.count("⚠️") + message.count("❌"),
+        "uncheckedSources": [],
+        "message": message,
+    }
+    send_structured_cycle_report(
         message,
+        cycle_key,
+        report,
         webhook=WEBHOOK,
-        user_agent="ECOFLOT-Cycle-Control/1.0",
-        source="Cycle Control",
+        user_agent="ECOFLOT-Cycle-Control/2.0",
+        attempts=2,
     )
     print(message)
 
