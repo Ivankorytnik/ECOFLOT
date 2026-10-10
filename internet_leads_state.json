@@ -164,22 +164,16 @@
     "WEB-PROFI-4b01d2a7986811a02af4": "2026-10-08T20:43:53.335742+00:00"
   },
   "last_run": {
-    "at": "2026-10-09T20:20:35.353664+00:00",
-    "cycleKey": "2026-10-09 18:00",
-    "run_id": "37986036804.1",
+    "at": "2026-10-10T05:52:07.479563+00:00",
+    "cycleKey": "2026-10-09 08:00",
+    "run_id": "38028747938.1",
     "error_details": [
-      "NPD listing Наро-Фоминск: The read operation timed out",
-      "NPD listing Краснознаменск: The read operation timed out",
-      "NPD listing Красногорск: The read operation timed out",
-      "NPD listing Апрелевка: The read operation timed out",
-      "NPD listing Истра: The read operation timed out",
-      "NPD listing Одинцово: The read operation timed out",
-      "NPD listing Звенигород: The read operation timed out",
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 0,
@@ -187,8 +181,8 @@
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 13,
-    "search_mode": "Standard",
+    "errors": 7,
+    "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
     "delivery_pending": 0,
@@ -199,6 +193,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.23
+    "discovery_seconds": 3.14
   }
 }
