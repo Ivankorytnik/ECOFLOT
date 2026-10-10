@@ -1158,7 +1158,7 @@ def parse_samosval_info(page, source_url):
             continue
         if not geo_allowed("", title, context):
             continue
-        published_m = re.search(r'(?i)дата публикации:\\s*(\\d{1,2}\\.\\d{1,2}\\.20\\d{2})', combined)
+        published_m = re.search(r'(?i)дата публикации:\s*(\d{1,2}\.\d{1,2}\.20\d{2})', combined)
         if not published_m:
             continue
         date_text = published_m.group(1)
