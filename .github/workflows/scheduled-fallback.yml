@@ -45,8 +45,9 @@ jobs:
             exit 0
           fi
 
-          key="$(sed -n '1p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
-          mode="$(sed -n '2p' scheduled-fallback-trigger.txt | tr -d '\r\n')"
+          trigger_content="$(git show "$GITHUB_SHA:scheduled-fallback-trigger.txt")"
+          key="$(printf '%s\n' "$trigger_content" | sed -n '1p' | tr -d '\r\n')"
+          mode="$(printf '%s\n' "$trigger_content" | sed -n '2p' | tr -d '\r\n')"
 
           if ! printf '%s' "$key" | grep -Eq '^20[0-9]{2}-[0-9]{2}-[0-9]{2} (08|14|18):00$'; then
             echo "Invalid fallback cycle key: $key" >&2
