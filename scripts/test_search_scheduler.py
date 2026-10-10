@@ -17,6 +17,19 @@ class SchedulerContracts(unittest.TestCase):
         keys = {scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 8, minute, tzinfo=MSK)) for minute in (7, 17, 27, 59)}
         self.assertEqual(keys, {'2026-10-07 08:00'})
 
+    def test_exact_and_backup_minutes_share_same_slots(self):
+        for expr, hour in (
+            ('0,7,17,27 5 * * *', 8),
+            ('0,7,17,27 11 * * *', 14),
+            ('0,7,17,27 15 * * *', 18),
+        ):
+            for minute in (0, 7, 17, 27, 59):
+                with self.subTest(expr=expr, minute=minute):
+                    self.assertEqual(
+                        scheduled_slot(expr, datetime(2026, 10, 10, hour, minute, tzinfo=MSK)),
+                        f'2026-10-10 {hour:02d}:00',
+                    )
+
     def test_scheduled_fallback_maps_to_same_slots(self):
         self.assertEqual(scheduled_slot('37 5 * * *', datetime(2026, 10, 9, 8, 37, tzinfo=MSK)), '2026-10-09 08:00')
         self.assertEqual(scheduled_slot('37 11 * * *', datetime(2026, 10, 9, 14, 37, tzinfo=MSK)), '2026-10-09 14:00')
