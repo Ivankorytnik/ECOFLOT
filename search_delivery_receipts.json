@@ -269,6 +269,136 @@
       "accepted_at": "2026-10-08T20:43:53.334329+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-08T20:43:53.334342+00:00"
+    },
+    "WEB-SPECTEHINFO-B263407": {
+      "requestId": "WEB-SPECTEHINFO-B263407",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Калужская область / самосвалы",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:37:58.532360+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:37:58.532373+00:00"
+    },
+    "WEB-SPECTEHINFO-B264989": {
+      "requestId": "WEB-SPECTEHINFO-B264989",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Московская область / заявки по области",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:07.853219+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:07.853234+00:00"
+    },
+    "WEB-PROFI-b9bc8928d8afe261506b": {
+      "requestId": "WEB-PROFI-b9bc8928d8afe261506b",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:13.197246+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:13.197261+00:00"
+    },
+    "WEB-SPECTEHINFO-B264248": {
+      "requestId": "WEB-SPECTEHINFO-B264248",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Калужская область / самосвалы",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:20.607152+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:20.607166+00:00"
+    },
+    "WEB-SPECTEHINFO-B264195": {
+      "requestId": "WEB-SPECTEHINFO-B264195",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Калужская область / самосвалы",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:27.876975+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:27.876987+00:00"
+    },
+    "WEB-SPECTEHINFO-B264271": {
+      "requestId": "WEB-SPECTEHINFO-B264271",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Москва / самосвалы",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:34.438790+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:34.438803+00:00"
+    },
+    "WEB-SPECTEHINFO-B261207": {
+      "requestId": "WEB-SPECTEHINFO-B261207",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Москва / самосвалы",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:42.704046+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:42.704058+00:00"
+    },
+    "WEB-SPECTEHINFO-B262529": {
+      "requestId": "WEB-SPECTEHINFO-B262529",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Московская область / заявки по области",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:38:51.361370+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:38:51.361383+00:00"
+    },
+    "WEB-SPECTEHINFO-B262200": {
+      "requestId": "WEB-SPECTEHINFO-B262200",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "СПЕЦТЕХНИКА-ИНФО / Московская область / заявки по области",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:39:03.856830+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:39:03.856844+00:00"
+    },
+    "WEB-PROFI-cb43f45bdfe822270345": {
+      "requestId": "WEB-PROFI-cb43f45bdfe822270345",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:39:13.807594+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:39:13.807607+00:00"
+    },
+    "WEB-PROFI-49f5039a71febeb2d3ee": {
+      "requestId": "WEB-PROFI-49f5039a71febeb2d3ee",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:39:23.213111+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:39:23.213125+00:00"
+    },
+    "WEB-PROFI-92dae9aedbe3f27fb6ed": {
+      "requestId": "WEB-PROFI-92dae9aedbe3f27fb6ed",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:39:29.517437+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:39:29.517451+00:00"
+    },
+    "WEB-PROFI-9982c4036cce3d13335d": {
+      "requestId": "WEB-PROFI-9982c4036cce3d13335d",
+      "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+      "run_id": "38031360836.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-10T06:39:34.730635+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-10T06:39:34.730647+00:00"
     }
   }
 }

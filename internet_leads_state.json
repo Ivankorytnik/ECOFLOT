@@ -161,29 +161,45 @@
     "WEB-PROFI-a19ab60a4ef913bff5fe": "2026-10-08T17:54:21.469789+00:00",
     "WEB-PROFI-f1d1593da22a49ecdd55": "2026-10-08T20:43:31.550562+00:00",
     "WEB-PROFI-c81960b7be17cbb6d7fb": "2026-10-08T20:43:42.070240+00:00",
-    "WEB-PROFI-4b01d2a7986811a02af4": "2026-10-08T20:43:53.335742+00:00"
+    "WEB-PROFI-4b01d2a7986811a02af4": "2026-10-08T20:43:53.335742+00:00",
+    "WEB-SPECTEHINFO-B263407": "2026-10-10T06:37:58.533847+00:00",
+    "WEB-SPECTEHINFO-B264989": "2026-10-10T06:38:07.854829+00:00",
+    "WEB-PROFI-b9bc8928d8afe261506b": "2026-10-10T06:38:13.198688+00:00",
+    "WEB-SPECTEHINFO-B264248": "2026-10-10T06:38:20.609276+00:00",
+    "WEB-SPECTEHINFO-B264195": "2026-10-10T06:38:27.878448+00:00",
+    "WEB-SPECTEHINFO-B264271": "2026-10-10T06:38:34.440099+00:00",
+    "WEB-SPECTEHINFO-B261207": "2026-10-10T06:38:42.705634+00:00",
+    "WEB-SPECTEHINFO-B262529": "2026-10-10T06:38:51.362895+00:00",
+    "WEB-SPECTEHINFO-B262200": "2026-10-10T06:39:03.858354+00:00",
+    "WEB-PROFI-cb43f45bdfe822270345": "2026-10-10T06:39:13.809011+00:00",
+    "WEB-PROFI-49f5039a71febeb2d3ee": "2026-10-10T06:39:23.214789+00:00",
+    "WEB-PROFI-92dae9aedbe3f27fb6ed": "2026-10-10T06:39:29.520808+00:00",
+    "WEB-PROFI-9982c4036cce3d13335d": "2026-10-10T06:39:34.732135+00:00"
   },
   "last_run": {
-    "at": "2026-10-10T06:11:49.937769+00:00",
-    "cycleKey": "2026-10-10 08:00 EXTRA 38029830449.1",
-    "run_id": "38029830449.1",
+    "at": "2026-10-10T06:39:34.733224+00:00",
+    "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
+    "run_id": "38031360836.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
       "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://www.avito.ru/moskva/predlozheniya_uslug/transport_perevozki/arenda_spetstekhniki/gruzovoy_transport/samosval_kuzov-ASgBAgICBESYC8SfAZoL3J8B7o4OwI_OAaq4EoLXjAM: HTTP Error 429: Too Many Requests",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone"
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+      "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
-    "candidates": 0,
-    "duplicates_local": 0,
+    "candidates": 21,
+    "duplicates_local": 8,
     "deferred": 0,
-    "new": 0,
+    "new": 13,
     "sent": 0,
-    "errors": 5,
+    "errors": 8,
     "search_mode": "Deep",
-    "accepted": 0,
+    "accepted": 13,
     "duplicates_server": 0,
-    "delivery_pending": 0,
+    "delivery_pending": 13,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
@@ -191,6 +207,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.33
+    "discovery_seconds": 3.41
   }
 }
