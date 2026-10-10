@@ -238,9 +238,20 @@ function ecoflotProcessTextOutbox_() {
 }
 
 function ecoflotInstallOutboxTrigger_() {
-  const handler = 'ecoflotProcessTextOutbox_';
+  // Prefer the deployed bridge's canonical processor: it handles lead_one,
+  // text_one and the rest of the native queue. Fall back to the text processor
+  // only in stripped-down projects where the canonical function is absent.
+  const handler = (typeof processTelegramOutbox === 'function')
+    ? 'processTelegramOutbox'
+    : 'ecoflotProcessTextOutbox_';
+
   ScriptApp.getProjectTriggers().forEach(function(trigger) {
-    if (trigger.getHandlerFunction() === handler) ScriptApp.deleteTrigger(trigger);
+    const current = trigger.getHandlerFunction();
+    if (current === handler ||
+        current === 'processTelegramOutbox' ||
+        current === 'ecoflotProcessTextOutbox_') {
+      ScriptApp.deleteTrigger(trigger);
+    }
   });
   ScriptApp.newTrigger(handler).timeBased().everyMinutes(1).create();
   return { ok:true, handler:handler };
