@@ -1,75 +1,19 @@
-name: ECOFLOT manual board Telegram dispatch
+name: ECOFLOT Telegram route diagnostic
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/test-telegram-buttons.yml'
   workflow_dispatch:
 
 jobs:
-  dispatch:
+  diagnostic:
     runs-on: ubuntu-latest
     steps:
-      - name: Send verified board findings to Telegram
+      - name: Inspect deployed ECOFLOT bridge
         run: |
           python3 - <<'PY'
-          import json
           import urllib.request
-
           base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
-          messages = [
-              "🔥 Коммунарка — нужны 5 самосвалов 30 м³. Песок, плечо 50 км, 3 рейса/день, ставка 350 ₽/т. Спецтехника-Инфо, B264943. https://spectehinfo.ru/zayavki/arenda",
-              "🔥 Наро-Фоминский район — вывоз строительного и бытового мусора, бюджет до 15 000 ₽. Профи.ру: https://profi.ru/registration/remont/musor/",
-              "🔥 Солнечногорск — нужен контейнер 8 м³ под строительный мусор и доски, бюджет до 12 000 ₽. Профи.ру: https://profi.ru/registration/remont/musor/",
-              "🔥 Москва, Шоссе Энтузиастов — вывоз строительного мусора, нужен контейнер, бюджет до 10 000 ₽. Профи.ру: https://profi.ru/registration/remont/musor/",
-              "🟢 Москва, Фили — вывоз газоблока, около 2 м³. Профи.ру: https://profi.ru/registration/remont/musor/",
-              "🔥 Туголесский Бор, МО — вывоз около 500 м³ строительного мусора, бюджет до 40 000 ₽. Профи.ру: https://profi.ru/registration/remont/musor/",
-              "🟢 Луховицы → Ногинск — нужны тонары/самосвалы для перевозки щебня, объём около 5 000 т, постоянная работа. https://mosobl.spectehinfo.ru/arenda/samosvaly/po_oblasti",
-              "🟢 Калуга — перевозка ПГС самосвалами, работа ориентировочно до конца года. https://kaluga.spectehinfo.ru/arenda/samosvaly",
-              "🟢 Спас-Загорье, Малоярославецкий район — перевозка песка, постоянная работа. https://kaluga.spectehinfo.ru/arenda/samosvaly",
-              "🟢 Березичи, Козельский район — нужен тонар 40 м³, постоянная работа, безнал с НДС. https://kaluga.spectehinfo.ru/arenda/samosvaly",
-              "🟢 Луговая, МО — откачка / обслуживание септика. Профи.ру: https://profi.ru/rabota/remont/zakazy-na-obsluzhivanie-septikov/",
-              "🟢 Богородский округ — установка септика. Профи.ру: https://profi.ru/rabota/remont/zakazy-na-ustanovku-septikov/",
-          ]
-
-          failures = []
-          for idx, message in enumerate(messages, 1):
-              cycle = f"2026-10-10 MANUAL-BOARD-{idx:02d}"
-              report = {
-                  "status": "MANUAL_BOARD_LEAD",
-                  "searchMode": "Deep Board Search",
-                  "new": 1,
-                  "accepted": 1,
-                  "errors": 0,
-                  "uncheckedSources": [],
-                  "message": message,
-              }
-              payload = {
-                  "mode": "notify-only",
-                  "cycleKey": cycle,
-                  "message": message,
-                  "report": report,
-              }
-              req = urllib.request.Request(
-                  base,
-                  data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
-                  method="POST",
-                  headers={
-                      "Content-Type": "application/json; charset=utf-8",
-                      "User-Agent": "ECOFLOT-Manual-Board-Dispatch/2.0",
-                  },
-              )
-              with urllib.request.urlopen(req, timeout=60) as r:
-                  body = r.read().decode("utf-8", "replace")
-              print(f"BOARD_{idx:02d}_RESPONSE", body)
-              parsed = json.loads(body)
-              routes = parsed.get("routes") or []
-              if parsed.get("telegramSent") is not True or len(routes) < 3:
-                  failures.append({"index": idx, "response": parsed})
-
-          if failures:
-              print("DISPATCH_FAILURES", json.dumps(failures, ensure_ascii=False))
-              raise SystemExit(1)
-          print("ALL_BOARD_MESSAGES_DELIVERED", len(messages))
+          with urllib.request.urlopen(base, timeout=30) as r:
+              body = r.read().decode("utf-8", "replace")
+              print("ROOT_HTTP:", r.status)
+              print("ROOT_BODY:", body)
           PY
