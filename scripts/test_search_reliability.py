@@ -151,7 +151,7 @@ class SafetyContracts(unittest.TestCase):
         '''
         items=internet.parse_samosval_info(page,'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/')
         self.assertTrue(items)
-        self.assertEqual(items[0]['date'], today)
+        self.assertEqual(items[0]['date'], datetime.now(timezone.utc).strftime('%Y-%m-%d'))
 
     def test_unknown_date_rejected(self):
         self.assertFalse(internet.is_recent('current'))
