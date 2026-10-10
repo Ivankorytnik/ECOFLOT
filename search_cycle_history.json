@@ -2643,6 +2643,170 @@
       },
       "finished_at": "2026-10-10T09:44:37.069500+03:00",
       "cycle_notice": "queued"
+    },
+    "2026-10-10 08:00 EXTRA 38032300904.1": {
+      "attempts": 1,
+      "schema_version": 2,
+      "cycleKey": "2026-10-10 08:00 EXTRA 38032300904.1",
+      "run_id": "38032300904.1",
+      "started_at": "2026-10-10T09:50:23.717746+03:00",
+      "status": "SEARCH_PARTIAL",
+      "contours": {
+        "Internet Leads": {
+          "new": 2,
+          "duplicates": 18,
+          "accepted": 2,
+          "sent": 0,
+          "delivery_pending": 2,
+          "errors": 7,
+          "unchecked_sources": [
+            "bing: bing: results do not match the requested topic or site",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
+            "Web discovery \"требуются самосвалы\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+            "Web discovery \"нужен илосос\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+            "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Telegram/MAX/VK": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 11,
+          "unchecked_sources": [
+            "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+            "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+            "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+            "bing: bing: results do not match the requested topic or site",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified",
+            "VK: no primary-post collector configured"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "site:max.ru нужен самосвал Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru работа для самосвалов Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru работа для самосвалов Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru работа для самосвалов Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru погрузка грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru перевозка ПГС Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0,
+            0
+          ]
+        },
+        "Tender Watch": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 2,
+          "unchecked_sources": [
+            "bing: bing: results do not match the requested topic or site",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "Портал поставщиков Москвы: <urlopen error timed out>",
+            "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Object Leads": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 0,
+          "unchecked_sources": [],
+          "missing_states": [],
+          "error_details": [],
+          "state_found": true,
+          "status": "ok",
+          "exit_codes": [
+            0
+          ]
+        }
+      },
+      "search_mode": "Deep",
+      "preflight_errors": [],
+      "expected_recipient_count": 3,
+      "expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "search_finished_at": "2026-10-10T09:56:53.745246+03:00",
+      "totals": {
+        "new": 2,
+        "duplicates": 18,
+        "accepted": 2,
+        "sent": 0,
+        "delivery_pending": 2,
+        "errors": 20,
+        "unchecked_sources": [
+          "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+          "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+          "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+          "VK: no primary-post collector configured",
+          "bing: bing: results do not match the requested topic or site",
+          "duckduckgo: duckduckgo: challenge or access restriction",
+          "google: google: result markup not verified"
+        ]
+      },
+      "delivery": {
+        "checked": 2,
+        "confirmed": 2,
+        "pending": 0,
+        "missing_records": 0,
+        "duplicate_routes": 0,
+        "suppressed": 0,
+        "service_rows": 0,
+        "ok": true,
+        "reconcile_attempts": 3,
+        "mode": "read-only-sheet-reconciliation"
+      },
+      "backlog": {
+        "checked": 164,
+        "confirmed": 148,
+        "pending": 16,
+        "missing_records": 0,
+        "duplicate_routes": 4,
+        "suppressed": 8,
+        "service_rows": 0,
+        "ok": false
+      },
+      "finished_at": "2026-10-10T09:57:54.692997+03:00",
+      "cycle_notice": "queued"
     }
   }
 }

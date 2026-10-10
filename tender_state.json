@@ -132,12 +132,11 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-10T06:40:58.635280+00:00",
-    "cycleKey": "2026-10-10 08:00 EXTRA 38031360836.1",
-    "run_id": "38031360836.1",
+    "at": "2026-10-10T06:56:44.455298+00:00",
+    "cycleKey": "2026-10-10 08:00 EXTRA 38032300904.1",
+    "run_id": "38032300904.1",
     "error_details": [
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
       "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
@@ -221,7 +220,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 3,
+    "errors": 2,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -234,6 +233,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.76
+    "discovery_seconds": 3.16
   }
 }
