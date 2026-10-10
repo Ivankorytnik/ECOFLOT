@@ -33,3 +33,29 @@ jobs:
                   print(label + "_ERROR:", repr(exc))
                   raise
           PY
+
+      - name: POST notify-only delivery test
+        run: |
+          python3 - <<'PY'
+          import json
+          import urllib.request
+
+          base = "https://script.google.com/macros/s/AKfycbzDedkBi9soafe6DuR0TX0Enpg0vcgX87gNyOLsl30kL4COSuwdmPWO64c1ZzNodmFlRg/exec"
+          payload = json.dumps({
+              "mode": "notify-only",
+              "message": "ECOFLOT тест доставки: проверка прямого webhook -> Telegram"
+          }, ensure_ascii=False).encode("utf-8")
+          req = urllib.request.Request(
+              base,
+              data=payload,
+              method="POST",
+              headers={
+                  "Content-Type": "application/json; charset=utf-8",
+                  "User-Agent": "ECOFLOT-Delivery-Diagnostic/1.0",
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as r:
+              body = r.read().decode("utf-8", "replace")
+              print("POST_NOTIFY_TEST_HTTP:", r.status)
+              print("POST_NOTIFY_TEST_BODY:", body)
+          PY
