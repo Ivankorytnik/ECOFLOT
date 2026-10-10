@@ -161,3 +161,102 @@ function ecoflotEditLeadCopies_(lead, fallbackChatId, fallbackMessageId) {
   if (errors.length) console.error('Multi-user edit errors: ' + errors.join('; '));
   return routes.length;
 }
+
+
+const ECOFLOT_TELEGRAM_QUEUE_SHEET = 'Очередь Telegram';
+const ECOFLOT_OUTBOX_MAX_ATTEMPTS = 6;
+
+function ecoflotProcessTextOutbox_() {
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return { ok:false, skipped:true, reason:'LOCK_BUSY' };
+  try {
+    const ss = SpreadsheetApp.openById(ECOFLOT.SHEET_ID);
+    const sheet = ss.getSheetByName(ECOFLOT_TELEGRAM_QUEUE_SHEET);
+    if (!sheet || sheet.getLastRow() < 2) return { ok:true, processed:0, sent:0, failed:0 };
+
+    const lastRow = sheet.getLastRow();
+    const rows = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
+    let processed = 0;
+    let sent = 0;
+    let failed = 0;
+
+    rows.forEach(function(row, index) {
+      const kind = String(row[1] || '').trim();
+      const key = String(row[2] || '').trim();
+      const raw = String(row[3] || '').trim();
+      const attempts = Number(row[4] || 0);
+      const status = String(row[6] || '').trim().toUpperCase();
+      if (status === 'SENT' || status === 'IGNORED' || attempts >= ECOFLOT_OUTBOX_MAX_ATTEMPTS) return;
+      if (kind !== 'text' && kind !== 'text_one') return;
+
+      const sheetRow = index + 2;
+      processed += 1;
+      try {
+        const payload = ecoflotQueueItemV3_(kind, key, raw);
+        let routes = [];
+        if (kind === 'text_one') {
+          const chatId = String(payload.chatId || '').trim();
+          if (!/^-?\d+$/.test(chatId)) throw new Error('INVALID_TEXT_ONE_CHAT');
+          const result = telegramApi_('sendMessage', {
+            chat_id: chatId,
+            text: String(payload.text || '')
+          });
+          const receipt = ecoflotReceiptV3_(result, chatId);
+          routes = [receipt];
+        } else {
+          const result = ecoflotSendTextToAll_(String(payload.text || ''));
+          routes = result.routes || [];
+          if (!routes.length) throw new Error('NO_TELEGRAM_ROUTES');
+        }
+
+        const enriched = Object.assign({}, payload, {
+          _ef5: Object.assign({}, payload._ef5 || {}, {
+            version: 5,
+            finishedAt: new Date().toISOString(),
+            routes: routes
+          })
+        });
+        sheet.getRange(sheetRow, 4).setValue(JSON.stringify(enriched));
+        sheet.getRange(sheetRow, 5).setValue(attempts + 1);
+        sheet.getRange(sheetRow, 6).setValue('');
+        sheet.getRange(sheetRow, 7).setValue('SENT');
+        sent += 1;
+      } catch (err) {
+        const msg = String(err && err.message ? err.message : err).slice(0, 500);
+        sheet.getRange(sheetRow, 5).setValue(attempts + 1);
+        sheet.getRange(sheetRow, 6).setValue(msg);
+        sheet.getRange(sheetRow, 7).setValue(attempts + 1 >= ECOFLOT_OUTBOX_MAX_ATTEMPTS ? 'ERROR' : 'PENDING');
+        failed += 1;
+      }
+    });
+
+    SpreadsheetApp.flush();
+    return { ok:true, processed:processed, sent:sent, failed:failed };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function ecoflotInstallOutboxTrigger_() {
+  const handler = 'ecoflotProcessTextOutbox_';
+  ScriptApp.getProjectTriggers().forEach(function(trigger) {
+    if (trigger.getHandlerFunction() === handler) ScriptApp.deleteTrigger(trigger);
+  });
+  ScriptApp.newTrigger(handler).timeBased().everyMinutes(1).create();
+  return { ok:true, handler:handler };
+}
+
+function ecoflotOutboxHealth_() {
+  const ss = SpreadsheetApp.openById(ECOFLOT.SHEET_ID);
+  const sheet = ss.getSheetByName(ECOFLOT_TELEGRAM_QUEUE_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return { ok:true, pending:0, error:0 };
+  const rows = sheet.getRange(2, 5, sheet.getLastRow() - 1, 3).getDisplayValues();
+  let pending = 0;
+  let error = 0;
+  rows.forEach(function(row) {
+    const status = String(row[2] || '').trim().toUpperCase();
+    if (!status || status === 'PENDING') pending += 1;
+    if (status === 'ERROR') error += 1;
+  });
+  return { ok:error === 0, pending:pending, error:error };
+}
