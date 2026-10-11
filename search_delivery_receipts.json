@@ -479,6 +479,16 @@
       "accepted_at": "2026-10-11T11:22:42.200569+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-11T11:22:42.200586+00:00"
+    },
+    "WEB-PROFI-e60d323c7305b515ce10": {
+      "requestId": "WEB-PROFI-e60d323c7305b515ce10",
+      "cycleKey": "2026-10-11 14:00",
+      "run_id": "38156765222.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-11T16:48:20.453586+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-11T16:48:20.453599+00:00"
     }
   }
 }
