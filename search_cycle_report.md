@@ -1,14 +1,14 @@
-# ECOFLOT 2026-10-10 18:00
+# ECOFLOT 2026-10-11 08:00
 
 Status: **SEARCH_PARTIAL**
 
 | Contour | Status | New | Duplicates | Errors |
 |---|---|---:|---:|---:|
-| Internet Leads | partial | 2 | 21 | 23 |
-| Telegram/MAX/VK | partial | 0 | 0 | 22 |
-| Tender Watch | partial | 0 | 0 | 11 |
+| Internet Leads | partial | 1 | 17 | 20 |
+| Telegram/MAX/VK | partial | 0 | 0 | 28 |
+| Tender Watch | partial | 0 | 0 | 12 |
 | Object Leads | ok | 0 | 0 | 0 |
 
-Delivery: `{"checked": 2, "confirmed": 2, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "reconcile_attempts": 1, "mode": "read-only-sheet-reconciliation"}`
+Delivery: `{"checked": 1, "confirmed": 1, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "reconcile_attempts": 7, "mode": "read-only-sheet-reconciliation"}`
 
-Unverified sources: Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны; Telegram/Аренда спецтехники Заявки: публичные посты недоступны; Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны; VK: no primary-post collector configured; bing: bing: results do not match the requested topic or site; duckduckgo: duckduckgo: challenge or access restriction; google: google: result markup not verified
+Unverified sources: Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны; Telegram/Аренда спецтехники Заявки: публичные посты недоступны; Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны; VK: no primary-post collector configured; bing: bing: result markup not verified; bing: bing: results do not match the requested topic or site; duckduckgo: duckduckgo: challenge or access restriction; google: google: result markup not verified
