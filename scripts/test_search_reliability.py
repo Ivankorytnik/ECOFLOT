@@ -194,8 +194,8 @@ class SafetyContracts(unittest.TestCase):
         self.assertEqual(result['pending'],2)
         self.assertEqual(result['missing_records'],1)
 
-    def test_partial_slot_is_warning_not_crash(self):
-        self.assertEqual(cycle.exit_code('SEARCH_PARTIAL'),0)
+    def test_partial_slot_is_visible_failure(self):
+        self.assertEqual(cycle.exit_code('SEARCH_PARTIAL'),1)
         self.assertEqual(cycle.exit_code('COMPLETE'),0)
         self.assertEqual(cycle.exit_code('DELIVERY_PENDING'),1)
         self.assertEqual(cycle.exit_code('SEARCH_FAILED'),1)
