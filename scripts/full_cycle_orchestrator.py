@@ -30,9 +30,8 @@ def cycle_key(now=None):
 
 
 def exit_code(status):
-    # SEARCH_PARTIAL is a completed search with explicit coverage warnings, not a
-    # crashed workflow. Keep hard failures red, and keep unconfirmed delivery red.
-    return 1 if status in ('SEARCH_FAILED', 'DELIVERY_PENDING') else 0
+    # Any incomplete search or unconfirmed delivery must be visible as a failed workflow.
+    return 1 if status in ('SEARCH_FAILED', 'SEARCH_PARTIAL', 'DELIVERY_PENDING') else 0
 
 
 def reconcile_delivery(expected, current_ids):
