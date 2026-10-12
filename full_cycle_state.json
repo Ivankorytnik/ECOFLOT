@@ -140,7 +140,9 @@
       "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
-    ]
+    ],
+    "confirmed_after_reconciliation": 2,
+    "pending_after_reconciliation": 0
   },
   "delivery": {
     "checked": 2,
@@ -151,7 +153,9 @@
     "suppressed": 0,
     "service_rows": 0,
     "ok": true,
-    "reconcile_attempts": 7,
+    "unresolved_duplicate_references": 0,
+    "pending_new_or_known_records": 0,
+    "missing_receipts": 0,
     "mode": "read-only-sheet-reconciliation"
   },
   "backlog": {
@@ -165,5 +169,6 @@
     "ok": false
   },
   "finished_at": "2026-10-13T01:27:09.988483+03:00",
-  "cycle_notice": "queued"
+  "cycle_notice": "queued",
+  "delivery_reconciled_at": "2026-10-13T01:34:25.340779+03:00"
 }
