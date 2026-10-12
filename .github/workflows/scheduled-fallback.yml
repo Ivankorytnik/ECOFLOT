@@ -77,6 +77,7 @@ jobs:
           SUPPRESS_NO_RESULTS: '1'
           ECOFLOT_FORCE: ${{ env.ECOFLOT_FALLBACK_FORCE }}
           ECOFLOT_SCHEDULE: ${{ env.ECOFLOT_SCHEDULE }}
+          ECOFLOT_FALLBACK: '1'
         run: python3 -u scripts/scheduled_cycle_runner.py
 
       - name: Persist state even after source or delivery failure
