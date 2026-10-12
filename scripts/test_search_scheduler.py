@@ -1,6 +1,6 @@
 import unittest
 from datetime import datetime
-from scheduled_cycle_runner import MSK, scheduled_slot, refreshed_state
+from scheduled_cycle_runner import MSK, scheduled_slot, refreshed_state, due_slots, fallback_slot
 
 
 class SchedulerContracts(unittest.TestCase):
@@ -45,6 +45,30 @@ class SchedulerContracts(unittest.TestCase):
     def test_naive_time_rejected(self):
         with self.assertRaises(ValueError):
             scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 8))
+
+
+    def test_due_slots_follow_current_moscow_time(self):
+        self.assertEqual(
+            due_slots(datetime(2026, 10, 12, 19, 0, tzinfo=MSK)),
+            ['2026-10-12 08:00', '2026-10-12 14:00', '2026-10-12 18:00'],
+        )
+
+    def test_delayed_fallback_repairs_oldest_missing_due_slot(self):
+        history = {'cycles': {'2026-10-12 08:00': {'status': 'SEARCH_PARTIAL'}}}
+        self.assertEqual(
+            fallback_slot(history, '37 5 * * *', datetime(2026, 10, 12, 16, 40, tzinfo=MSK)),
+            '2026-10-12 14:00',
+        )
+
+    def test_delayed_fallback_repairs_evening_after_morning_and_afternoon_exist(self):
+        history = {'cycles': {
+            '2026-10-12 08:00': {'status': 'COMPLETE'},
+            '2026-10-12 14:00': {'status': 'SEARCH_PARTIAL'},
+        }}
+        self.assertEqual(
+            fallback_slot(history, '37 5 * * *', datetime(2026, 10, 12, 19, 10, tzinfo=MSK)),
+            '2026-10-12 18:00',
+        )
 
     @staticmethod
     def audit(rows, expected, ids=None):
