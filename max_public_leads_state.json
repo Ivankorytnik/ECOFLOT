@@ -1,22 +1,21 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-12T13:00:37.917881+00:00",
+    "at": "2026-10-12T13:34:02.699365+00:00",
     "cycleKey": "2026-10-12 08:00",
-    "run_id": "38252229564.1",
+    "run_id": "38256112345.1",
     "error_details": [
-      "site:max.ru нужен самосвал Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "site:max.ru вывоз мусора Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru требуется экскаватор Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru требуется спецтехника Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru демонтаж Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru вывоз грунта Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru демонтаж Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru работа для самосвалов Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru нужен тонар Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "sent": 0,
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 6,
+    "errors": 5,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -32,6 +31,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 5.12
+    "discovery_seconds": 4.88
   }
 }
