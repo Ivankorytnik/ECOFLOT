@@ -31,7 +31,7 @@ SLOTS = {
 
 
 def scheduled_slot(expression, now=None):
-    """A delayed scheduled event remains bound to the slot that created it."""
+    """A delayed primary scheduled event remains bound to the slot that created it."""
     if expression not in SLOTS:
         raise ValueError('Unsupported scheduled expression; refusing an ambiguous cycle key')
     now = now or datetime.now(MSK)
@@ -42,6 +42,30 @@ def scheduled_slot(expression, now=None):
     if slot > now:
         slot -= timedelta(days=1)
     return slot.strftime('%Y-%m-%d %H:%M')
+
+
+def due_slots(now=None):
+    """Return today's logical slots that should already have run, oldest first."""
+    now = now or datetime.now(MSK)
+    if now.tzinfo is None:
+        raise ValueError('An aware timestamp is required')
+    now = now.astimezone(MSK)
+    result = []
+    for hour in (8, 14, 18):
+        slot = now.replace(hour=hour, minute=0, second=0, microsecond=0)
+        if slot <= now:
+            result.append(slot.strftime('%Y-%m-%d %H:%M'))
+    return result
+
+
+def fallback_slot(history, expression, now=None):
+    """Use a delayed fallback to repair the oldest due slot that is still missing."""
+    now = now or datetime.now(MSK)
+    recorded = set((history or {}).get('cycles', {}))
+    for slot in due_slots(now):
+        if slot not in recorded:
+            return slot
+    return scheduled_slot(expression, now)
 
 
 def refreshed_state(previous, rows, expected, receipts, audit, now=None):
@@ -117,7 +141,10 @@ def main():
         return refresh_previous(coordinator, previous, history)
     expression = os.environ.get('ECOFLOT_SCHEDULE', '').strip()
     if expression:
-        os.environ['ECOFLOT_CYCLE_KEY'] = scheduled_slot(expression)
+        if os.environ.get('ECOFLOT_FALLBACK') == '1':
+            os.environ['ECOFLOT_CYCLE_KEY'] = fallback_slot(history, expression)
+        else:
+            os.environ['ECOFLOT_CYCLE_KEY'] = scheduled_slot(expression)
     cycle = os.environ.get('ECOFLOT_CYCLE_KEY', '').strip() or coordinator.cycle_key()
     previous = history.get('cycles', {}).get(cycle)
     if os.environ.get('ECOFLOT_FORCE') != '1' and previous:
