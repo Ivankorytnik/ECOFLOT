@@ -194,33 +194,35 @@
     "WEB-PROFI-e4fc5366db0ba05ad5a8": "2026-10-12T20:08:29.254171+00:00",
     "WEB-PROFI-65f6f627c9111e649cf5": "2026-10-12T20:08:37.230802+00:00",
     "WEB-PROFI-202a286fd2387ed42055": "2026-10-12T22:21:58.095007+00:00",
-    "WEB-PROFI-de3ae4f1a73605e8f012": "2026-10-12T22:22:06.165476+00:00"
+    "WEB-PROFI-de3ae4f1a73605e8f012": "2026-10-12T22:22:06.165476+00:00",
+    "WEB-PROFI-aec583b26dfd94ed6f6e": "2026-10-13T12:36:29.526344+00:00",
+    "WEB-PROFI-4f169a8e964fd01dc5cb": "2026-10-13T12:36:37.834781+00:00",
+    "WEB-PROFI-74a8e98a5d55ede266ec": "2026-10-13T12:36:47.185488+00:00",
+    "WEB-PROFI-86e48f6ab293fdaf1305": "2026-10-13T12:36:53.779073+00:00",
+    "WEB-PROFI-430f6ea7f393c7fe9819": "2026-10-13T12:37:03.276712+00:00",
+    "WEB-PROFI-52d4b90ab5ae36584010": "2026-10-13T12:37:18.763578+00:00"
   },
   "last_run": {
-    "at": "2026-10-12T22:22:06.166643+00:00",
-    "cycleKey": "2026-10-12 18:00",
-    "run_id": "38315801730.1",
+    "at": "2026-10-13T12:37:18.764936+00:00",
+    "cycleKey": "2026-10-13 08:00",
+    "run_id": "38398028358.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Beton24 Бетон24 / заявки спецтехники МО: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'beton24.ru'. (_ssl.c:1000)>",
-      "Beton24 Бетон24 / заявки спецтехники: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'beton24.ru'. (_ssl.c:1000)>",
-      "Web discovery \"требуются самосвалы\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"вывоз грунта\" \"нужен\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
-    "candidates": 22,
-    "duplicates_local": 20,
+    "candidates": 27,
+    "duplicates_local": 21,
     "deferred": 0,
-    "new": 2,
+    "new": 6,
     "sent": 0,
-    "errors": 9,
+    "errors": 5,
     "search_mode": "Deep",
-    "accepted": 2,
+    "accepted": 6,
     "duplicates_server": 0,
-    "delivery_pending": 2,
+    "delivery_pending": 6,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
@@ -228,6 +230,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 4.67
+    "discovery_seconds": 3.31
   }
 }

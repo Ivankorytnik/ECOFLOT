@@ -599,6 +599,66 @@
       "accepted_at": "2026-10-12T22:22:06.163718+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-12T22:22:06.163730+00:00"
+    },
+    "WEB-PROFI-aec583b26dfd94ed6f6e": {
+      "requestId": "WEB-PROFI-aec583b26dfd94ed6f6e",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:36:29.524399+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:36:29.524411+00:00"
+    },
+    "WEB-PROFI-4f169a8e964fd01dc5cb": {
+      "requestId": "WEB-PROFI-4f169a8e964fd01dc5cb",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:36:37.832962+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:36:37.832974+00:00"
+    },
+    "WEB-PROFI-74a8e98a5d55ede266ec": {
+      "requestId": "WEB-PROFI-74a8e98a5d55ede266ec",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:36:47.183671+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:36:47.183682+00:00"
+    },
+    "WEB-PROFI-86e48f6ab293fdaf1305": {
+      "requestId": "WEB-PROFI-86e48f6ab293fdaf1305",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:36:53.777049+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:36:53.777061+00:00"
+    },
+    "WEB-PROFI-430f6ea7f393c7fe9819": {
+      "requestId": "WEB-PROFI-430f6ea7f393c7fe9819",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:37:03.274496+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:37:03.274510+00:00"
+    },
+    "WEB-PROFI-52d4b90ab5ae36584010": {
+      "requestId": "WEB-PROFI-52d4b90ab5ae36584010",
+      "cycleKey": "2026-10-13 08:00",
+      "run_id": "38398028358.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T12:37:18.761756+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T12:37:18.761769+00:00"
     }
   }
 }
