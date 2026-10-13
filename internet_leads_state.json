@@ -200,36 +200,40 @@
     "WEB-PROFI-74a8e98a5d55ede266ec": "2026-10-13T12:36:47.185488+00:00",
     "WEB-PROFI-86e48f6ab293fdaf1305": "2026-10-13T12:36:53.779073+00:00",
     "WEB-PROFI-430f6ea7f393c7fe9819": "2026-10-13T12:37:03.276712+00:00",
-    "WEB-PROFI-52d4b90ab5ae36584010": "2026-10-13T12:37:18.763578+00:00"
+    "WEB-PROFI-52d4b90ab5ae36584010": "2026-10-13T12:37:18.763578+00:00",
+    "WEB-PROFI-ee13ff6302065745fd56": "2026-10-13T12:58:40.431549+00:00",
+    "WEB-PROFI-a6a9fe74d707c785e226": "2026-10-13T12:58:48.533819+00:00",
+    "WEB-PROFI-1141bb610624b5a89858": "2026-10-13T12:58:56.397677+00:00",
+    "WEB-PROFI-11e1631684c02fa19a89": "2026-10-13T12:59:03.384298+00:00"
   },
   "last_run": {
-    "at": "2026-10-13T12:37:18.764936+00:00",
-    "cycleKey": "2026-10-13 08:00",
-    "run_id": "38398028358.1",
+    "at": "2026-10-13T12:59:03.385237+00:00",
+    "cycleKey": "2026-10-13 14:00",
+    "run_id": "38400819727.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+      "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 27,
-    "duplicates_local": 21,
+    "duplicates_local": 23,
     "deferred": 0,
-    "new": 6,
+    "new": 4,
     "sent": 0,
     "errors": 5,
     "search_mode": "Deep",
-    "accepted": 6,
+    "accepted": 4,
     "duplicates_server": 0,
-    "delivery_pending": 6,
+    "delivery_pending": 4,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
       "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
-      "google: google: result markup not verified"
+      "google: HTTP Error 429: Too Many Requests"
     ],
-    "discovery_seconds": 3.31
+    "discovery_seconds": 5.64
   }
 }
