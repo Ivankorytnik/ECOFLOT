@@ -719,6 +719,26 @@
       "accepted_at": "2026-10-13T17:57:50.557056+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-13T17:57:50.557071+00:00"
+    },
+    "WEB-PROFI-03b69c8d2e853768bf62": {
+      "requestId": "WEB-PROFI-03b69c8d2e853768bf62",
+      "cycleKey": "2026-10-13 18:00",
+      "run_id": "38462651207.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T20:28:29.984392+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T20:28:29.984405+00:00"
+    },
+    "WEB-PROFI-ea6b47b1dffd28543478": {
+      "requestId": "WEB-PROFI-ea6b47b1dffd28543478",
+      "cycleKey": "2026-10-13 18:00",
+      "run_id": "38462651207.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-13T20:28:39.447546+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-13T20:28:39.447559+00:00"
     }
   }
 }
