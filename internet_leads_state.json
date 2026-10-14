@@ -212,41 +212,44 @@
     "WEB-PROFI-41b293c18e298517a2ab": "2026-10-14T10:04:11.623766+00:00",
     "WEB-PROFI-d54b3187c94e6b7ff0a1": "2026-10-14T10:38:35.285666+00:00",
     "WEB-PROFI-5ab6e7b63adf6a6567c8": "2026-10-14T10:38:42.808784+00:00",
-    "WEB-PROFI-06a050bab2dbe77c3ddb": "2026-10-14T10:38:52.374157+00:00"
+    "WEB-PROFI-06a050bab2dbe77c3ddb": "2026-10-14T10:38:52.374157+00:00",
+    "WEB-PROFI-9b6f2e2363e2a1e42efb": "2026-10-14T15:44:55.855305+00:00"
   },
   "last_run": {
-    "at": "2026-10-14T10:38:52.375338+00:00",
-    "cycleKey": "2026-10-14 08:00",
-    "run_id": "38550310083.1",
+    "at": "2026-10-14T15:44:55.856640+00:00",
+    "cycleKey": "2026-10-14 14:00",
+    "run_id": "38591338131.1",
     "error_details": [
-      "VezetVsem listing Везёт Всем / вывоз мусора: <urlopen error timed out>",
-      "VezetVsem listing Везёт Всем / строительные грузы: <urlopen error timed out>",
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Rentag Rentag / биржа заявок: <urlopen error timed out>",
-      "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"требуются самосвалы\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"вывоз грунта\" \"нужен\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"нужен ассенизатор\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"нужен илосос\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен ассенизатор\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен илосос\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery \"откачка ЖБО\" \"Калужская область\" заказ: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
-    "candidates": 22,
+    "candidates": 20,
     "duplicates_local": 19,
     "deferred": 0,
-    "new": 3,
+    "new": 1,
     "sent": 0,
-    "errors": 17,
+    "errors": 19,
     "search_mode": "Deep",
-    "accepted": 3,
+    "accepted": 1,
     "duplicates_server": 0,
-    "delivery_pending": 3,
+    "delivery_pending": 1,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
@@ -254,6 +257,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.5
+    "discovery_seconds": 1.84
   }
 }
