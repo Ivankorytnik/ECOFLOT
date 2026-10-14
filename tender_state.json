@@ -132,81 +132,20 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-14T15:48:34.534199+00:00",
-    "cycleKey": "2026-10-14 14:00",
-    "run_id": "38591338131.1",
+    "at": "2026-10-14T16:05:10.782938+00:00",
+    "cycleKey": "2026-10-14 18:00",
+    "run_id": "38593859695.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:fabrikant.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:roseltorg.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+      "B2B-Center / самосвалы / Москва: The read operation timed out",
+      "B2B-Center / самосвалы / Московская область: The read operation timed out",
+      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
-      {
-        "id": "direct-28ba71eb20a7b7085a784d41",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-204f309e183921f13cbd068c",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-d19d89231cb519a1312e4ee7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9181e170cc2ba52c86b5bc84",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-a2405566514bd67d4a787db7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-fb8102e942babe84089b2743",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-16b5547151682dd08306a312",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-80989d05bd872132e4572677",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9b08ca469af18d918925958e",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-6c5f9b036d8f4acb9d59ff3e",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-e4415c97602ca7d270757f8a",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-828d5b57c7043823e40f1446",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-5e3cb870716638600fe76acc",
-        "reason": "not-service-demand"
-      },
       {
         "id": "direct-d66fc0bbe800b8276f979a88",
         "reason": "not-service-demand"
@@ -282,7 +221,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 16,
+    "errors": 7,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -295,6 +234,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 1.02
+    "discovery_seconds": 3.28
   }
 }
