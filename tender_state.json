@@ -132,15 +132,24 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-13T20:31:09.841299+00:00",
-    "cycleKey": "2026-10-13 18:00",
-    "run_id": "38462651207.1",
+    "at": "2026-10-14T10:07:55.727948+00:00",
+    "cycleKey": "2026-10-14 08:00",
+    "run_id": "38546434982.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
-      "Портал поставщиков Москвы: <urlopen error timed out>"
+      "Портал поставщиков Москвы: <urlopen error timed out>",
+      "Самолёт S.Tender: <urlopen error timed out>",
+      "Sminex: <urlopen error timed out>",
+      "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
+      {
+        "id": "direct-28ba71eb20a7b7085a784d41",
+        "reason": "not-service-demand"
+      },
       {
         "id": "direct-204f309e183921f13cbd068c",
         "reason": "not-service-demand"
@@ -218,15 +227,7 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-f49096fa52517672a9af6c6d",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-0dfb66817fd63b8e5c06bdb9",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-6ca3fa6ce79fbc0d2b8a191c",
+        "id": "direct-36bc1f4470da2652427b8437",
         "reason": "not-service-demand"
       },
       {
@@ -256,7 +257,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 2,
+    "errors": 7,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -265,9 +266,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.6
+    "discovery_seconds": 3.22
   }
 }
