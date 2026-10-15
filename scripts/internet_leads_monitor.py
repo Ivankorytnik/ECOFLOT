@@ -338,7 +338,11 @@ def extract_public_contact(text):
     phone_re = re.compile(
         r"(?<!\d)(?:\+?7|8)[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)"
     )
-    m = phone_re.search(raw)
+    # ECOFLOT phone evidence repair 2026-10-15
+    # Numeric groups inside URLs and UUIDs are not customer phone evidence.
+    phone_text = re.sub(r'(?:https?://|www\.)[^\s<>]+', ' ', raw, flags=re.I)
+    phone_text = re.sub(r'\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b', ' ', phone_text, flags=re.I)
+    m = phone_re.search(phone_text)
     if m:
         digits = re.sub(r"\D", "", m.group(0))
         if len(digits) == 11:
