@@ -132,30 +132,38 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-14T19:08:48.854248+00:00",
-    "cycleKey": "2026-10-14 18:00",
-    "run_id": "38620013650.1",
+    "at": "2026-10-15T09:44:17.558732+00:00",
+    "cycleKey": "2026-10-15 08:00",
+    "run_id": "38714317319.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
+      {
+        "id": "direct-cfdb10486f65821260eda813",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-5dcabdf71d9d6c1a44570655",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-fc52d25a416ee8f5f8dda0ae",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-82dc9cb9235faacb88e674bd",
+        "reason": "not-service-demand"
+      },
       {
         "id": "direct-28ba71eb20a7b7085a784d41",
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-204f309e183921f13cbd068c",
-        "reason": "not-service-demand"
-      },
-      {
         "id": "direct-d19d89231cb519a1312e4ee7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9181e170cc2ba52c86b5bc84",
         "reason": "not-service-demand"
       },
       {
@@ -203,7 +211,11 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-a8036bb8b52b0a90ca7495a8",
+        "id": "direct-22c816aec226f8b8e7061652",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-4361daf60de0c9e083f83287",
         "reason": "not-service-demand"
       },
       {
@@ -227,11 +239,15 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-97ff7fb2f1ddcda916d0acfc",
+        "id": "direct-e8ec0bb56b791381326856e8",
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-95bdb191122a771b7462d11a",
+        "id": "direct-0dc7d84ceb979a0317745f6a",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-e7915729d56ad3f7eeea80bd",
         "reason": "not-service-demand"
       },
       {
@@ -255,18 +271,6 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-abbda765e5b0b701cc483aec",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-30ba4fcebda7304db99b18e2",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-67876bb3b085a3c9ec283b98",
-        "reason": "not-service-demand"
-      },
-      {
         "id": "direct-aac1c1cfe62e8e43c6d5f5e7",
         "reason": "not-service-demand"
       }
@@ -286,6 +290,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.77
+    "discovery_seconds": 2.89
   }
 }

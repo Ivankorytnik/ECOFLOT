@@ -1,19 +1,23 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-14T19:05:23.253938+00:00",
-    "cycleKey": "2026-10-14 18:00",
-    "run_id": "38620013650.1",
+    "at": "2026-10-15T09:41:45.542679+00:00",
+    "cycleKey": "2026-10-15 08:00",
+    "run_id": "38714317319.1",
     "error_details": [
-      "site:max.ru требуется экскаватор Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru вывоз грунта Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "site:max.ru нужен тонар Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "site:max.ru погрузка грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru перевозка ПГС Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
     ],
     "sent": 0,
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 3,
+    "errors": 7,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -29,6 +33,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 4.81
+    "discovery_seconds": 4.06
   }
 }

@@ -2311,6 +2311,68 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-a260d79080e16c6261f9": {
+      "requestId": "WEB-PROFI-a260d79080e16c6261f9",
+      "cycleKey": "2026-10-15 08:00",
+      "run_id": "38714317319.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-15T09:41:16.568016+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-15T09:41:16.568027+00:00",
+      "verified_at": "2026-10-15T09:44:27.315319+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2346"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2347"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2348"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-vsem_podryad-66212": {
+      "requestId": "SOCIAL-TG-vsem_podryad-66212",
+      "cycleKey": "2026-10-15 08:00",
+      "run_id": "38714317319.1",
+      "source": "Telegram / Всем Подряд",
+      "duplicate": false,
+      "accepted_at": "2026-10-15T09:41:41.079815+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-15T09:41:41.079828+00:00",
+      "verified_at": "2026-10-15T09:44:27.315319+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2349"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2350"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2351"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
