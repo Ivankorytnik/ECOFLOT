@@ -2373,6 +2373,16 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-0e2e97d8002919589afa": {
+      "requestId": "WEB-PROFI-0e2e97d8002919589afa",
+      "cycleKey": "2026-10-15 08:00",
+      "run_id": "38714801164.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-15T09:48:59.888314+00:00",
+      "status": "PENDING_VERIFICATION",
+      "first_seen_at": "2026-10-15T09:48:59.888327+00:00"
     }
   }
 }

@@ -7,13 +7,13 @@
     "SOCIAL-TG-vsem_podryad-66212": "2026-10-15T09:41:41.083141+00:00"
   },
   "last_run": {
-    "at": "2026-10-15T09:41:41.084029+00:00",
+    "at": "2026-10-15T09:49:05.330299+00:00",
     "cycleKey": "2026-10-15 08:00",
-    "run_id": "38714317319.1",
+    "run_id": "38714801164.1",
     "error_details": [],
     "sent": 0,
     "candidates": 1,
-    "duplicates_local": 0,
+    "duplicates_local": 1,
     "deferred": 0,
     "errors": 0,
     "unverified_sources": [
@@ -22,10 +22,10 @@
       "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны"
     ],
     "search_mode": "Deep",
-    "accepted": 1,
-    "new": 1,
+    "accepted": 0,
+    "new": 0,
     "duplicates_server": 0,
-    "delivery_pending": 1,
+    "delivery_pending": 0,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [],
