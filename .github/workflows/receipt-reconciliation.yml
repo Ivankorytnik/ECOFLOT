@@ -1,0 +1,30 @@
+name: ECOFLOT receipt reconciliation (no sends)
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/delivery_consistency.py'
+      - 'receipt-reconcile-trigger.txt'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ecoflot-search-state
+  cancel-in-progress: false
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ECOFLOT_NOTIFY_SUMMARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Verify receipt contracts
+        run: python3 -m unittest discover -s scripts -p 'test_search_delivery_consistency.py' -v
+      - name: Reconcile actual SENT receipts without searching or sending
+        run: python3 -u scripts/scheduled_cycle_runner.py --reconcile-all
+      - name: Persist verified receipt and history updates
+        run: bash scripts/persist_search_state.sh

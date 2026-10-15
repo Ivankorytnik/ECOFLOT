@@ -10,6 +10,9 @@ from pathlib import Path
 from search_reliability import (MSK, load_json, atomic_json, run_id, scheduled_cycle,
     aggregate, sheet_rows, RECEIPTS)
 from search_runtime import audit_delivery
+# ECOFLOT delivery repair 2026-10-15
+from delivery_consistency import (mark_confirmed_receipts,
+    update_totals_after_reconciliation, slot_delivery_summary)
 from search_recipients import active_chats
 
 STATE_FILE = Path('full_cycle_state.json')
@@ -60,6 +63,9 @@ def reconcile_delivery(expected, current_ids):
 
 def send_cycle_notice(state):
     """Send one concise Telegram summary so a completed search is never silent."""
+    if not state.get('expected_chats'):
+        state['cycle_notice'] = 'not-sent:no-verified-recipients'
+        return
     if os.environ.get('ECOFLOT_NOTIFY_SUMMARY', '1') == '0':
         return
     totals = state.get('totals', {})
@@ -76,6 +82,11 @@ def send_cycle_notice(state):
         f"Ошибок источников: {totals.get('errors', 0)}\n"
         f"Недоступных групп/поисков: {len(unchecked)}"
     )
+    slot = state.get('slot_delivery', {})
+    if slot:
+        message += ('\nДоставлено в Telegram: ' + str(slot.get('confirmed', 0)) + '/' + str(slot.get('accepted', 0))
+                    + '; ожидает: ' + str(slot.get('pending', 0))
+                    + '\nНовых за все попытки цикла: ' + str(slot.get('new', 0)))
     if status == 'SEARCH_PARTIAL':
         message += "\nЧасть источников не отработала полностью."
     try:
@@ -188,6 +199,14 @@ def main():
         rows, state['delivery'] = reconcile_delivery(expected, current_ids)
         state['backlog'] = audit_delivery(rows, expected)
         state['delivery']['mode'] = 'read-only-sheet-reconciliation'
+        ledger = load_json(RECEIPTS, {'items': {}})
+        if mark_confirmed_receipts(ledger['items'], rows, expected):
+            atomic_json(RECEIPTS, ledger)
+        missing = max(0, int(state['totals'].get('accepted', 0)) - len(current_ids))
+        if missing:
+            state['delivery'].update(ok=False, missing_receipts=missing)
+        update_totals_after_reconciliation(state['totals'], state['delivery'], missing)
+        state['slot_delivery'] = slot_delivery_summary(cycle, ledger['items'], rows, expected, audit_delivery)
     except Exception as exc:
         state['delivery'] = {'ok': False, 'error': str(exc), 'pending': len(current_ids)}
     statuses = {x['status'] for x in state['contours'].values()}

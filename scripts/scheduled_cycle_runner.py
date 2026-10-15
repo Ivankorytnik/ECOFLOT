@@ -10,6 +10,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 from server_protocol import receipt_target
+# ECOFLOT delivery repair 2026-10-15
+from delivery_consistency import (mark_confirmed_receipts,
+    update_totals_after_reconciliation, slot_delivery_summary)
 
 MSK = ZoneInfo('Europe/Moscow')
 # Keep the previous expressions temporarily so a heavily delayed legacy GitHub
@@ -92,6 +95,8 @@ def refreshed_state(previous, rows, expected, receipts, audit, now=None):
     state['delivery_reconciled_at'] = (now or datetime.now(MSK)).isoformat()
     state.setdefault('totals', {})['confirmed_after_reconciliation'] = delivery.get('confirmed', 0)
     state['totals']['pending_after_reconciliation'] = delivery.get('pending', 0) + missing_receipts
+    update_totals_after_reconciliation(state['totals'], delivery, missing_receipts)
+    state['slot_delivery'] = slot_delivery_summary(state.get('cycleKey', ''), receipts, rows, expected, audit)
     if state.get('status') in ('COMPLETE', 'DELIVERY_PENDING'):
         state['status'] = 'COMPLETE' if delivery.get('ok') else 'DELIVERY_PENDING'
     return state
@@ -105,6 +110,8 @@ def refresh_previous(coordinator, previous, history):
             raise RuntimeError('NO_VERIFIED_RECIPIENTS')
         rows = coordinator.sheet_rows(coordinator.SHEET_ID, '\u0417\u0430\u044f\u0432\u043a\u0438', 'L,M,U,V')
         receipts = coordinator.load_json(coordinator.RECEIPTS, {'items': {}})['items']
+        if mark_confirmed_receipts(receipts, rows, expected):
+            coordinator.atomic_json(coordinator.RECEIPTS, {'items': receipts})
         state = refreshed_state(previous, rows, expected, receipts, coordinator.audit_delivery)
     except Exception as exc:
         state = copy.deepcopy(previous)
@@ -131,15 +138,44 @@ def refresh_previous(coordinator, previous, history):
     return coordinator.exit_code(state['status'])
 
 
+def reconcile_all_history(coordinator, history):
+    """Only reads Sheets and repairs local receipt/history files, never sends."""
+    expected = coordinator.active_chats(coordinator.sheet_rows(
+        coordinator.SHEET_ID, 'Пользователи бота', 'A,E'))
+    if not expected:
+        raise RuntimeError('NO_VERIFIED_RECIPIENTS')
+    rows = coordinator.sheet_rows(coordinator.SHEET_ID, 'Заявки', 'L,M,U,V')
+    ledger = coordinator.load_json(coordinator.RECEIPTS, {'items': {}})
+    changed = mark_confirmed_receipts(ledger['items'], rows, expected)
+    if changed:
+        coordinator.atomic_json(coordinator.RECEIPTS, ledger)
+    for key, previous in list(history.get('cycles', {}).items()):
+        if previous.get('status') in coordinator.TERMINAL:
+            history['cycles'][key] = refreshed_state(
+                previous, rows, expected, ledger['items'], coordinator.audit_delivery)
+    coordinator.atomic_json(coordinator.HISTORY_FILE, history)
+    latest = coordinator.load_json(coordinator.STATE_FILE)
+    if latest.get('cycleKey') in history.get('cycles', {}):
+        coordinator.atomic_json(coordinator.STATE_FILE, history['cycles'][latest['cycleKey']])
+    print('RECEIPT_LEDGER_REPAIRED', changed, 'SEARCH_STATUS_PRESERVED')
+    return 0
+
+
 def main():
     import full_cycle_orchestrator as coordinator
     history = coordinator.load_json(coordinator.HISTORY_FILE, {'cycles': {}})
+    if '--reconcile-all' in sys.argv[1:]:
+        return reconcile_all_history(coordinator, history)
     if '--reconcile-only' in sys.argv[1:]:
         previous = coordinator.load_json(coordinator.STATE_FILE)
         if not previous.get('cycleKey') or previous.get('status') not in coordinator.TERMINAL:
             raise RuntimeError('No completed cycle available for read-only reconciliation')
         return refresh_previous(coordinator, previous, history)
     expression = os.environ.get('ECOFLOT_SCHEDULE', '').strip()
+    if (os.environ.get('GITHUB_EVENT_NAME') == 'workflow_dispatch'
+            and os.environ.get('ECOFLOT_FALLBACK') != '1'
+            and not expression and not os.environ.get('ECOFLOT_CYCLE_KEY', '').strip()):
+        os.environ['ECOFLOT_FORCE'] = '1'
     if expression:
         if os.environ.get('ECOFLOT_FALLBACK') == '1':
             os.environ['ECOFLOT_CYCLE_KEY'] = fallback_slot(history, expression)
