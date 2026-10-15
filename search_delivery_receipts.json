@@ -2383,6 +2383,37 @@
       "accepted_at": "2026-10-15T09:48:59.888314+00:00",
       "status": "PENDING_VERIFICATION",
       "first_seen_at": "2026-10-15T09:48:59.888327+00:00"
+    },
+    "WEB-PROFI-f9220fc01d8e2b232722": {
+      "requestId": "WEB-PROFI-f9220fc01d8e2b232722",
+      "cycleKey": "2026-10-15 14:00",
+      "run_id": "38724332661.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-15T11:03:42.558098+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-15T11:03:42.558115+00:00",
+      "verified_at": "2026-10-15T11:07:30.263655+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2355"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2356"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2357"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
