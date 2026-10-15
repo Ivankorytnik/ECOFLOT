@@ -193,7 +193,9 @@
     "suppressed": 0,
     "service_rows": 0,
     "ok": true,
-    "reconcile_attempts": 1,
+    "unresolved_duplicate_references": 0,
+    "pending_new_or_known_records": 0,
+    "missing_receipts": 0,
     "mode": "read-only-sheet-reconciliation"
   },
   "backlog": {
@@ -216,5 +218,6 @@
     "scope": "all-attempts-in-logical-slot"
   },
   "finished_at": "2026-10-15T21:52:29.251463+03:00",
-  "cycle_notice": "error: HTTP Error 404: Not Found"
+  "cycle_notice": "error: HTTP Error 404: Not Found",
+  "delivery_reconciled_at": "2026-10-15T22:21:11.872896+03:00"
 }

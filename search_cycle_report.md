@@ -2,13 +2,8 @@
 
 Status: **SEARCH_PARTIAL**
 
-| Contour | Status | New | Duplicates | Errors |
-|---|---|---:|---:|---:|
-| Internet Leads | partial | 0 | 16 | 19 |
-| Telegram/MAX/VK | partial | 0 | 0 | 31 |
-| Tender Watch | partial | 0 | 0 | 13 |
-| Object Leads | ok | 0 | 0 | 0 |
+Delivery rechecked without rerunning searches or sending cards.
 
-Delivery: `{"checked": 0, "confirmed": 0, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "reconcile_attempts": 1, "mode": "read-only-sheet-reconciliation"}`
+Delivery: `{"checked": 0, "confirmed": 0, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "unresolved_duplicate_references": 0, "pending_new_or_known_records": 0, "missing_receipts": 0, "mode": "read-only-sheet-reconciliation"}`
 
-Unverified sources: Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны; Telegram/Аренда спецтехники Заявки: публичные посты недоступны; Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны; VK: no primary-post collector configured; bing: bing: results do not match the requested topic or site; duckduckgo: duckduckgo: challenge or access restriction; google: google: result markup not verified
+Source errors and unverified sources remain in full_cycle_state.json.
