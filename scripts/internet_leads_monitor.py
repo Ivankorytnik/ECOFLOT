@@ -338,7 +338,11 @@ def extract_public_contact(text):
     phone_re = re.compile(
         r"(?<!\d)(?:\+?7|8)[\s().-]*\d{3}[\s().-]*\d{3}[\s.-]*\d{2}[\s.-]*\d{2}(?!\d)"
     )
-    m = phone_re.search(raw)
+    # ECOFLOT phone evidence repair 2026-10-15
+    # Numeric groups inside URLs and UUIDs are not customer phone evidence.
+    phone_text = re.sub(r'(?:https?://|www\.)[^\s<>]+', ' ', raw, flags=re.I)
+    phone_text = re.sub(r'\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b', ' ', phone_text, flags=re.I)
+    m = phone_re.search(phone_text)
     if m:
         digits = re.sub(r"\D", "", m.group(0))
         if len(digits) == 11:
@@ -734,7 +738,9 @@ def relevant(title, description):
         "нужен экскаватор", "требуется экскаватор", "нужен погрузчик",
         "ассенизатор", "илосос", "откачка септика",
     )
-    if any(x in hay for x in labor_markers) and not any(x in hay for x in explicit_ecoflot_demand):
+    # ECOFLOT quality repair 2026-10-15
+    labor_role = re.search(r'\b(?:разнорабоч[а-я]*|подсобн[а-я]*|монтажник[а-я]*|каменщик[а-я]*|маляр[а-я]*|штукатур[а-я]*|плиточник[а-я]*)\b', hay)
+    if (any(x in hay for x in labor_markers) or labor_role) and not any(x in hay for x in explicit_ecoflot_demand):
         return False
 
     return any(x in hay for x in POSITIVE)
@@ -760,6 +766,10 @@ def lead_class(title, description):
 
 def infer_work_equipment(title, description):
     hay = normalize((title or "") + " " + (description or ""))
+    if (re.search(r'\bрасчистк[а-я]*\s+(?:участ[а-я]*|территори[а-я]*)\b', hay)
+            or re.search(r'\bснять\s+(?:растительный\s+)?слой\s+(?:почвы|грунта)\b', hay)
+            or 'снятие растительного слоя' in hay):
+        return "Расчистка участка / снятие растительного слоя", "Экскаватор-погрузчик / самосвал"
     if any(x in hay for x in ("экскаватор-погрузчик","экскаватор погрузчик")):
         return "Погрузка / земляные работы", "Экскаватор-погрузчик"
     if any(x in hay for x in ("экскаватор", "погрузчик")):
@@ -774,7 +784,7 @@ def infer_work_equipment(title, description):
         return "Вывоз металлолома / механизированная погрузка", "Ломовоз с КМУ и грейфером"
     if any(x in hay for x in ("ветк","древес","доски")):
         return "Вывоз древесины", "Ломовоз с КМУ / бункеровоз"
-    if any(x in hay for x in ("тко","контейнерная площадка","регулярный вывоз")):
+    if re.search(r"\bтко\b", hay) or any(x in hay for x in ("контейнерная площадка","регулярный вывоз")):
         return "Регулярный вывоз ТКО / обслуживание площадок", "Мусоровоз"
     if any(x in hay for x in ("кгм","кго","крупногабарит","мебель","диван","шкаф","хлам")):
         return "Вывоз КГМ / мебели и хлама", "Газель / бункеровоз / мультилифт"
