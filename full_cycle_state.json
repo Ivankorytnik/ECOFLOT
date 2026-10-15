@@ -125,8 +125,8 @@
     "new": 1,
     "duplicates": 19,
     "accepted": 1,
-    "sent": 0,
-    "delivery_pending": 1,
+    "sent": 1,
+    "delivery_pending": 0,
     "errors": 19,
     "unchecked_sources": [
       "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
@@ -166,5 +166,14 @@
   },
   "finished_at": "2026-10-14T22:08:49.145242+03:00",
   "cycle_notice": "queued",
-  "delivery_reconciled_at": "2026-10-14T22:38:20.067210+03:00"
+  "delivery_reconciled_at": "2026-10-15T12:36:55.886450+03:00",
+  "slot_delivery": {
+    "accepted": 1,
+    "new": 1,
+    "confirmed": 1,
+    "pending": 0,
+    "missing_records": 0,
+    "ok": true,
+    "scope": "all-attempts-in-logical-slot"
+  }
 }
