@@ -4,9 +4,9 @@ Status: **SEARCH_PARTIAL**
 
 | Contour | Status | New | Duplicates | Errors |
 |---|---|---:|---:|---:|
-| Internet Leads | partial | 0 | 14 | 5 |
-| Telegram/MAX/VK | partial | 0 | 0 | 3 |
-| Tender Watch | partial | 0 | 0 | 3 |
+| Internet Leads | partial | 0 | 16 | 19 |
+| Telegram/MAX/VK | partial | 0 | 0 | 31 |
+| Tender Watch | partial | 0 | 0 | 13 |
 | Object Leads | ok | 0 | 0 | 0 |
 
 Delivery: `{"checked": 0, "confirmed": 0, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "reconcile_attempts": 1, "mode": "read-only-sheet-reconciliation"}`
