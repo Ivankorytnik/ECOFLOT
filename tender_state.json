@@ -132,13 +132,14 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-16T09:42:19.475121+00:00",
+    "at": "2026-10-16T10:09:50.304922+00:00",
     "cycleKey": "2026-10-16 08:00",
-    "run_id": "38881485391.1",
+    "run_id": "38884740638.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "B2B-Center / спецтехника / Калужская область: The read operation timed out"
+      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
@@ -265,11 +266,15 @@
       {
         "id": "direct-30ba4fcebda7304db99b18e2",
         "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-aac1c1cfe62e8e43c6d5f5e7",
+        "reason": "not-service-demand"
       }
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 3,
+    "errors": 4,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -278,9 +283,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 1.98
+    "discovery_seconds": 1.99
   }
 }
