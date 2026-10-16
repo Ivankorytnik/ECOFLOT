@@ -1,11 +1,11 @@
-# ECOFLOT 2026-10-16 08:00
+# ECOFLOT 2026-10-16 14:00
 
 Status: **SEARCH_PARTIAL**
 
 | Contour | Status | New | Duplicates | Errors |
 |---|---|---:|---:|---:|
-| Internet Leads | partial | 0 | 14 | 3 |
-| Telegram/MAX/VK | partial | 0 | 0 | 2 |
+| Internet Leads | partial | 0 | 16 | 15 |
+| Telegram/MAX/VK | partial | 0 | 0 | 25 |
 | Tender Watch | partial | 0 | 0 | 4 |
 | Object Leads | ok | 0 | 0 | 0 |
 

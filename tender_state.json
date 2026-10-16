@@ -132,14 +132,14 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-16T10:09:50.304922+00:00",
-    "cycleKey": "2026-10-16 08:00",
-    "run_id": "38884740638.1",
+    "at": "2026-10-16T15:10:08.360134+00:00",
+    "cycleKey": "2026-10-16 14:00",
+    "run_id": "38921142271.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
     ],
     "candidates": 0,
     "rejected": [
@@ -180,10 +180,6 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-49193ae24297e7fa087d08a6",
-        "reason": "not-service-demand"
-      },
-      {
         "id": "direct-80989d05bd872132e4572677",
         "reason": "not-service-demand"
       },
@@ -216,23 +212,35 @@
         "reason": "not-service-demand"
       },
       {
+        "id": "direct-3e570f836398e20728a58761",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-c673f0132c01479b9a7731c6",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-54746f4cf6282a6485212136",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-9aa8075276f9f4ea9c77c332",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-698dbc90f0131e9bf9f3dbd9",
+        "reason": "not-service-demand"
+      },
+      {
         "id": "direct-8e66ed64ec4fa04e187165d3",
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-1eaead70b283154235308414",
+        "id": "direct-a036412e03054190bb0a6c30",
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-5e767106f018380b6ccd46cd",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-fba83d4e3f5a7b72818cab0b",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-cffbce0715abf9e888d9896f",
+        "id": "direct-662fe61249a96cf1d88f6de7",
         "reason": "not-service-demand"
       },
       {
@@ -260,14 +268,6 @@
         "reason": "not-service-demand"
       },
       {
-        "id": "direct-abbda765e5b0b701cc483aec",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-30ba4fcebda7304db99b18e2",
-        "reason": "not-service-demand"
-      },
-      {
         "id": "direct-aac1c1cfe62e8e43c6d5f5e7",
         "reason": "not-service-demand"
       }
@@ -287,6 +287,6 @@
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 1.99
+    "discovery_seconds": 1.87
   }
 }

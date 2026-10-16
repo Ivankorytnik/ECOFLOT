@@ -221,20 +221,32 @@
     "WEB-PROFI-533b572e1365502f52b9": "2026-10-16T09:39:33.587604+00:00"
   },
   "last_run": {
-    "at": "2026-10-16T10:07:47.313097+00:00",
-    "cycleKey": "2026-10-16 08:00",
-    "run_id": "38884740638.1",
+    "at": "2026-10-16T15:07:51.471272+00:00",
+    "cycleKey": "2026-10-16 14:00",
+    "run_id": "38921142271.1",
     "error_details": [
+      "NPD listing Одинцово: The read operation timed out",
+      "NPD listing Звенигород: The read operation timed out",
+      "NPD listing Красногорск: The read operation timed out",
+      "NPD listing Истра: The read operation timed out",
+      "NPD listing Наро-Фоминск: The read operation timed out",
+      "NPD listing Краснознаменск: The read operation timed out",
+      "NPD listing Апрелевка: The read operation timed out",
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-nizkiy-bort-26m3-ecb62257: HTTP Error 410: Gone",
-      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone"
+      "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+      "Web discovery page https://yellty.ru/zakazy/samosval-moskva-lyuboy-vozit-pesok-66176cc9: HTTP Error 410: Gone"
     ],
-    "candidates": 14,
-    "duplicates_local": 14,
+    "candidates": 16,
+    "duplicates_local": 16,
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 3,
+    "errors": 15,
     "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
@@ -242,9 +254,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.06
+    "discovery_seconds": 2.96
   }
 }
