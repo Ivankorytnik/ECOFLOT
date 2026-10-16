@@ -7218,7 +7218,9 @@
         "suppressed": 0,
         "service_rows": 0,
         "ok": true,
-        "reconcile_attempts": 1,
+        "unresolved_duplicate_references": 0,
+        "pending_new_or_known_records": 0,
+        "missing_receipts": 0,
         "mode": "read-only-sheet-reconciliation"
       },
       "backlog": {
@@ -7241,7 +7243,8 @@
         "scope": "all-attempts-in-logical-slot"
       },
       "finished_at": "2026-10-16T21:36:12.288734+03:00",
-      "cycle_notice": "error: STRUCTURED_REPORT_IGNORED"
+      "cycle_notice": "error: STRUCTURED_REPORT_IGNORED",
+      "delivery_reconciled_at": "2026-10-16T21:57:18.701996+03:00"
     }
   }
 }
