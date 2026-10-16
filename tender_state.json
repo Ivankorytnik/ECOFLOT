@@ -132,21 +132,154 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-16T15:36:41.506804+00:00",
+    "at": "2026-10-16T18:36:11.853777+00:00",
     "cycleKey": "2026-10-16 18:00",
-    "run_id": "38924512569.1",
+    "run_id": "38947749215.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "B2B-Center / самосвалы / Москва: HTTP Error 403: Forbidden",
-      "B2B-Center / самосвалы / Московская область: HTTP Error 403: Forbidden",
-      "B2B-Center / самосвалы / Калужская область: HTTP Error 403: Forbidden",
-      "B2B-Center / спецтехника / Москва: HTTP Error 403: Forbidden",
-      "B2B-Center / спецтехника / Московская область: HTTP Error 403: Forbidden",
-      "B2B-Center / спецтехника / Калужская область: HTTP Error 403: Forbidden"
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
     ],
     "candidates": 0,
-    "rejected": [],
+    "rejected": [
+      {
+        "id": "direct-a49ea7209c28cf79371261df",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-890f9894e8b3ef20095e7bb7",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-cfdb10486f65821260eda813",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-5dcabdf71d9d6c1a44570655",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-fc52d25a416ee8f5f8dda0ae",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-82dc9cb9235faacb88e674bd",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-28ba71eb20a7b7085a784d41",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-d19d89231cb519a1312e4ee7",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-a2405566514bd67d4a787db7",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-80989d05bd872132e4572677",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-9b08ca469af18d918925958e",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-6c5f9b036d8f4acb9d59ff3e",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-e4415c97602ca7d270757f8a",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-828d5b57c7043823e40f1446",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-5e3cb870716638600fe76acc",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-d66fc0bbe800b8276f979a88",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-d142732a6ec47bf4ada1fe37",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-c6a8ce4e7a79bce6e543bce5",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-3e570f836398e20728a58761",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-c673f0132c01479b9a7731c6",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-54746f4cf6282a6485212136",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-9aa8075276f9f4ea9c77c332",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-698dbc90f0131e9bf9f3dbd9",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-8e66ed64ec4fa04e187165d3",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-a036412e03054190bb0a6c30",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-662fe61249a96cf1d88f6de7",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-5baac75c0ec9765b2b9a613a",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-277f8c6ae51c60de08e94e3b",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-9af389a1ff1201a7401947bb",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-36bc1f4470da2652427b8437",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-112eead7ec16d1a8d7ef66fe",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-6bee88329f06912c93a68f23",
+        "reason": "not-service-demand"
+      },
+      {
+        "id": "direct-aac1c1cfe62e8e43c6d5f5e7",
+        "reason": "not-service-demand"
+      }
+    ],
     "deferred": 0,
     "sent": 0,
     "errors": 8,
@@ -158,9 +291,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.08
+    "discovery_seconds": 2.79
   }
 }
