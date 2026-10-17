@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Public read-only acquisition verification; never imports or calls send paths."""
+"""Public read-only acquisition verification; no production sends or lead writes."""
 import argparse
 import json
 from pathlib import Path
@@ -25,7 +25,6 @@ def main():
         if url in cached:return cached[url]
         if options.offline:raise RuntimeError('NO_OFFLINE_FIXTURE')
         return internet.fetch(url,timeout=kwargs.get('timeout',12),attempts=1)
-    # Guard every possible production delivery entrypoint during the diagnosis.
     def forbidden(*a,**k):raise AssertionError('SMOKE_MUST_NOT_SEND')
     result={'read_only':True,'checked_at':datetime.now(timezone.utc).isoformat(),'telegram':[], 'cards':{}, 'tenders':{}}
     with patch.object(internet,'send_webhook',forbidden),patch.object(social,'send_webhook',forbidden):
@@ -41,6 +40,14 @@ def main():
                     'contact_ready':sum(internet.ensure_public_contact(dict(i))[0] for i in items),
                     'examples':[{'id':i['request_id'],'url':i['url']} for i in items[:3]]}
             except Exception as exc:result['cards'][name]={'error':str(exc)[:200]}
+        if not options.offline:
+            npd={'url':'https://www.napodrabotku.ru/order/95097956','title':'','description':''}
+            acquisition.enrich(npd)
+            result['cards']['npd_observed_response']={
+                'original':'https://www.napodrabotku.ru/order/95097956',
+                'verified_contact':bool(npd.get('card_verified')),
+                'contact_route':npd.get('contact_url',''),
+                'canonical_url':npd.get('url','')}
         result['card_acquisition']=acquisition.report
         result['card_unchecked']=sorted(acquisition.unchecked)
         for channel in ('vsem_podryad','samosvalam_rabota','rabota_dlya_samosvalov_promsru','samosvalinfo',
@@ -60,7 +67,7 @@ def main():
             entries=tender.extract_gentender(fetch(url),'Moscow')
             result['tenders']['gentender_observed_individual_links']=len(entries)
         except Exception as exc:result['tenders']['gentender_error']=str(exc)[:180]
-        # The procurement is obtained from the FSK post, never invented by ID.
+        # Procurement links are obtained from the actual FSK posts, not synthesized.
         url='https://t.me/s/fsk_tenders'
         try:
             found=tender.extract_telegram(fetch(url),'FSK','fsk_tenders','Moscow')
