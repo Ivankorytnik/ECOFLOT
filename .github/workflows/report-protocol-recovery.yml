@@ -1,0 +1,33 @@
+name: ECOFLOT native report recovery
+on:
+  push:
+    branches: [main]
+    paths: ['scripts/search_reporting.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ecoflot-search-state
+  cancel-in-progress: false
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Native report tests
+        run: python3 -m unittest discover -s scripts -p 'test_search_reporting.py' -v
+      - name: Deliver only latest existing cycle report, never replay leads
+        env:
+          ECOFLOT_NOTIFY_SUMMARY: '1'
+          ECOFLOT_REPORT_WAIT_SECONDS: '480'
+        run: |
+          set -euo pipefail
+          cycle=$(python3 -c 'import json; print(json.load(open("full_cycle_state.json"))["cycleKey"])')
+          python3 -u scripts/search_reporting.py --cycle "$cycle"
+      - name: Preserve report evidence even if delivery is pending
+        if: always()
+        run: bash scripts/persist_search_state.sh

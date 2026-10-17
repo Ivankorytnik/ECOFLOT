@@ -62,55 +62,8 @@ def reconcile_delivery(expected, current_ids):
 
 
 def send_cycle_notice(state):
-    """Send one concise Telegram summary so a completed search is never silent."""
-    if not state.get('expected_chats'):
-        state['cycle_notice'] = 'not-sent:no-verified-recipients'
-        return
-    if os.environ.get('ECOFLOT_NOTIFY_SUMMARY', '1') == '0':
-        return
-    totals = state.get('totals', {})
-    unchecked = totals.get('unchecked_sources', []) or []
-    status = state.get('status', 'UNKNOWN')
-    icon = '✅' if status == 'COMPLETE' else '⚠️'
-    message = (
-        f"{icon} ECOFLOT: поиск завершён\n"
-        f"Цикл: {state.get('cycleKey', '-')}\n"
-        f"Режим: {state.get('search_mode', '-')}\n"
-        f"Статус: {status}\n"
-        f"Новых заявок: {totals.get('new', 0)}\n"
-        f"Принято: {totals.get('accepted', 0)}\n"
-        f"Ошибок источников: {totals.get('errors', 0)}\n"
-        f"Недоступных групп/поисков: {len(unchecked)}"
-    )
-    slot = state.get('slot_delivery', {})
-    if slot:
-        message += ('\nДоставлено в Telegram: ' + str(slot.get('confirmed', 0)) + '/' + str(slot.get('accepted', 0))
-                    + '; ожидает: ' + str(slot.get('pending', 0))
-                    + '\nНовых за все попытки цикла: ' + str(slot.get('new', 0)))
-    if status == 'SEARCH_PARTIAL':
-        message += "\nЧасть источников не отработала полностью."
-    try:
-        from internet_leads_monitor import send_structured_cycle_report
-        report = {
-            'status': status,
-            'searchMode': state.get('search_mode', '-'),
-            'new': totals.get('new', 0),
-            'accepted': totals.get('accepted', 0),
-            'errors': totals.get('errors', 0),
-            'uncheckedSources': unchecked,
-            'message': message,
-        }
-        resp = send_structured_cycle_report(
-            message,
-            state.get('cycleKey', ''),
-            report,
-            user_agent='ECOFLOT-Cycle-Summary/2.0',
-            attempts=2,
-        )
-        state['cycle_notice'] = 'sent' if resp.get('telegramSent') is True else 'queued'
-    except Exception as exc:
-        state['cycle_notice'] = 'error: ' + str(exc)
-        print('CYCLE_NOTICE_ERROR', str(exc), flush=True)
+    from search_reporting import publish_cycle
+    publish_cycle(state)
 
 
 def main():
