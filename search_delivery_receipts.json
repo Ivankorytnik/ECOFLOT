@@ -2538,6 +2538,68 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-fdbb87e2335924a3501a": {
+      "requestId": "WEB-PROFI-fdbb87e2335924a3501a",
+      "cycleKey": "2026-10-17 18:00",
+      "run_id": "39054394001.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-17T17:38:50.418679+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-17T17:38:50.418692+00:00",
+      "verified_at": "2026-10-17T17:46:26.425431+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2469"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2470"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2471"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-0cd4983173615828f5e3": {
+      "requestId": "WEB-PROFI-0cd4983173615828f5e3",
+      "cycleKey": "2026-10-17 18:00",
+      "run_id": "39054394001.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-17T17:39:04.869023+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-17T17:39:04.869038+00:00",
+      "verified_at": "2026-10-17T17:46:26.425431+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2472"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2473"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2474"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
