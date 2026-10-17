@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 from social_depth import read_history, scoped_contacts
 from source_markup import absolute_link
 from card_acquisition import Acquisition, known_card
@@ -120,7 +121,7 @@ def parse_channel(label, channel):
     report = {}
     budget = min(70, max(0, SOCIAL_DEADLINE-time.monotonic())) if SOCIAL_DEADLINE else 70
     posts = read_history(channel, fetch, days=RECENT_DAYS,
-                         max_pages=max(1,min(50,int(os.environ.get('ECOFLOT_TG_MAX_PAGES','30')))),
+                         max_pages=max(1,min(80,int(os.environ.get('ECOFLOT_TG_MAX_PAGES','50')))),
                          max_seconds=budget, report=report)
     SOURCE_COVERAGE[channel] = report
     out = []
@@ -141,8 +142,7 @@ def parse_channel(label, channel):
             'priority':'\u0412\u044b\u0441\u043e\u043a\u0438\u0439' if lead_class(title,text)=='HOT' else '\u0421\u0440\u0435\u0434\u043d\u0438\u0439',
         }
         item.update(scoped_contacts(post['body'],channel))
-        item['card_links'] = [a.attrs['href'] for a in post['body'].find_all('a',attr='href')
-                              if known_card(a.attrs['href'])] if post['body'] else []
+        item['card_links'] = [url for url in post.get('links', []) if known_card(url)]
         score,work,equipment = relevance_score(item)
         item.update(score=score,work=work,equipment=equipment,lead_class=lead_class(title,text))
         if score >= MIN_RELEVANCE_SCORE:
@@ -172,19 +172,28 @@ def main():
     errors = []
     unverified_sources = []
 
-    for label, channel in CHANNELS:
+    def read_source(source):
+        label, channel = source
         try:
             found, marker_count = parse_channel(label, channel)
-            print(f"TELEGRAM_SOURCE {label}: {len(found)} candidates")
-            if marker_count == 0:
-                unverified_sources.append(f"Telegram/{label}: публичные посты недоступны")
-            candidates.extend(found)
-            coverage = SOURCE_COVERAGE.get(channel,{})
-            if not coverage.get('complete'):
-                unverified_sources.append('Telegram/'+label+': '+str(coverage.get('stop_reason','unknown')))
+            coverage = SOURCE_COVERAGE.get(channel, {})
+            problem = '' if coverage.get('complete') else str(coverage.get('stop_reason', 'unknown'))
+            print(f"TELEGRAM_SOURCE {label}: {len(found)} candidates", flush=True)
+            return found, problem, ''
         except Exception as exc:
-            errors.append(f"{label}: {exc}")
-            unverified_sources.append(f"Telegram/{label}: ошибка доступа")
+            SOURCE_COVERAGE[channel] = dict(channel=channel, pages=0, posts=0,
+                complete=False, stop_reason='access_or_parse_error', error=str(exc)[:200])
+            return [], 'access_or_parse_error', f"{label}: {exc}"
+
+    # Three bounded public readers prevent the first busy channel from taking
+    # all available history time. Writes, enrichment and sends stay sequential.
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        for (label, channel), (found, problem, error) in zip(CHANNELS, pool.map(read_source, CHANNELS)):
+            candidates.extend(found)
+            if problem:
+                unverified_sources.append('Telegram/' + label + ': ' + problem)
+            if error:
+                errors.append(error)
 
     unique = {x["request_id"]: x for x in candidates}
     candidates = sorted(unique.values(), key=lambda x: (-x["score"], x["source"], x["title"]))

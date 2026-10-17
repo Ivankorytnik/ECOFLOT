@@ -150,11 +150,11 @@ def configured_worker(name):
             original_ids = module.load_sheet_request_ids
             known_ids = set()
             from tender_acquisition import TenderAcquisition
-            tender_acquisition = TenderAcquisition(module.fetch, known_ids)
+            tender_acquisition = TenderAcquisition(module.fetch, known_ids, limit=80, budget=240, defer_resolution=True)
             for function, method in (('extract_cards','extract_gentender'),
                                      ('extract_direct_cards','extract_direct'),
                                      ('extract_telegram_tenders','extract_telegram'),
-                                     ('parse_discovered_tender','resolve')):
+                                     ('parse_discovered_tender','discover')):
                 stack.enter_context(binding(module, function, getattr(tender_acquisition, method)))
             resolved = {}
             attempted = set()

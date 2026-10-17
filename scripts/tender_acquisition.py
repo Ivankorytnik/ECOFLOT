@@ -69,8 +69,9 @@ def observed_primary_links(root,base):
 
 
 class TenderAcquisition:
-    def __init__(self,fetch,known_ids=None,limit=48,budget=180):
+    def __init__(self,fetch,known_ids=None,limit=48,budget=180,defer_resolution=False):
         self.fetch=fetch;self.known_ids=known_ids if known_ids is not None else set()
+        self.defer_resolution = defer_resolution
         self.limit=limit;self.budget=budget;self.spent=0.;self.cache={};self.verified={};self.unchecked=set()
         self.report={'detail_requests':0,'verified_cards':0,'listing_candidates':0,'menu_links_rejected':0,'outcomes':{},'sources':{}}
 
@@ -89,6 +90,19 @@ class TenderAcquisition:
             self.cache[url]='';raise
         finally:self.spent+=time.monotonic()-start
 
+    def defer(self, url, expected_title='', source=''):
+        rid = procurement_id(url)
+        if not rid:
+            return None
+        return dict(id=rid, title=expected_title, link=url, region='', deadline='',
+                    customer='', price='', law='', acquisition_pending=True,
+                    intake_source=source or host(url), source=source or host(url))
+
+    def discover(self, url, expected_title='', source=''):
+        if self.defer_resolution:
+            return self.defer(url, expected_title, source)
+        return self.resolve(url, expected_title)
+
     def extract_gentender(self,page,region):
         root=DOM(page).root;out=[];cards=list(root.find_all(cls='t-card'))
         for node in cards:
@@ -102,7 +116,7 @@ class TenderAcquisition:
             out.append({'id':rid,'title':a.clean(),'law':text(node,'t-law'),'region':text(node,'t-region'),
                         'customer':text(node,'t-cust'),'price':text(node,'t-price'),'deadline':'',
                         'deadline_hint':text(node,'t-dl'),'link':url,'source':'GenTender individual card',
-                        'acquisition_pending':True})
+                        'acquisition_pending':True, 'intake_source':'GenTender / '+region})
         self.report['listing_candidates']+=len(out)
         self.report['sources']['GenTender / '+region]={'visible_cards':len(cards),'individual_links':len(out)}
         if not cards:self.unchecked.add('GenTender / '+region+': catalogue markup not verified')
@@ -120,7 +134,7 @@ class TenderAcquisition:
                     rid=procurement_id(target)
                     if rid in seen:continue
                     seen.add(rid)
-                    entry=self.resolve(target,expected_title=title)
+                    entry=self.discover(target,expected_title=title,source=label)
                     if entry:out.append(entry)
         else:
             # Corporate lists often have no common CSS. Require a procurement
@@ -130,10 +144,10 @@ class TenderAcquisition:
                 rid=procurement_id(target)
                 if rid in seen:continue
                 seen.add(rid)
-                entry=self.resolve(target)
+                entry=self.discover(target,source=label)
                 if entry:out.append(entry)
             if not links:self.unchecked.add(label+': no verified procurement markup or card links')
-        self.report['sources'][url]={'card_containers':len(containers),'individual_candidates':len(seen),'verified_cards':len(out)}
+        self.report['sources'][url]={'card_containers':len(containers),'individual_candidates':len(seen),'verified_cards':sum(not e.get('acquisition_pending',False) for e in out)}
         return out
 
     def extract_telegram(self,page,label,channel,region):
@@ -147,19 +161,19 @@ class TenderAcquisition:
             for anchor in post['body'].find_all('a',attr='href'):
                 url = absolute_link(post['url'],anchor.attrs['href'])
                 if host(url) in PRIMARY and procurement_id(url):
-                    label = anchor.clean()
-                    if tender_service_demand(label): links.insert(0,url)
-                    elif len(label)<12 or re.search(r'\b(?:link|\u0437\u0430\u043a\u0443\u043f\u043a|\u0442\u0435\u043d\u0434\u0435\u0440)',label,re.I): links.append(url)
+                    anchor_label = anchor.clean()
+                    if tender_service_demand(anchor_label): links.insert(0,url)
+                    elif len(anchor_label)<12 or re.search(r'\b(?:link|\u0437\u0430\u043a\u0443\u043f\u043a|\u0442\u0435\u043d\u0434\u0435\u0440)',anchor_label,re.I): links.append(url)
                     else: self.outcome('non_service_link')
             for url in links:
                 rid=procurement_id(url)
                 if rid in seen:continue
                 seen.add(rid)
-                entry=self.resolve(url)
+                entry=self.discover(url,source='Telegram / '+channel)
                 if entry:
                     entry=dict(entry,discovered_from=post['url'])
                     out.append(entry)
-        coverage.update(individual_links=len(seen),verified_cards=len(out))
+        coverage.update(individual_links=len(seen),verified_cards=sum(not e.get('acquisition_pending',False) for e in out))
         self.report['sources'][base]=coverage
         if not coverage.get('complete'):self.unchecked.add('Tender Telegram/'+channel+': '+coverage['stop_reason'])
         return out
@@ -179,6 +193,10 @@ class TenderAcquisition:
         if 'TENDER-'+rid in self.known_ids:
             self.outcome('already_recorded');return None
         if url in self.verified:return self.verified[url]
+        if len(self.cache) >= self.limit or self.spent >= self.budget:
+            self.unchecked.add(url+': CARD_VERIFICATION_BUDGET')
+            self.outcome('verification_deferred')
+            return None
         self.verified[url]=None
         try:
             root=DOM(self.get(url)).root
