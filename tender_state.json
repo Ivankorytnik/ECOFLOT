@@ -129,172 +129,299 @@
     "53f6b31e15dfccb971945d3020b1efd33c953aab": "2026-10-07T11:44:46.796134+00:00",
     "03b039907df776c8a4bbdd07219a3082c2cea675": "2026-10-07T11:44:52.430788+00:00",
     "454de7fb73231a538ca5bdaab84386d103fe2f98": "2026-10-07T11:44:58.282792+00:00",
-    "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
+    "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00",
+    "8948481867161cb1f311e94e2975e143c3afe551": "2026-10-17T13:51:32.275579+00:00"
   },
   "last_run": {
-    "at": "2026-10-17T12:38:45.973200+00:00",
-    "cycleKey": "2026-10-17 14:00 EXTRA 39032891772.1",
-    "run_id": "39032891772.1",
+    "at": "2026-10-17T13:51:32.276601+00:00",
+    "cycleKey": "2026-10-17 14:00 EXTRA 39037593340.1",
+    "run_id": "39037593340.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+      "B2B-Center / самосвалы / Москва: SOURCE_PAGE_TOO_LARGE",
+      "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE"
     ],
-    "candidates": 0,
-    "rejected": [
-      {
-        "id": "direct-a49ea7209c28cf79371261df",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-890f9894e8b3ef20095e7bb7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-cfdb10486f65821260eda813",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-5dcabdf71d9d6c1a44570655",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-fc52d25a416ee8f5f8dda0ae",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-82dc9cb9235faacb88e674bd",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-d19d89231cb519a1312e4ee7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-a2405566514bd67d4a787db7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-fb8102e942babe84089b2743",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-80989d05bd872132e4572677",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9b08ca469af18d918925958e",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-6c5f9b036d8f4acb9d59ff3e",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-e4415c97602ca7d270757f8a",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-828d5b57c7043823e40f1446",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-5e3cb870716638600fe76acc",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-d66fc0bbe800b8276f979a88",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-d142732a6ec47bf4ada1fe37",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-c6a8ce4e7a79bce6e543bce5",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-3e570f836398e20728a58761",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-c673f0132c01479b9a7731c6",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-54746f4cf6282a6485212136",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9aa8075276f9f4ea9c77c332",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-698dbc90f0131e9bf9f3dbd9",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-8e66ed64ec4fa04e187165d3",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-a036412e03054190bb0a6c30",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-662fe61249a96cf1d88f6de7",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-5baac75c0ec9765b2b9a613a",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-277f8c6ae51c60de08e94e3b",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-9af389a1ff1201a7401947bb",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-36bc1f4470da2652427b8437",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-112eead7ec16d1a8d7ef66fe",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-6bee88329f06912c93a68f23",
-        "reason": "not-service-demand"
-      },
-      {
-        "id": "direct-aac1c1cfe62e8e43c6d5f5e7",
-        "reason": "not-service-demand"
-      }
-    ],
+    "candidates": 1,
+    "rejected": [],
     "deferred": 0,
     "sent": 0,
-    "errors": 8,
+    "errors": 4,
     "search_mode": "Deep",
-    "accepted": 0,
-    "new": 0,
+    "accepted": 1,
+    "new": 1,
     "duplicates_server": 0,
-    "delivery_pending": 0,
+    "delivery_pending": 1,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
+    "tender_acquisition": {
+      "detail_requests": 35,
+      "verified_cards": 1,
+      "listing_candidates": 371,
+      "menu_links_rejected": 887,
+      "outcomes": {
+        "non_service_link": 7,
+        "not_service": 1,
+        "outside_work_region": 14,
+        "card_unavailable": 98,
+        "primary_unverified": 19,
+        "already_recorded": 1
+      },
+      "sources": {
+        "https://t.me/s/fsk_tenders": {
+          "channel": "fsk_tenders",
+          "pages": 2,
+          "posts": 38,
+          "missing_dates": 0,
+          "complete": true,
+          "stop_reason": "date_boundary",
+          "next_url": "https://t.me/s/fsk_tenders?before=200",
+          "recent_posts": 4,
+          "cutoff": "2026-10-10T13:46:35.893367+00:00",
+          "individual_links": 2,
+          "verified_cards": 1
+        },
+        "GenTender / Московская область / отходы": {
+          "visible_cards": 29,
+          "individual_links": 25
+        },
+        "GenTender / Москва / отходы": {
+          "visible_cards": 40,
+          "individual_links": 37
+        },
+        "GenTender / Московская область / строительство": {
+          "visible_cards": 40,
+          "individual_links": 36
+        },
+        "GenTender / Москва / строительство": {
+          "visible_cards": 40,
+          "individual_links": 40
+        },
+        "GenTender / Московская область / благоустройство": {
+          "visible_cards": 40,
+          "individual_links": 36
+        },
+        "GenTender / Москва / благоустройство": {
+          "visible_cards": 40,
+          "individual_links": 37
+        },
+        "GenTender / Московская область / транспорт": {
+          "visible_cards": 40,
+          "individual_links": 28
+        },
+        "GenTender / Москва / транспорт": {
+          "visible_cards": 40,
+          "individual_links": 35
+        },
+        "GenTender / Московская область / спецтехника": {
+          "visible_cards": 40,
+          "individual_links": 29
+        },
+        "GenTender / Москва / спецтехника": {
+          "visible_cards": 40,
+          "individual_links": 39
+        },
+        "GenTender / Калужская область / отходы": {
+          "visible_cards": 2,
+          "individual_links": 1
+        },
+        "GenTender / Калужская область / строительство": {
+          "visible_cards": 2,
+          "individual_links": 2
+        },
+        "GenTender / Калужская область / благоустройство": {
+          "visible_cards": 10,
+          "individual_links": 10
+        },
+        "GenTender / Калужская область / транспорт": {
+          "visible_cards": 11,
+          "individual_links": 11
+        },
+        "GenTender / Калужская область / спецтехника": {
+          "visible_cards": 6,
+          "individual_links": 5
+        },
+        "https://etp.pik.ru/trades": {
+          "card_containers": 0,
+          "individual_candidates": 0,
+          "verified_cards": 0
+        },
+        "https://a101.ru/company/partnership/tenders": {
+          "card_containers": 0,
+          "individual_candidates": 0,
+          "verified_cards": 0
+        },
+        "https://partner.samolet.ru/": {
+          "card_containers": 0,
+          "individual_candidates": 0,
+          "verified_cards": 0
+        },
+        "https://corp.sminex.com/sotrudnichestvo/tendery-developera": {
+          "card_containers": 0,
+          "individual_candidates": 0,
+          "verified_cards": 0
+        },
+        "https://etp.level.ru/trades": {
+          "card_containers": 0,
+          "individual_candidates": 0,
+          "verified_cards": 0
+        },
+        "https://www.b2b-center.ru/search/kaluzhskaya-oblast/samosvaly/": {
+          "card_containers": 2,
+          "individual_candidates": 2,
+          "verified_cards": 0
+        },
+        "https://www.b2b-center.ru/search/moskva/spectexnika/": {
+          "card_containers": 10,
+          "individual_candidates": 4,
+          "verified_cards": 0
+        },
+        "https://www.b2b-center.ru/search/moskovskaya-oblast/spectexnika/": {
+          "card_containers": 10,
+          "individual_candidates": 4,
+          "verified_cards": 0
+        },
+        "https://www.b2b-center.ru/search/kaluzhskaya-oblast/spectexnika/": {
+          "card_containers": 1,
+          "individual_candidates": 1,
+          "verified_cards": 0
+        }
+      }
+    },
     "unchecked_sources": [
-      "bing: bing: results do not match the requested topic or site",
+      "GenTender / Калужская область / отходы: unsupported individual-link format",
+      "GenTender / Москва / благоустройство: unsupported individual-link format",
+      "GenTender / Москва / отходы: unsupported individual-link format",
+      "GenTender / Москва / транспорт: unsupported individual-link format",
+      "GenTender / Московская область / благоустройство: unsupported individual-link format",
+      "GenTender / Московская область / отходы: unsupported individual-link format",
+      "GenTender / Московская область / транспорт: unsupported individual-link format",
+      "GenTender/0148300009126000115: primary card or explicit deadline not verified",
+      "GenTender/0348200086526000054: primary card or explicit deadline not verified",
+      "GenTender/0373100108926000020: primary card or explicit deadline not verified",
+      "GenTender/0373200068626000739: primary card or explicit deadline not verified",
+      "GenTender/0373200138226000867: primary card or explicit deadline not verified",
+      "GenTender/0847500000326000028: primary card or explicit deadline not verified",
+      "GenTender/0848300057726000038: primary card or explicit deadline not verified",
+      "GenTender/0848300060626000377: primary card or explicit deadline not verified",
+      "GenTender/0848300062226001077: primary card or explicit deadline not verified",
+      "GenTender/0848300064126000363: primary card or explicit deadline not verified",
+      "GenTender/0848600002726000623: primary card or explicit deadline not verified",
+      "GenTender/32616443194: primary card or explicit deadline not verified",
+      "GenTender/32616470985: primary card or explicit deadline not verified",
+      "GenTender/eat-100290289126100233: primary card or explicit deadline not verified",
+      "GenTender/sb-46865813: primary card or explicit deadline not verified",
+      "GenTender/sb-86577285: primary card or explicit deadline not verified",
+      "GenTender/tt-950211: primary card or explicit deadline not verified",
+      "GenTender/tt-950901: primary card or explicit deadline not verified",
+      "GenTender/tt-951384: primary card or explicit deadline not verified",
+      "Level Group ETP: no verified procurement markup or card links",
+      "Sminex: no verified procurement markup or card links",
+      "Tender card verification budget reached",
       "duckduckgo: duckduckgo: challenge or access restriction",
-      "google: google: result markup not verified"
+      "google: google: result markup not verified",
+      "http://zakupki.gov.ru/epz/order/notice/view/common-info.html?regNumber=0137600012926000067: CARD_VERIFICATION_BUDGET",
+      "http://zakupki.gov.ru/epz/order/notice/view/common-info.html?regNumber=0373200594926000099: CARD_VERIFICATION_BUDGET",
+      "http://zakupki.gov.ru/epz/order/notice/view/common-info.html?regNumber=0373200624526000003: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226007815-vypolnenie-rabot-po-blagoustroystvu-territorii-ot-d-18-po: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226007914-vypolnenie-rabot-po-soderzhaniyu-territorii-gorodskogo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008004-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008064-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008065-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008066-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008067-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008068-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008069-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137200001226008070-vypolnenie-rabot-svyazannyh-s-osuschestvleniem-regulyarnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137600004226000167-podgotovka-eskiznogo-proekta-i-smetnoy-dokumentacii-po: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137600004226000168-blagoustroystvo-detskoy-ploschadki-2-etap-d-karpovo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137600005426000099-blagoustroystvo-detskoy-igrovoy-ploschadki-v-rayone-d-64-po: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137600009126000232-okazanie-uslug-po-obrascheniyu-s-othodami-ne: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0137600009126000237-raboty-po-blagoustroystvu-territorii-babyninskogo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0148200005426000387-blagoustroystvo-territorii-memorialnogo-parka-po-adresu: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0148200005426000443-vypolnenie-rabot-po-blagoustroystvu-ulicy-sovetskaya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0148200005426000452-okazanie-uslug-finansovoy-arendy-lizinga-na-priobretenie: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0148200005426000453-okazanie-uslug-finansovoy-arendy-lizinga-na-priobretenie: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0148300021226000533-vypolnenie-rabot-po-blagoustroystvu: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0173100008826000023-okazanie-uslug-po-utilizacii-unichtozheniyu-i-pererabotke-s: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0173100012026000054-okazanie-uslug-bronirovaniya-proezdnyh-dokumentov-na: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373100025726000280-vypolnenie-rabot-po-blagoustroystvu-territorii-tekuschiy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373100134126000132-okazanie-uslug-po-pogruzke-vyvozu-snega-s-utilizaciey-dlya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200006226001626-okazanie-uslug-arendy-spectehniki-s-ekipazhem-dlya-nuzhd: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200006226001662-postavka-almaznyh-diskov-dlya-blagoustroystva-territorii: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200029526000033-okazanie-uslug-po-mehanizirovannoy-pogruzke-vyvozu-i: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200081226000395-vypolnenie-rabot-po-kapitalnomu-remontu-zdaniya-po-adresu-g: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200349126000007-okazanie-kompleksnyh-uslug-po-perevozke-dostavke-gruzov: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0373200412126000007-okazanie-transportnyh-uslug-po-perevozke-shkolnikov-dlya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0573500000126000238-okazanie-uslug-po-arende-spectehniki-dlya-nuzhd-kp: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300016526000422-vypolnenie-rabot-po-podgotovke-planovyh-geodezicheskih-shem: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300016526000423-postavka-vyklyuchateley-dlya-nuzhd-mbu-chehovskoe: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300016526000424-okazanie-uslug-po-predostavleniyu-specializirovannoy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300046126000393-vypolnenie-rabot-po-blagoustroystvu: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300046126000400-vypolnenie-rabot-po-podgotovke-planovyh-geodezicheskih-shem: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300047126000423-vypolnenie-rabot-po-sostavleniyu-proektno-smetnoy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300047126000426-okazanie-uslug-po-tekuschemu-soderzhaniyu-i-podboru-musora: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300049026000784-vypolnenie-rabot-po-demontazhu-snosu-samovolno: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300051126000144-okazanie-uslug-po-arende-spectehniki-s-ekipazhem-dlya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848300053226000330-vypolnenie-rabot-po-razrabotke-arhitekturno-planirovochnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0848600002726000576-vypolnenie-rabot-po-razrabotke-arhitekturno-planirovochnoy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/0895100000126001556-okazanie-uslug-po-perevozke-gruza-prob-g: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32615739681-vypolnenie-rabot-po-blagoustroystvu-i-zemlyanym-rabotam: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616228451-okazanie-uslug-po-ispolneniyu-funkciy-tehnicheskogo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616256675-vypolnenie-kompleksa-rabot-uslug-v-obeme-neobhodimom-dlya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616399526-okazanie-uslug-po-ispolneniyu-funkciy-tehnicheskogo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616425402-226317-lot-1-uborka-pomescheniy-i-blagoustroystvo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616430411-opredelenie-podryadchika-na-vypolnenie-rabot-po-pokraske: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616431527-226374-ekspertiza-promyshlennoy-bezopasnosti-i-tehnicheskoe: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616435202-konkurentnyy-otbor-v-elektronnoy-forme-na-elektronnoy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616437265-na-okazanie-uslug-po-perevozke-selskohozyaystvennoy-tehniki: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616441827-pravo-zaklyucheniya-dogovora-na-okazanie-uslug-po: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616451872-pravo-zaklyucheniya-dogovora-na-okazanie-uslug-po-perevozke: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616452516-okazanie-uslug-transportnyh-perevozka-uglya-v-g-slobodskoy: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616454666-okazanie-transportnyh-uslug-po-perevozke-rabotnikov: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616459710-okazanie-uslug-po-perevozke-tovarno-materialnyh: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616460047-vypolnenie-rabot-po-blagoustroystvu-i-zemlyanym-rabotam: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616460562-vypolnenie-rabot-po-montazhu-soderzhaniyu-i-demontazhu: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616461121-okazanie-uslug-po-perevozke-obuchayuschihsya-k-mestam: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616461601-pravo-zaklyucheniya-dogovora-na-postavka-zapasnyh-chastey-k: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616466679-okazanie-uslug-po-vyvozu-i-utilizacii-snega-s-territorii: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616467467-pravo-zaklyucheniya-dogovora-na-postavka-putevogo: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616469924-vypolnenie-rabot-po-vosstanovleniyu-blagoustroystva-posle: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616471335-okazanie-uslug-po-transportirovaniyu-obrabotke-utilizacii: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616475533-okazanie-uslug-na-razrabotku-geodezicheskih-shem-i: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616475565-okazanie-uslug-po-uborke-i-ozeleneniyu-territorii-otelya: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616478027-okazanie-uslug-po-tehnicheskomu-obsluzhivaniyu-i-tekuschemu: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616479944-vypolnenie-rabot-po-ustroystvu-ograzhdeniya-i: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616480626-vypolnenie-rabot-po-ustroystvu-ograzhdeniya-i: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/32616480634-vypolnenie-rabot-po-blagoustroystvu-i-ozeleneniyu-uchastka: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/eat-100266936126100041-okazanie-uslugi-arendy-traktor-pogruzchika-s: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/sb-21787759-osuschestvlenie-gruzoperevozok-po-permskomu-krayu-po: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/tt-951132-puskonaladochnye-raboty-sistemy-sbora-ochistki-i-utilizacii: CARD_VERIFICATION_BUDGET",
+      "https://gentender.ru/zakupka/tt-951347-okazanie-uslug-po-transportirovke-i-razmescheniyu: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/223/purchase/public/purchase/info/common-info.html?regNumber=32616443194: <urlopen error timed out>",
+      "https://zakupki.gov.ru/223/purchase/public/purchase/info/common-info.html?regNumber=32616470985: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0137200001226007914: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0148200005426000452: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0148200005426000453: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0148300009126000115: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0348200086526000054: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373100108926000020: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200041126000653: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200068626000739: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0847500000326000028: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300051126000144: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300060626000377: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300062226001077: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300064126000363: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848600002726000623: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/notice223/common-info.html?regNumber=32616460945: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/notice223/common-info.html?regNumber=32616477458: CARD_VERIFICATION_BUDGET",
+      "https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0373200138226000867: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/zk20/view/common-info.html?regNumber=0848300057726000038: <urlopen error timed out>",
+      "А101: no verified procurement markup or card links",
+      "ПИК ETP: no verified procurement markup or card links",
+      "Самолёт S.Tender: no verified procurement markup or card links"
     ],
-    "discovery_seconds": 2.26
+    "discovery_seconds": 2.15
   }
 }

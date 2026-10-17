@@ -2507,6 +2507,37 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "TENDER-4628003": {
+      "requestId": "TENDER-4628003",
+      "cycleKey": "2026-10-17 14:00 EXTRA 39037593340.1",
+      "run_id": "39037593340.1",
+      "source": "Tender Watch",
+      "duplicate": false,
+      "accepted_at": "2026-10-17T13:51:32.272873+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-17T13:51:32.272887+00:00",
+      "verified_at": "2026-10-17T13:52:41.294032+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2427"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2428"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2429"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
