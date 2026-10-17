@@ -623,6 +623,28 @@ def main():
     seen = set()
     errors = []
 
+    for source_label, channel, source_region in TELEGRAM_TENDER_SOURCES:
+        try:
+            url = f"https://t.me/s/{channel}"
+            page = fetch(url)
+            cards = extract_telegram_tenders(page, source_label, channel, source_region)
+            print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
+            for entry in cards:
+                if not valid_tender_card_link(entry):
+                    print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
+                    continue
+                key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
+                request_id = request_id_for(entry)
+                if request_id in sheet_request_ids:
+                    continue
+                if (not legacy_local and key in sent) or key in seen:
+                    continue
+                seen.add(key)
+                candidates.append((entry, key))
+        except Exception as exc:
+            errors.append(f"{source_label}: {exc}")
+
+
     for source_region, url in SOURCES:
         try:
             page = fetch(url)
@@ -690,27 +712,6 @@ def main():
             candidates.append((entry, key))
         except Exception as exc:
             errors.append(f"Tender discovery page {url}: {exc}")
-
-    for source_label, channel, source_region in TELEGRAM_TENDER_SOURCES:
-        try:
-            url = f"https://t.me/s/{channel}"
-            page = fetch(url)
-            cards = extract_telegram_tenders(page, source_label, channel, source_region)
-            print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
-            for entry in cards:
-                if not valid_tender_card_link(entry):
-                    print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
-                    continue
-                key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
-                request_id = request_id_for(entry)
-                if request_id in sheet_request_ids:
-                    continue
-                if (not legacy_local and key in sent) or key in seen:
-                    continue
-                seen.add(key)
-                candidates.append((entry, key))
-        except Exception as exc:
-            errors.append(f"{source_label}: {exc}")
 
     # Финальный предохранитель: без ссылки на карточку тендер не отправляется.
     screened = []

@@ -124,6 +124,8 @@ def configured_worker(name):
     module = importlib.import_module(name)
     session = DiscoverySession(lambda *a, **k: internet.fetch(*a, **k))
     unchecked = set()
+    acquisition = None
+    tender_acquisition = None
     with ExitStack() as stack:
         stack.enter_context(binding(r, 'acknowledged', strict_acknowledged))
         stack.enter_context(binding(r, 'record_lead_result', record))
@@ -132,11 +134,28 @@ def configured_worker(name):
                 stack.enter_context(binding(current, 'record_lead_result', record))
             if hasattr(current, 'discovery_result_urls'):
                 stack.enter_context(binding(current, 'discovery_result_urls', session.search))
+        if name == 'internet_leads_monitor':
+            from card_acquisition import Acquisition
+            acquisition = Acquisition(internet.fetch)
+            for parser in ('parse_exkavator', 'parse_nerudonline', 'parse_rentag'):
+                stack.enter_context(binding(internet, parser, getattr(acquisition, parser)))
+            original_collect = internet.collect_candidates
+            def collect_with_cards():
+                candidates, errors = original_collect()
+                return [acquisition.enrich(item) for item in candidates], errors
+            stack.enter_context(binding(internet, 'collect_candidates', collect_with_cards))
         if name == 'tender_monitor':
             original_relevant = module.relevant
             original_card = module.valid_tender_card_link
             original_ids = module.load_sheet_request_ids
             known_ids = set()
+            from tender_acquisition import TenderAcquisition
+            tender_acquisition = TenderAcquisition(module.fetch, known_ids)
+            for function, method in (('extract_cards','extract_gentender'),
+                                     ('extract_direct_cards','extract_direct'),
+                                     ('extract_telegram_tenders','extract_telegram'),
+                                     ('parse_discovered_tender','resolve')):
+                stack.enter_context(binding(module, function, getattr(tender_acquisition, method)))
             resolved = {}
             attempted = set()
             stack.enter_context(binding(module, 'EXCLUDE', tuple(x for x in module.EXCLUDE if x != '\u0441\u043d\u0435\u0433')))
@@ -146,7 +165,7 @@ def configured_worker(name):
                     return False
                 if any(term in title for term in module.EXCLUDE):
                     return False
-                return original_relevant(entry) or ('\u0441\u043d\u0435\u0433' in title and any(
+                return entry.get('acquisition_pending', False) or (entry.get('verification', {}).get('acquisition_version') == 'cards-v1') or original_relevant(entry) or ('\u0441\u043d\u0435\u0433' in title and any(
                     term in title for term in ('\u0432\u044b\u0432\u043e\u0437', '\u043f\u043e\u0433\u0440\u0443\u0437', '\u0443\u0431\u043e\u0440'))) or (
                     '\u0430\u0440\u0435\u043d\u0434' in title and any(term in title for term in (
                     '\u0441\u0430\u043c\u043e\u0441\u0432\u0430\u043b', '\u0441\u043f\u0435\u0446\u0442\u0435\u0445', '\u044d\u043a\u0441\u043a\u0430\u0432\u0430\u0442\u043e\u0440', '\u043f\u043e\u0433\u0440\u0443\u0437\u0447\u0438\u043a')))
@@ -157,6 +176,9 @@ def configured_worker(name):
                 known_ids.update(ids)
                 return ids, ok
             def card(entry):
+                acquired = tender_acquisition.verify_entry(entry)
+                if acquired is not None:
+                    return acquired
                 if original_card(entry):
                     return True
                 rid = module.request_id_for(entry)
@@ -225,6 +247,12 @@ def configured_worker(name):
             last = state.get('last_run', {})
             if last.get('run_id') == r.run_id():
                 last['runtime_version'] = '2026-10-07.2'
+                if acquisition is not None:
+                    last['card_acquisition'] = acquisition.report
+                    unchecked.update(acquisition.unchecked)
+                if tender_acquisition is not None:
+                    last['tender_acquisition'] = tender_acquisition.report
+                    unchecked.update(tender_acquisition.unchecked)
                 last['unchecked_sources'] = sorted(set(last.get('unchecked_sources') or []) | unchecked | session.warnings)
                 last['discovery_seconds'] = round(session.spent, 2)
             return original_save(state)

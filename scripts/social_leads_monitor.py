@@ -4,6 +4,10 @@ import json
 import os
 import re
 import sys
+import time
+from social_depth import read_history, scoped_contacts
+from source_markup import absolute_link
+from card_acquisition import Acquisition, known_card
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -34,6 +38,8 @@ STATE_PATH = Path("social_public_leads_state.json")
 MAX_SEND = int(os.environ.get("MAX_SEND", "50"))
 SUPPRESS_NO_RESULTS = os.environ.get("SUPPRESS_NO_RESULTS", "0") == "1"
 
+SOURCE_COVERAGE = {}
+SOCIAL_DEADLINE = None
 CHANNELS = [
     ("Всем Подряд", "vsem_podryad"),
     ("Работа для самосвалов", "samosvalam_rabota"),
@@ -41,8 +47,12 @@ CHANNELS = [
     ("Спецтехника аренда Москва и МО", "spetctechnika_arenda_uslugi"),
     ("Аренда спецтехники Заявки", "spectehnikfree"),
     ("Аренда Спецтехники Москва МО", "spetstekhnika_arenda"),
+    ("PROMS / dump-truck orders", "rabota_dlya_samosvalov_promsru"),
+    ("Samosval.Info", "samosvalinfo"),
+    ("Dump-trucks work", "dumptrucks_work"),
+    ("Equipment work", "spezteh"),
+    ("Quarry truck orders", "tonary_karery"),
 ]
-
 DEMAND_MARKERS = (
     "нужен", "нужна", "нужно", "нужны", "требуется", "требуются",
     "ищем", "заказ", "работа для", "самосвалам", "в работу",
@@ -107,93 +117,39 @@ def demand_ok(text):
     return relevant(text[:250], text)
 
 def parse_channel(label, channel):
-    page = fetch(f"https://t.me/s/{channel}", timeout=20)
-
-    # Telegram periodically changes attributes around public post wrappers.
-    # Support both data-post and message-date href forms instead of assuming one layout.
-    markers = []
-    for m in re.finditer(r'data-post=["\']([^"\']+)/(\d+)["\']', page, re.I):
-        markers.append((m.start(), m.group(1), m.group(2)))
-    if not markers:
-        for m in re.finditer(
-            r'href=["\']https://t\.me/([^/"\']+)/(\d+)["\'][^>]*class=["\'][^"\']*tgme_widget_message_date',
-            page, re.I
-        ):
-            markers.append((m.start(), m.group(1), m.group(2)))
-    if not markers:
-        for m in re.finditer(r'href=["\']https://t\.me/([^/"\']+)/(\d+)["\']', page, re.I):
-            markers.append((m.start(), m.group(1), m.group(2)))
-
-    # Preserve order, de-duplicate repeated links within the same message wrapper.
-    seen_marker = set()
-    marks = []
-    for pos, post_channel, post_id in sorted(markers):
-        key = (post_channel.lower(), post_id)
-        if key in seen_marker:
-            continue
-        seen_marker.add(key)
-        marks.append((pos, post_channel, post_id))
-
-    print(f"TELEGRAM_HTML {label}: bytes={len(page)} post_markers={len(marks)}")
+    report = {}
+    budget = min(70, max(0, SOCIAL_DEADLINE-time.monotonic())) if SOCIAL_DEADLINE else 70
+    posts = read_history(channel, fetch, days=RECENT_DAYS,
+                         max_pages=max(1,min(50,int(os.environ.get('ECOFLOT_TG_MAX_PAGES','30')))),
+                         max_seconds=budget, report=report)
+    SOURCE_COVERAGE[channel] = report
     out = []
-    for i, (start, post_channel, post_id) in enumerate(marks):
-        end = marks[i + 1][0] if i + 1 < len(marks) else min(len(page), start + 18000)
-        block = page[start:end]
-
-        text = message_text(block)
-        if not text:
-            # Fallback for minor Telegram class changes.
-            tm = re.search(
-                r'(?is)<div[^>]+class=["\'][^"\']*tgme_widget_message_text[^"\']*["\'][^>]*>(.*?)</div>',
-                block,
-            )
-            if tm:
-                raw = re.sub(r"(?i)<br\s*/?>", "\n", tm.group(1))
-                text = clean(raw)
+    for post in posts:
+        text = post['text']
         if not text or not demand_ok(text):
             continue
-
         location = matched_geo(text)
         if not location:
             continue
-
-        time_m = re.search(r'<time[^>]+datetime=["\']([^"\']+)["\']', block, re.I)
-        dt = None
-        if time_m:
-            try:
-                dt = datetime.fromisoformat(time_m.group(1).replace("Z", "+00:00")).astimezone(timezone.utc)
-            except ValueError:
-                dt = None
-        if not dt:
-            print("EXCLUDED_FRESHNESS: no-confirmed-date", label, post_id)
-            continue
-        if datetime.now(timezone.utc) - dt > timedelta(days=RECENT_DAYS):
-            continue
-
-        url = f"https://t.me/{post_channel}/{post_id}"
-        rid = "SOCIAL-TG-" + re.sub(r"[^A-Za-z0-9_-]+", "", post_channel)[:40] + "-" + post_id
         title = social_title(text)
-
         item = {
-            "request_id": rid,
-            "title": title,
-            "description": text[:1800],
-            "price": "договорная",
-            "date": dt.strftime("%Y-%m-%d"),
-            "location": location,
-            "volume": extract_volume(text) or "-",
-            "url": url,
-            "source": "Telegram / " + label,
-            "priority": "Высокий" if lead_class(title, text) == "HOT" else "Средний",
+            'request_id':'SOCIAL-TG-'+channel+'-'+post['id'],
+            'title':title,'description':text[:1800], 'price':'',
+            'date':post['published'].strftime('%Y-%m-%d'),
+            'location':location,'volume':extract_volume(text) or '-',
+            'url':post['url'],'source':'Telegram / '+label,
+            'priority':'\u0412\u044b\u0441\u043e\u043a\u0438\u0439' if lead_class(title,text)=='HOT' else '\u0421\u0440\u0435\u0434\u043d\u0438\u0439',
         }
-        score, work, equipment = relevance_score(item)
-        item["score"] = score
-        item["work"] = work
-        item["equipment"] = equipment
-        item["lead_class"] = lead_class(title, text)
+        item.update(scoped_contacts(post['body'],channel))
+        item['card_links'] = [a.attrs['href'] for a in post['body'].find_all('a',attr='href')
+                              if known_card(a.attrs['href'])] if post['body'] else []
+        score,work,equipment = relevance_score(item)
+        item.update(score=score,work=work,equipment=equipment,lead_class=lead_class(title,text))
         if score >= MIN_RELEVANCE_SCORE:
             out.append(item)
-    return out, len(marks)
+    report['eligible_before_contact'] = len(out)
+    print('TELEGRAM_DEPTH', json.dumps(report,ensure_ascii=False), flush=True)
+    return out, report['posts']
 
 def send_no_results():
     return send_notify_reliable(
@@ -204,6 +160,10 @@ def send_no_results():
     )
 
 def main():
+    global SOCIAL_DEADLINE
+    SOURCE_COVERAGE.clear()
+    SOCIAL_DEADLINE = time.monotonic()+240
+    acquisition = Acquisition(fetch, limit=24, budget=45)
     state = load_state()
     sent = state.setdefault("sent", {})
     legacy_local = state.get("last_run", {}).get("metrics_version") != 2
@@ -219,6 +179,9 @@ def main():
             if marker_count == 0:
                 unverified_sources.append(f"Telegram/{label}: публичные посты недоступны")
             candidates.extend(found)
+            coverage = SOURCE_COVERAGE.get(channel,{})
+            if not coverage.get('complete'):
+                unverified_sources.append('Telegram/'+label+': '+str(coverage.get('stop_reason','unknown')))
         except Exception as exc:
             errors.append(f"{label}: {exc}")
             unverified_sources.append(f"Telegram/{label}: ошибка доступа")
@@ -228,6 +191,7 @@ def main():
 
     contact_ready = []
     for item in candidates:
+        acquisition.enrich(item)
         ok, reason = ensure_public_contact(item)
         if ok:
             contact_ready.append(item)
@@ -273,7 +237,10 @@ def main():
         except Exception as exc:
             errors.append(f"no-results: {exc}")
 
+    unverified_sources.extend(sorted(acquisition.unchecked))
     state["last_run"] = {
+        "source_coverage": SOURCE_COVERAGE,
+        "contact_acquisition": acquisition.report,
         "at": datetime.now(timezone.utc).isoformat(),
         "cycleKey": os.environ.get("ECOFLOT_CYCLE_KEY", "").strip(),
         "run_id": run_id(),

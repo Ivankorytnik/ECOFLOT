@@ -401,7 +401,7 @@ def ensure_public_contact(item):
 
     if not phone or not contact_url:
         found_phone, found_url = extract_public_contact(
-            " ".join([
+            str(item.get("contact_text") or "") if item.get("contact_evidence_required") else " ".join([
                 str(item.get("title") or ""),
                 str(item.get("description") or ""),
                 str(item.get("contact_text") or ""),
