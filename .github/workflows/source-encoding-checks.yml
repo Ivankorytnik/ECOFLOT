@@ -1,0 +1,86 @@
+name: ECOFLOT source encoding checks
+on:
+  push:
+    branches: ['repair/20261017-source-encoding']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ecoflot-source-encoding
+  cancel-in-progress: false
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/repair/20261017-source-encoding'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ECOFLOT_NOTIFY_SUMMARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/20261017-source-encoding
+          fetch-depth: 0
+      - name: Bind text decoder on exact source version
+        run: |
+          python3 - <<'PY'
+          import hashlib
+          from pathlib import Path
+          path=Path('scripts/internet_leads_monitor.py')
+          def sha(raw): return hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          raw=path.read_bytes()
+          if sha(raw) != '3d05a7cbde22f849a3865f9425f2ba67b959b325':
+            if sha(raw) != '20149556496e1a5b467662f5518fb0490b4dbdf9':
+              raise RuntimeError('Unexpected source baseline')
+            text=raw.decode('utf-8'); start=text.index('def fetch('); end=text.index('\ndef clean(',start)
+            part=text[start:end]
+            if part.count('r.read().decode("utf-8", "replace")')!=2:
+              raise RuntimeError('Unexpected read functions')
+            part=part.replace('r.read().decode("utf-8", "replace")','decode_response(r)')
+            text=text[:start]+part+text[end:]
+            text=text.replace('\n','\nfrom source_encoding import decode_response\n',1)
+            raw=text.encode('utf-8')
+            if sha(raw)!='3d05a7cbde22f849a3865f9425f2ba67b959b325':
+              raise RuntimeError('Patched source digest mismatch')
+            path.write_bytes(raw)
+          print('Exact tested decoder binding verified')
+          PY
+      - name: Regression tests
+        run: |
+          set -euo pipefail
+          mkdir -p encoding-evidence
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v 2>&1 | tee encoding-evidence/tests.log
+          node tests/server_guards.test.js
+      - name: Check actual public customer card without following access gates
+        run: |
+          python3 - <<'PY'
+          import json,sys
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from internet_leads_monitor import fetch
+          from card_acquisition import Acquisition
+          url='https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164'
+          page=fetch(url,timeout=12,attempts=1)
+          result=Acquisition(fetch).contact_from_card(page,url,'')
+          evidence={'read_only':True,'url':url,'result':result.get('reason','public_contact'),'readable_russian':'\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b \u0437\u0430\u043a\u0430\u0437\u0447\u0438\u043a\u0430' in page,'replacement_characters':page.count('\ufffd'),'messages_sent':0}
+          print(json.dumps(evidence,ensure_ascii=False))
+          Path('encoding-evidence/public-card.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2))
+          if not evidence['readable_russian'] or evidence['replacement_characters']:
+            raise RuntimeError('Actual source still unreadable')
+          PY
+      - name: Save only tested source on repair branch
+        run: |
+          set -euo pipefail
+          git add scripts/internet_leads_monitor.py
+          if ! git diff --cached --quiet; then
+            git config user.name ecoflot-bot
+            git config user.email ecoflot-bot@users.noreply.github.com
+            git commit -m 'Read declared public page encodings with regression-tested decoder'
+            git push origin HEAD:refs/heads/repair/20261017-source-encoding
+          fi
+          git rev-parse HEAD | tee encoding-evidence/tested-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-source-encoding-verified
+          path: encoding-evidence/
+          retention-days: 7
