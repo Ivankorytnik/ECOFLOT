@@ -1,0 +1,36 @@
+name: ECOFLOT labor demand verification
+on:
+  push:
+    branches: ['repair/20261017-labor-demand']
+    paths: ['.github/workflows/labor-demand-verify.yml']
+permissions:
+  contents: write
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ECOFLOT_NOTIFY_SUMMARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/20261017-labor-demand
+          fetch-depth: 0
+      - run: python3 maintenance/repair_labor_20261017.py
+      - name: Complete search regression suite without live sends
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q scripts
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
+          node tests/server_guards.test.js
+      - name: Save only verified source on the repair branch
+        run: |
+          set -euo pipefail
+          git add scripts/internet_leads_monitor.py
+          if ! git diff --cached --quiet; then
+            git config user.name ecoflot-bot
+            git config user.email ecoflot-bot@users.noreply.github.com
+            git commit -m 'Reject foreman-only vacancies without dropping explicit machinery demand'
+            git push origin HEAD:refs/heads/repair/20261017-labor-demand
+          fi
+          git rev-parse HEAD

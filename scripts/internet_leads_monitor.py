@@ -739,7 +739,7 @@ def relevant(title, description):
         "ассенизатор", "илосос", "откачка септика",
     )
     # ECOFLOT quality repair 2026-10-15
-    labor_role = re.search(r'\b(?:разнорабоч[а-я]*|подсобн[а-я]*|монтажник[а-я]*|каменщик[а-я]*|маляр[а-я]*|штукатур[а-я]*|плиточник[а-я]*)\b', hay)
+    labor_role = re.search(r'\b(?:разнорабоч[а-я]*|подсобн[а-я]*|монтажник[а-я]*|каменщик[а-я]*|маляр[а-я]*|штукатур[а-я]*|плиточник[а-я]*|прораб[а-я]*|бригадир[а-я]*)\b', hay)
     if (any(x in hay for x in labor_markers) or labor_role) and not any(x in hay for x in explicit_ecoflot_demand):
         return False
 
