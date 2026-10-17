@@ -1,0 +1,43 @@
+name: ECOFLOT acquisition followup checks
+on:
+  push:
+    branches: ['repair/20261017-acquisition-followup']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ecoflot-acquisition-followup
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.ref == 'refs/heads/repair/20261017-acquisition-followup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Decode patch as data only for review
+        run: |
+          python3 - <<'PY'
+          import ast,base64,json,zlib
+          from pathlib import Path
+          tree=ast.parse(Path('maintenance/apply_acquisition_followup.py').read_text('utf-8'))
+          values={}
+          for node in tree.body:
+            if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name) and node.targets[0].id in ('PATCH','EXPECTED'):
+              values[node.targets[0].id]=ast.literal_eval(node.value)
+          Path('review').mkdir(exist_ok=True)
+          Path('review/acquisition.patch').write_bytes(zlib.decompress(base64.b64decode(values['PATCH'])))
+          Path('review/expected.json').write_text(json.dumps(values['EXPECTED'],indent=2))
+          print('Decoded patch for',len(values['EXPECTED']),'files; no collectors run, no sends.')
+          PY
+          git apply --check --whitespace=error-all review/acquisition.patch
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-acquisition-review
+          path: |
+            review/
+            scripts/
+            tests/
+            maintenance/apply_acquisition_followup.py
+          retention-days: 3
