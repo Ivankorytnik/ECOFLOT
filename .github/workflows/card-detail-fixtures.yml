@@ -1,0 +1,65 @@
+name: ECOFLOT observed card detail fixtures
+on:
+  push:
+    branches: ['repair/20261017-source-depth-cards']
+    paths: ['.github/workflows/card-detail-fixtures.yml']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 -m pip install --quiet beautifulsoup4 playwright
+          python3 -m playwright install --with-deps chromium > /tmp/browser-install.log 2>&1
+      - name: Follow only observed public detail links
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,urllib.request,urllib.parse,concurrent.futures,re
+          from bs4 import BeautifulSoup
+          root=pathlib.Path('detail-fixtures');root.mkdir(exist_ok=True)
+          seeds={'exkavator':'https://exkavator.ru/exchange/rent/main.html','nerudonline':'https://nerudonline.ru/rabota/samosvaly/moskovskaya-oblast','b2b':'https://www.b2b-center.ru/search/moskva/samosvaly/','gentender':'https://gentender.ru/tenders/utilizaciya-othodov/moskva','npd':'https://www.napodrabotku.ru/order/95097956','fsk':'https://t.me/s/fsk_tenders'}
+          results=[]
+          def get(name,url):
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 ECOFLOT-Source-Verification/1.0'})
+              with urllib.request.urlopen(req,timeout=18) as r: data=r.read(1800000).decode(r.headers.get_content_charset() or 'utf-8','replace')
+              (root/(name+'.html')).write_text(data,encoding='utf-8');results.append({'name':name,'url':url,'bytes':len(data)})
+              return data
+            except Exception as e: results.append({'name':name,'url':url,'error':str(e)[:200]});return ''
+          pages={name:get(name,url) for name,url in seeds.items()}
+          details={}
+          for name,pattern in [('exkavator',r'/exchange/item/'),('nerudonline',r'/requests/[0-9a-f-]+'),('b2b',r'/market/.*tender-\d+|/search/number/'),('gentender',r'/search\?q=')]:
+            s=BeautifulSoup(pages[name],'html.parser');seen=set()
+            for a in s.find_all('a',href=True):
+              if not re.search(pattern,a['href']):continue
+              url=urllib.parse.urljoin(seeds[name],a['href'])
+              if url in seen:continue
+              seen.add(url)
+              if name=='exkavator':
+                card=a.find_parent(class_='item-card');txt=card.get_text(' ',strip=True) if card else ''
+                if not any(x in txt.lower() for x in ['москва','московск','калуга','обнинск']):continue
+              details[name+'-detail-'+str(len(details))]=url
+              if sum(k.startswith(name+'-detail-') for k in details)>=2:break
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:list(pool.map(lambda x:get(*x),details.items()))
+          try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+              browser=p.chromium.launch(headless=True);page=browser.new_page()
+              page.goto('https://rentag.ru/arenda-spectehniki/zayavki',wait_until='domcontentloaded',timeout=30000)
+              page.locator('.card-title').first.click(timeout=15000);page.wait_for_timeout(1000)
+              (root/'rentag-detail.html').write_text(page.content(),encoding='utf-8')
+              results.append({'name':'rentag-detail','url':page.url,'guest_navigation':True})
+              browser.close()
+          except Exception as e:results.append({'name':'rentag-detail','error':str(e)[:250]})
+          (root/'manifest.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(results,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-card-details
+          path: detail-fixtures/
+          retention-days: 3

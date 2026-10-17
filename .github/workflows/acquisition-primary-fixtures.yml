@@ -1,0 +1,45 @@
+name: ECOFLOT primary acquisition fixtures
+on:
+  push:
+    branches: ['repair/20261017-source-depth-cards']
+    paths: ['.github/workflows/acquisition-primary-fixtures.yml']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Public cards and channel history, GET only
+        run: |
+          python3 - <<'PY'
+          import json,pathlib,urllib.request,concurrent.futures,re
+          root=pathlib.Path('primary-fixtures');root.mkdir(exist_ok=True)
+          urls={
+            'gentender-card':'https://gentender.ru/zakupka/0373100108926000020-okazanie-uslug-po-mehanizirovannoy-pogruzke-i-vyvozu-snega',
+            'fsk-primary':'https://www.b2b-center.ru/market/view.html?id=4628003',
+            'fsk-networks':'https://www.b2b-center.ru/market/view.html?id=4631834',
+          }
+          for channel in ['rabota_dlya_samosvalov_promsru','samosvalinfo','dumptrucks_work','spezteh','tonary_karery']:
+            urls['tg-'+channel]='https://t.me/s/'+channel
+          results=[]
+          def get(pair):
+            name,url=pair
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 ECOFLOT-Source-Verification/1.0'})
+              with urllib.request.urlopen(req,timeout=20) as r:
+                data=r.read(2200000).decode(r.headers.get_content_charset() or 'utf-8','replace');final=r.geturl()
+              (root/(name+'.html')).write_text(data,encoding='utf-8')
+              return {'name':name,'url':url,'final_url':final,'bytes':len(data)}
+            except Exception as e:return {'name':name,'url':url,'error':str(e)[:250]}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool: results=list(pool.map(get,urls.items()))
+          (root/'manifest.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(results,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-primary-fixtures
+          path: primary-fixtures/
+          retention-days: 3
