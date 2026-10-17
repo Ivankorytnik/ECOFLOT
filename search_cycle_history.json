@@ -7524,6 +7524,237 @@
         ]
       },
       "report_checked_at": "2026-10-17T11:18:18.359609+00:00"
+    },
+    "2026-10-17 14:00": {
+      "attempts": 1,
+      "schema_version": 2,
+      "cycleKey": "2026-10-17 14:00",
+      "run_id": "39028489773.1",
+      "started_at": "2026-10-17T14:23:19.501839+03:00",
+      "status": "SEARCH_PARTIAL",
+      "contours": {
+        "Internet Leads": {
+          "new": 0,
+          "duplicates": 12,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 5,
+          "unchecked_sources": [
+            "bing: bing: results do not match the requested topic or site",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
+            "Web discovery \"нужен ассенизатор\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-mestu-poslezavtra-subbotu-59e88343: HTTP Error 410: Gone",
+            "Web discovery page https://yellty.ru/zakazy/samosval-moskva-novyy-zakaz-kategoriya-4a28578f: HTTP Error 410: Gone",
+            "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Telegram/MAX/VK": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 17,
+          "unchecked_sources": [
+            "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+            "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+            "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+            "bing: bing: results do not match the requested topic or site",
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "duckduckgo: duckduckgo: results do not match the requested topic or site",
+            "google: google: result markup not verified",
+            "VK: no primary-post collector configured"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "site:max.ru требуется самосвал Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+            "site:max.ru вывоз грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru вывоз мусора Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru требуется спецтехника Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru демонтаж Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru демонтаж Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+            "site:max.ru демонтаж Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru работа для самосвалов Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru работа для самосвалов Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru работа для самосвалов Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru нужен тонар Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru погрузка грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru погрузка грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru перевозка ПГС Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+            "site:max.ru перевозка щебня Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0,
+            0
+          ]
+        },
+        "Tender Watch": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 4,
+          "unchecked_sources": [
+            "duckduckgo: duckduckgo: challenge or access restriction",
+            "google: google: result markup not verified"
+          ],
+          "missing_states": [],
+          "error_details": [
+            "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
+            "Портал поставщиков Москвы: <urlopen error timed out>",
+            "Tender discovery page https://www.fabrikant.ru/v2/trades/procedure/documentation/8LJnXrzO3JrUIdc5Penv9A: IncompleteRead(15852 bytes read)",
+            "Tender discovery page https://www.fabrikant.ru/v2/trades/explanation-request/Lca6pVyxEqBglKaHZpt5mw: <urlopen error timed out>"
+          ],
+          "state_found": true,
+          "status": "partial",
+          "exit_codes": [
+            0
+          ]
+        },
+        "Object Leads": {
+          "new": 0,
+          "duplicates": 0,
+          "accepted": 0,
+          "sent": 0,
+          "delivery_pending": 0,
+          "errors": 0,
+          "unchecked_sources": [],
+          "missing_states": [],
+          "error_details": [],
+          "state_found": true,
+          "status": "ok",
+          "exit_codes": [
+            0
+          ]
+        }
+      },
+      "search_mode": "Deep",
+      "preflight_errors": [],
+      "expected_recipient_count": 3,
+      "expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "search_finished_at": "2026-10-17T14:30:31.042459+03:00",
+      "totals": {
+        "new": 0,
+        "duplicates": 12,
+        "accepted": 0,
+        "sent": 0,
+        "delivery_pending": 0,
+        "errors": 26,
+        "unchecked_sources": [
+          "Telegram/Аренда Спецтехники Москва МО: публичные посты недоступны",
+          "Telegram/Аренда спецтехники Заявки: публичные посты недоступны",
+          "Telegram/Спецтехника аренда Москва и МО: публичные посты недоступны",
+          "VK: no primary-post collector configured",
+          "bing: bing: results do not match the requested topic or site",
+          "duckduckgo: duckduckgo: challenge or access restriction",
+          "duckduckgo: duckduckgo: results do not match the requested topic or site",
+          "google: google: result markup not verified"
+        ],
+        "confirmed_after_reconciliation": 0,
+        "pending_after_reconciliation": 0
+      },
+      "delivery": {
+        "checked": 0,
+        "confirmed": 0,
+        "pending": 0,
+        "missing_records": 0,
+        "duplicate_routes": 0,
+        "suppressed": 0,
+        "service_rows": 0,
+        "ok": true,
+        "reconcile_attempts": 1,
+        "mode": "read-only-sheet-reconciliation"
+      },
+      "backlog": {
+        "checked": 207,
+        "confirmed": 191,
+        "pending": 16,
+        "missing_records": 0,
+        "duplicate_routes": 4,
+        "suppressed": 9,
+        "service_rows": 0,
+        "ok": false
+      },
+      "slot_delivery": {
+        "accepted": 0,
+        "new": 0,
+        "confirmed": 0,
+        "pending": 0,
+        "missing_records": 0,
+        "ok": true,
+        "scope": "all-attempts-in-logical-slot"
+      },
+      "finished_at": "2026-10-17T14:30:31.309934+03:00",
+      "qualified_slot_totals": {
+        "Internet Leads": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Telegram/MAX": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Tender Watch": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Object Leads": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        }
+      },
+      "report_recorded": true,
+      "report_payload_sha256": "798d343a1fddabdff9da854e37bec8fb21bf933fb83c4b9056885656622e708c",
+      "report_delivery": {
+        "ok": true,
+        "expected": 3,
+        "confirmed": 3,
+        "pending": 0,
+        "routes": [
+          {
+            "chatId": "262661708",
+            "messageId": "2406"
+          },
+          {
+            "chatId": "584620734",
+            "messageId": "2407"
+          },
+          {
+            "chatId": "6795645088",
+            "messageId": "2408"
+          }
+        ]
+      },
+      "cycle_notice": "sent",
+      "report_checked_at": "2026-10-17T11:33:04.105360+00:00"
     }
   }
 }
