@@ -25,10 +25,26 @@ def parse_public_page(page, channel):
                 dt = None
         except ValueError:
             dt = None
+        post_url = 'https://t.me/'+match[1]+'/'+match[2]
+        links = []
+        for anchor in node.find_all('a', attr='href'):
+            if not anchor.visible():
+                continue
+            # Link previews are part of a post, unlike its footer/author links.
+            in_body = False
+            parent = anchor
+            while parent is not None and parent is not node:
+                in_body = in_body or parent is body
+                parent = parent.parent
+            if not (in_body or anchor.has('tgme_widget_message_link_preview')):
+                continue
+            url = absolute_link(post_url, anchor.attrs['href'])
+            if url and url not in links:
+                links.append(url)
         messages.append({'id':match[2], 'channel':match[1], 'published':dt,
                          'text':body.text().strip() if body else '',
-                         'body':body, 'markup':node.markup(),
-                         'url':'https://t.me/'+match[1]+'/'+match[2]})
+                         'body':body, 'markup':node.markup(), 'links':links,
+                         'url':post_url})
     base = 'https://t.me/s/'+channel
     next_url = ''
     for link in root.find_all('a', attr='href'):

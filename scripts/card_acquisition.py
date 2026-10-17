@@ -26,6 +26,9 @@ def known_card(url):
         p=urlsplit(url); host=(p.hostname or '').removeprefix('www.')
         if p.scheme not in ('https','http') or p.username or p.password or p.port not in (None,80,443):
             return False
+        if host == 'samosval.info' and p.path == '/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php':
+            ids = parse_qs(p.query).get('ID', [])
+            return len(ids) == 1 and bool(re.fullmatch(r'[1-9]\d{3,11}', ids[0]))
         if host.endswith('.proms.ru') or host=='proms.ru':
             return bool(re.search(r'/item/\d+/?$',p.path))
         return bool(host in CARD_PATHS and re.fullmatch(CARD_PATHS[host],p.path))
@@ -181,6 +184,8 @@ class Acquisition:
 
     def contact_from_card(self,page,url,title):
         root=DOM(page).root
+        if (urlsplit(url).hostname or '').removeprefix('www.') == 'samosval.info':
+            return self.samosval_contacts(root, url)
         title_node=root.find('h1',cls='title') or root.find('h1',cls='order-page__name') or root.find('h1')
         normal=lambda s:re.sub(r'\W+',' ',s.lower()).strip()
         # Link from a post is not proof that an unrelated contact page is its order.
@@ -219,3 +224,36 @@ class Acquisition:
                 return result
         gated=any(n.attrs.get('data-popup-id')=='popup-exchange-access' for n in root.walk())
         return {'reason':'contact_requires_access' if gated else 'no_public_contact'}
+
+
+    def samosval_contacts(self, root, url):
+        """Read only the customer-contact section on an observed detail card.
+
+        Transport coordinates/rates and the site footer are not buyer contacts.
+        Explicit paid/login gates are reported; they are never bypassed.
+        """
+        node = root.find(cls='news-detail')
+        parts = urlsplit(url)
+        rid = (parse_qs(parts.query).get('ID') or [parts.path.rstrip('/').rsplit('/', 1)[-1]])[0]
+        if not node or not re.search(r'\bID\s*' + re.escape(rid) + r'(?!\d)', node.clean()):
+            return {'reason': 'card_identity_unverified'}
+        marker = '\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b \u0437\u0430\u043a\u0430\u0437\u0447\u0438\u043a\u0430'
+        flat = node.text()
+        if marker.lower() not in flat.lower():
+            return {'reason': 'customer_contact_section_missing'}
+        pos = flat.lower().index(marker.lower())
+        tail = flat[pos:]
+        if re.search(r'\u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b\s+\u043a\u043e\u043d\u0442\u0430\u043a\u0442|\u043f\u043e\u043b\u0443\u0447\u0438\u0442\u0435\s+\u0434\u043e\u0441\u0442\u0443\u043f\s+\u043a\s+\u043a\u043e\u043d\u0442\u0430\u043a\u0442|\u0430\u0432\u0442\u043e\u0440\u0438\u0437\u0443\u0439\u0442\u0435\u0441\u044c', tail, re.I):
+            self.unchecked.add(url + ': customer contacts require account/subscription')
+            return {'reason': 'contact_requires_access'}
+        # Slice the serialized customer section, preserving visible hyperlinks.
+        # Everything before the label (coordinates, rates, description) is out.
+        serialized = node.markup()
+        match = re.search(re.escape(marker), serialized, re.I)
+        if not match:
+            return {'reason':'customer_contact_section_missing'}
+        fragment = serialized[match.end():]
+        fragment = re.split(r'\u0421\u043c\.\s*\u0442\u0430\u043a\u0436\u0435|\u0412\u044b\s+\u0442\u0430\u043a\u0436\u0435|\u043f\u043e\u0445\u043e\u0436\u0438\u0435\s+\u043e\u0431\u044a\u044f\u0432\u043b\u0435\u043d', fragment, maxsplit=1, flags=re.I)[0]
+        scope = DOM(fragment).root
+        contact = scoped_contacts(scope)
+        return contact if contact['phone'] or contact['contact_url'] else {'reason': 'no_public_contact'}

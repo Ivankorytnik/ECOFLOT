@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sys
+from tender_intake import prioritize
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -630,7 +631,7 @@ def main():
             cards = extract_telegram_tenders(page, source_label, channel, source_region)
             print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
-                if not valid_tender_card_link(entry):
+                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
                     print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
                     continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
@@ -653,7 +654,7 @@ def main():
             for entry in cards:
                 if not relevant(entry):
                     continue
-                if not valid_tender_card_link(entry):
+                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
                     print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
                     continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
@@ -673,7 +674,7 @@ def main():
             cards = extract_direct_cards(page, source_label, url, source_region)
             print(f"DIRECT_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
-                if not valid_tender_card_link(entry):
+                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
                     print("EXCLUDED_TENDER_NO_CARD_LINK:", entry.get("id"), entry.get("title","")[:120])
                     continue
                 key = hashlib.sha1(entry["id"].encode("utf-8")).hexdigest()
@@ -716,15 +717,21 @@ def main():
     # Финальный предохранитель: без ссылки на карточку тендер не отправляется.
     screened = []
     rejected = []
-    for entry, key in candidates:
+    verified_ids = set()
+    for entry, key in prioritize(candidates):
+        # Verification mutates deferred entries with real title/address/deadline.
+        verified = valid_tender_card_link(entry)
         deadline = parse_deadline(entry.get("deadline"))
-        reason = ("no-specific-card" if not valid_tender_card_link(entry) else
+        request_id = request_id_for(entry)
+        reason = ("no-specific-card" if not verified else
                   "wrong-region" if not allowed_region(entry) else
                   "not-service-demand" if not tender_service_demand(entry.get("title")) else
-                  "deadline-unverified-or-closed" if deadline is None or deadline <= datetime.now(MSK) else "")
+                  "deadline-unverified-or-closed" if deadline is None or deadline <= datetime.now(MSK) else
+                  "duplicate-after-resolution" if request_id in sheet_request_ids or request_id in verified_ids else "")
         if reason:
             rejected.append({"id": entry.get("id"), "reason": reason})
         else:
+            verified_ids.add(request_id)
             screened.append((entry, key))
     candidates = screened
 
