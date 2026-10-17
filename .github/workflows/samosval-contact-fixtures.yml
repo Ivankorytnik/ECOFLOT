@@ -1,0 +1,42 @@
+name: ECOFLOT observed Samosval customer cards
+on:
+  push:
+    branches: ['repair/20261017-source-depth-cards']
+    paths: ['.github/workflows/samosval-contact-fixtures.yml']
+permissions:
+  contents: read
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read observed customer cards without authentication
+        run: |
+          python3 - <<'PY'
+          import pathlib,json,urllib.request,concurrent.futures
+          root=pathlib.Path('customer-cards');root.mkdir(exist_ok=True)
+          urls={
+            'samosval-657164':'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164',
+            'samosval-657165':'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657165',
+            'samosval-657168':'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657168',
+            'samosval-657169':'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657169',
+          }
+          def get(pair):
+            name,url=pair
+            try:
+              req=urllib.request.Request(url,headers={'User-Agent':'Mozilla/5.0 ECOFLOT-Source-Verification/1.0'})
+              with urllib.request.urlopen(req,timeout=15) as r:page=r.read(1600000).decode(r.headers.get_content_charset() or 'utf-8','replace')
+              (root/(name+'.html')).write_text(page,encoding='utf-8')
+              return {'name':name,'url':url,'bytes':len(page)}
+            except Exception as exc:return {'name':name,'url':url,'error':str(exc)[:200]}
+          with concurrent.futures.ThreadPoolExecutor(max_workers=4) as p:result=list(p.map(get,urls.items()))
+          (root/'manifest.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps(result,ensure_ascii=False,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-samosval-customer-cards
+          path: customer-cards/
+          retention-days: 3
