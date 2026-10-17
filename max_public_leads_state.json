@@ -1,18 +1,15 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-17T13:46:34.388809+00:00",
-    "cycleKey": "2026-10-17 14:00 EXTRA 39037593340.1",
-    "run_id": "39037593340.1",
-    "error_details": [
-      "site:max.ru требуется самосвал Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-      "site:max.ru требуется спецтехника Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
-    ],
+    "at": "2026-10-17T14:04:22.557457+00:00",
+    "cycleKey": "2026-10-17 14:00",
+    "run_id": "39038884682.1",
+    "error_details": [],
     "sent": 0,
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 2,
+    "errors": 0,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -24,10 +21,9 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
-      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 3.83
+    "discovery_seconds": 6.18
   }
 }

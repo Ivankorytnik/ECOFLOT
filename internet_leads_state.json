@@ -223,19 +223,18 @@
     "WEB-PROFI-f346549c407ef6aee8e1": "2026-10-17T12:36:03.086968+00:00"
   },
   "last_run": {
-    "at": "2026-10-17T13:45:48.316233+00:00",
-    "cycleKey": "2026-10-17 14:00 EXTRA 39037593340.1",
-    "run_id": "39037593340.1",
+    "at": "2026-10-17T14:04:03.867449+00:00",
+    "cycleKey": "2026-10-17 14:00",
+    "run_id": "39038884682.1",
     "error_details": [
-      "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>"
     ],
-    "candidates": 14,
-    "duplicates_local": 14,
+    "candidates": 13,
+    "duplicates_local": 13,
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 2,
+    "errors": 1,
     "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
@@ -268,11 +267,10 @@
       }
     },
     "unchecked_sources": [
-      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access"
     ],
-    "discovery_seconds": 3.28
+    "discovery_seconds": 4.62
   }
 }
