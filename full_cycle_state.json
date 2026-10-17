@@ -200,5 +200,54 @@
     "scope": "all-attempts-in-logical-slot"
   },
   "finished_at": "2026-10-17T12:44:20.022160+03:00",
-  "cycle_notice": "error: STRUCTURED_REPORT_IGNORED"
+  "cycle_notice": "sent",
+  "qualified_slot_totals": {
+    "Internet Leads": {
+      "new": 0,
+      "sent": 0,
+      "excluded": 0,
+      "unknown": 0
+    },
+    "Telegram/MAX": {
+      "new": 0,
+      "sent": 0,
+      "excluded": 0,
+      "unknown": 0
+    },
+    "Tender Watch": {
+      "new": 0,
+      "sent": 0,
+      "excluded": 0,
+      "unknown": 0
+    },
+    "Object Leads": {
+      "new": 0,
+      "sent": 0,
+      "excluded": 0,
+      "unknown": 0
+    }
+  },
+  "report_recorded": true,
+  "report_payload_sha256": "a3054429c377b78bc0853637a9f234c61283813b7eac2123b5a9fc467fed9912",
+  "report_delivery": {
+    "ok": true,
+    "expected": 3,
+    "confirmed": 3,
+    "pending": 0,
+    "routes": [
+      {
+        "chatId": "262661708",
+        "messageId": "2376"
+      },
+      {
+        "chatId": "584620734",
+        "messageId": "2377"
+      },
+      {
+        "chatId": "6795645088",
+        "messageId": "2378"
+      }
+    ]
+  },
+  "report_checked_at": "2026-10-17T11:18:18.359609+00:00"
 }
