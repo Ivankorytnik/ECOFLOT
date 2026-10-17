@@ -2,7 +2,9 @@ name: ECOFLOT native report recovery
 on:
   push:
     branches: [main]
-    paths: ['scripts/search_reporting.py']
+    paths:
+      - 'scripts/search_reporting.py'
+      - 'report-retry-trigger.txt'
   workflow_dispatch:
 permissions:
   contents: write
@@ -20,14 +22,29 @@ jobs:
           fetch-depth: 0
       - name: Native report tests
         run: python3 -m unittest discover -s scripts -p 'test_search_reporting.py' -v
-      - name: Deliver only latest existing cycle report, never replay leads
+      - name: Deliver only an existing cycle report, never replay leads
         env:
           ECOFLOT_NOTIFY_SUMMARY: '1'
           ECOFLOT_REPORT_WAIT_SECONDS: '480'
         run: |
-          set -euo pipefail
-          cycle=$(python3 -c 'import json; print(json.load(open("full_cycle_state.json"))["cycleKey"])')
-          python3 -u scripts/search_reporting.py --cycle "$cycle"
+          python3 -u - <<'PY'
+          import json, os, subprocess
+          from datetime import datetime, timedelta
+          from pathlib import Path
+          from zoneinfo import ZoneInfo
+          latest = json.loads(Path('full_cycle_state.json').read_text())['cycleKey']
+          trigger = Path('report-retry-trigger.txt')
+          cycle = trigger.read_text('utf-8').splitlines()[0].strip() if trigger.exists() else latest
+          target = datetime.strptime(cycle[:16], '%Y-%m-%d %H:%M').replace(tzinfo=ZoneInfo('Europe/Moscow'))
+          now = datetime.now(ZoneInfo('Europe/Moscow'))
+          if target > now or now - target > timedelta(days=7):
+              raise RuntimeError('REPORT_CYCLE_OUTSIDE_SAFE_RECOVERY_WINDOW')
+          history = json.loads(Path('search_cycle_history.json').read_text())['cycles']
+          if cycle not in history or history[cycle].get('status') not in ('COMPLETE', 'SEARCH_PARTIAL', 'SEARCH_FAILED', 'DELIVERY_PENDING'):
+              raise RuntimeError('NO_COMPLETED_CYCLE_TO_REPORT')
+          code = subprocess.call(['python3', '-u', 'scripts/search_reporting.py', '--cycle', cycle])
+          raise SystemExit(code)
+          PY
       - name: Preserve report evidence even if delivery is pending
         if: always()
         run: bash scripts/persist_search_state.sh
