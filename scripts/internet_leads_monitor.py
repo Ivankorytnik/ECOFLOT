@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from source_encoding import decode_response
 import hashlib
 import html
 import json
@@ -270,7 +271,7 @@ def fetch(url: str, timeout=10, attempts=2) -> str:
                 },
             )
             with urllib.request.urlopen(req, timeout=timeout + attempt * 4) as r:
-                return r.read().decode("utf-8", "replace")
+                return decode_response(r)
         except Exception as exc:
             last_exc = exc
     raise last_exc
@@ -287,7 +288,7 @@ def fetch_relaxed_ssl(url: str, timeout=20) -> str:
     )
     ctx = ssl._create_unverified_context()
     with urllib.request.urlopen(req, timeout=timeout, context=ctx) as r:
-        return r.read().decode("utf-8", "replace")
+        return decode_response(r)
 
 
 def clean(s: str) -> str:
