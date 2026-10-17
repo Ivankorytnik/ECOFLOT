@@ -225,25 +225,38 @@
     "WEB-PROFI-0cd4983173615828f5e3": "2026-10-17T17:39:04.872615+00:00"
   },
   "last_run": {
-    "at": "2026-10-17T17:39:04.873901+00:00",
+    "at": "2026-10-17T17:59:04.684434+00:00",
     "cycleKey": "2026-10-17 18:00",
-    "run_id": "39054394001.1",
+    "run_id": "39055782650.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
+      "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"вывоз грунта\" \"нужен\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен ассенизатор\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"нужен илосос\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"откачка ЖБО\" \"Калужская область\" заказ: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 16,
-    "duplicates_local": 14,
+    "duplicates_local": 16,
     "deferred": 0,
-    "new": 2,
+    "new": 0,
     "sent": 0,
-    "errors": 4,
+    "errors": 17,
     "search_mode": "Deep",
-    "accepted": 2,
+    "accepted": 0,
     "duplicates_server": 0,
-    "delivery_pending": 2,
+    "delivery_pending": 0,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "card_acquisition": {
@@ -277,6 +290,6 @@
       "google: google: result markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access"
     ],
-    "discovery_seconds": 3.1
+    "discovery_seconds": 1.47
   }
 }
