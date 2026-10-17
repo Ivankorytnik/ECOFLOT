@@ -1,0 +1,71 @@
+name: ECOFLOT public source rendering diagnostics
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/source-browser-diagnostics.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install ordinary browser for isolated read-only diagnosis
+        run: |
+          python3 -m pip install --disable-pip-version-check playwright
+          python3 -m playwright install chromium --with-deps
+      - name: Check rendering of public sources, never solve challenges or log in
+        run: |
+          python3 - <<'PY'
+          import asyncio, json, re
+          from pathlib import Path
+          from urllib.parse import urlencode, urlsplit
+          from importlib.metadata import version
+          from playwright.async_api import async_playwright
+          Path('source-diagnostics').mkdir(exist_ok=True)
+          query='"нужен самосвал" Москва'
+          targets={
+            'google':'https://www.google.com/search?'+urlencode({'q':query,'hl':'ru'}),
+            'bing':'https://www.bing.com/search?'+urlencode({'q':query,'setlang':'ru','cc':'ru'}),
+            'easuz':'https://easuz.mosreg.ru/tenders',
+            'moscow-suppliers':'https://zakupki.mos.ru/',
+            'vk-public':'https://vk.com/vsem_podryad',
+            'telegram-public':'https://t.me/s/spetstekhnika_arenda',
+          }
+          async def main():
+            print('PLAYWRIGHT_VERSION',version('playwright'),flush=True)
+            async with async_playwright() as pw:
+              browser=await pw.chromium.launch()
+              semaphore=asyncio.Semaphore(2)
+              async def inspect(name,url):
+                async with semaphore:
+                  context=await browser.new_context(locale='ru-RU')
+                  page=await context.new_page()
+                  page.set_default_timeout(25000)
+                  errors=[]
+                  page.on('pageerror',lambda e:errors.append(str(e)[:180]))
+                  try:
+                    response=await page.goto(url,wait_until='domcontentloaded',timeout=30000)
+                    try: await page.wait_for_load_state('networkidle',timeout=7000)
+                    except Exception: pass
+                    body=await page.content()
+                    text=await page.locator('body').inner_text(timeout=4000)
+                    anchors=await page.locator('a[href]').evaluate_all('(els)=>els.map(a=>({href:a.href,text:(a.innerText||"").slice(0,140)})).slice(0,150)')
+                    blocked=bool(re.search(r'/sorry/|g-recaptcha|anomaly-modal|verify you are human|unusual traffic',body,re.I))
+                    Path('source-diagnostics/'+name+'.html').write_text(body,encoding='utf-8')
+                    Path('source-diagnostics/'+name+'.json').write_text(json.dumps({'text':text,'anchors':anchors},ensure_ascii=False),encoding='utf-8')
+                    print(json.dumps({'source':name,'http':response.status if response else None,'final_path':urlsplit(page.url).path,'title':await page.title(),'bytes':len(body),'challenge':blocked,'text_head':text[:700],'anchors':anchors[:6],'script_errors':errors[:3]},ensure_ascii=False),flush=True)
+                  except Exception as e: print(json.dumps({'source':name,'error':str(e)[:700]},ensure_ascii=False),flush=True)
+                  finally: await context.close()
+              await asyncio.gather(*(inspect(n,u) for n,u in targets.items()))
+              await browser.close()
+          asyncio.run(main())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-public-source-rendering
+          path: source-diagnostics/
+          retention-days: 3
