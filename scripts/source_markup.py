@@ -12,7 +12,7 @@ IGNORE = frozenset(('script','style','noscript','svg','nav','footer','header'))
 
 class Node:
     def __init__(self, tag='', attrs=None, parent=None):
-        self.tag, self.attrs, self.parent = tag, dict(attrs or []), parent
+        self.tag, self.attrs, self.parent = tag, {k: (v or '') for k,v in dict(attrs or []).items()}, parent
         self.children = []
 
     def has(self, cls):
