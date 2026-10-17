@@ -1,0 +1,210 @@
+diff --git a/scripts/card_acquisition.py b/scripts/card_acquisition.py
+index c2b0e23..b54446b 100644
+--- a/scripts/card_acquisition.py
++++ b/scripts/card_acquisition.py
+@@ -28,0 +29,3 @@ def known_card(url):
++        if host == 'samosval.info' and p.path == '/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php':
++            ids = parse_qs(p.query).get('ID', [])
++            return len(ids) == 1 and bool(re.fullmatch(r'[1-9]\d{3,11}', ids[0]))
+@@ -183,0 +187,2 @@ class Acquisition:
++        if (urlsplit(url).hostname or '').removeprefix('www.') == 'samosval.info':
++            return self.samosval_contacts(root, url)
+@@ -221,0 +227,33 @@ class Acquisition:
++
++
++    def samosval_contacts(self, root, url):
++        """Read only the customer-contact section on an observed detail card.
++
++        Transport coordinates/rates and the site footer are not buyer contacts.
++        Explicit paid/login gates are reported; they are never bypassed.
++        """
++        node = root.find(cls='news-detail')
++        parts = urlsplit(url)
++        rid = (parse_qs(parts.query).get('ID') or [parts.path.rstrip('/').rsplit('/', 1)[-1]])[0]
++        if not node or not re.search(r'\bID\s*' + re.escape(rid) + r'(?!\d)', node.clean()):
++            return {'reason': 'card_identity_unverified'}
++        marker = '\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b \u0437\u0430\u043a\u0430\u0437\u0447\u0438\u043a\u0430'
++        flat = node.text()
++        if marker.lower() not in flat.lower():
++            return {'reason': 'customer_contact_section_missing'}
++        pos = flat.lower().index(marker.lower())
++        tail = flat[pos:]
++        if re.search(r'\u043d\u0435\u0434\u043e\u0441\u0442\u0443\u043f\u043d\u044b\s+\u043a\u043e\u043d\u0442\u0430\u043a\u0442|\u043f\u043e\u043b\u0443\u0447\u0438\u0442\u0435\s+\u0434\u043e\u0441\u0442\u0443\u043f\s+\u043a\s+\u043a\u043e\u043d\u0442\u0430\u043a\u0442|\u0430\u0432\u0442\u043e\u0440\u0438\u0437\u0443\u0439\u0442\u0435\u0441\u044c', tail, re.I):
++            self.unchecked.add(url + ': customer contacts require account/subscription')
++            return {'reason': 'contact_requires_access'}
++        # Slice the serialized customer section, preserving visible hyperlinks.
++        # Everything before the label (coordinates, rates, description) is out.
++        serialized = node.markup()
++        match = re.search(re.escape(marker), serialized, re.I)
++        if not match:
++            return {'reason':'customer_contact_section_missing'}
++        fragment = serialized[match.end():]
++        fragment = re.split(r'\u0421\u043c\.\s*\u0442\u0430\u043a\u0436\u0435|\u0412\u044b\s+\u0442\u0430\u043a\u0436\u0435|\u043f\u043e\u0445\u043e\u0436\u0438\u0435\s+\u043e\u0431\u044a\u044f\u0432\u043b\u0435\u043d', fragment, maxsplit=1, flags=re.I)[0]
++        scope = DOM(fragment).root
++        contact = scoped_contacts(scope)
++        return contact if contact['phone'] or contact['contact_url'] else {'reason': 'no_public_contact'}
+diff --git a/scripts/search_runtime.py b/scripts/search_runtime.py
+index 8c0736e..9fbda66 100644
+--- a/scripts/search_runtime.py
++++ b/scripts/search_runtime.py
+@@ -153 +153 @@ def configured_worker(name):
+-            tender_acquisition = TenderAcquisition(module.fetch, known_ids)
++            tender_acquisition = TenderAcquisition(module.fetch, known_ids, limit=80, budget=240, defer_resolution=True)
+@@ -157 +157 @@ def configured_worker(name):
+-                                     ('parse_discovered_tender','resolve')):
++                                     ('parse_discovered_tender','discover')):
+diff --git a/scripts/social_depth.py b/scripts/social_depth.py
+index ae5dec2..f8278d2 100644
+--- a/scripts/social_depth.py
++++ b/scripts/social_depth.py
+@@ -27,0 +28,16 @@ def parse_public_page(page, channel):
++        post_url = 'https://t.me/'+match[1]+'/'+match[2]
++        links = []
++        for anchor in node.find_all('a', attr='href'):
++            if not anchor.visible():
++                continue
++            # Link previews are part of a post, unlike its footer/author links.
++            in_body = False
++            parent = anchor
++            while parent is not None and parent is not node:
++                in_body = in_body or parent is body
++                parent = parent.parent
++            if not (in_body or anchor.has('tgme_widget_message_link_preview')):
++                continue
++            url = absolute_link(post_url, anchor.attrs['href'])
++            if url and url not in links:
++                links.append(url)
+@@ -30,2 +46,2 @@ def parse_public_page(page, channel):
+-                         'body':body, 'markup':node.markup(),
+-                         'url':'https://t.me/'+match[1]+'/'+match[2]})
++                         'body':body, 'markup':node.markup(), 'links':links,
++                         'url':post_url})
+diff --git a/scripts/social_leads_monitor.py b/scripts/social_leads_monitor.py
+index db31c8d..fd4b869 100644
+--- a/scripts/social_leads_monitor.py
++++ b/scripts/social_leads_monitor.py
+@@ -7,0 +8 @@ import time
++from concurrent.futures import ThreadPoolExecutor
+@@ -123 +124 @@ def parse_channel(label, channel):
+-                         max_pages=max(1,min(50,int(os.environ.get('ECOFLOT_TG_MAX_PAGES','30')))),
++                         max_pages=max(1,min(80,int(os.environ.get('ECOFLOT_TG_MAX_PAGES','50')))),
+@@ -144,2 +145 @@ def parse_channel(label, channel):
+-        item['card_links'] = [a.attrs['href'] for a in post['body'].find_all('a',attr='href')
+-                              if known_card(a.attrs['href'])] if post['body'] else []
++        item['card_links'] = [url for url in post.get('links', []) if known_card(url)]
+@@ -175 +175,2 @@ def main():
+-    for label, channel in CHANNELS:
++    def read_source(source):
++        label, channel = source
+@@ -178,7 +179,4 @@ def main():
+-            print(f"TELEGRAM_SOURCE {label}: {len(found)} candidates")
+-            if marker_count == 0:
+-                unverified_sources.append(f"Telegram/{label}: публичные посты недоступны")
+-            candidates.extend(found)
+-            coverage = SOURCE_COVERAGE.get(channel,{})
+-            if not coverage.get('complete'):
+-                unverified_sources.append('Telegram/'+label+': '+str(coverage.get('stop_reason','unknown')))
++            coverage = SOURCE_COVERAGE.get(channel, {})
++            problem = '' if coverage.get('complete') else str(coverage.get('stop_reason', 'unknown'))
++            print(f"TELEGRAM_SOURCE {label}: {len(found)} candidates", flush=True)
++            return found, problem, ''
+@@ -186,2 +184,13 @@ def main():
+-            errors.append(f"{label}: {exc}")
+-            unverified_sources.append(f"Telegram/{label}: ошибка доступа")
++            SOURCE_COVERAGE[channel] = dict(channel=channel, pages=0, posts=0,
++                complete=False, stop_reason='access_or_parse_error', error=str(exc)[:200])
++            return [], 'access_or_parse_error', f"{label}: {exc}"
++
++    # Three bounded public readers prevent the first busy channel from taking
++    # all available history time. Writes, enrichment and sends stay sequential.
++    with ThreadPoolExecutor(max_workers=3) as pool:
++        for (label, channel), (found, problem, error) in zip(CHANNELS, pool.map(read_source, CHANNELS)):
++            candidates.extend(found)
++            if problem:
++                unverified_sources.append('Telegram/' + label + ': ' + problem)
++            if error:
++                errors.append(error)
+diff --git a/scripts/tender_acquisition.py b/scripts/tender_acquisition.py
+index 68c97f2..4ffdd80 100644
+--- a/scripts/tender_acquisition.py
++++ b/scripts/tender_acquisition.py
+@@ -72 +72 @@ class TenderAcquisition:
+-    def __init__(self,fetch,known_ids=None,limit=48,budget=180):
++    def __init__(self,fetch,known_ids=None,limit=48,budget=180,defer_resolution=False):
+@@ -73,0 +74 @@ class TenderAcquisition:
++        self.defer_resolution = defer_resolution
+@@ -91,0 +93,13 @@ class TenderAcquisition:
++    def defer(self, url, expected_title='', source=''):
++        rid = procurement_id(url)
++        if not rid:
++            return None
++        return dict(id=rid, title=expected_title, link=url, region='', deadline='',
++                    customer='', price='', law='', acquisition_pending=True,
++                    intake_source=source or host(url), source=source or host(url))
++
++    def discover(self, url, expected_title='', source=''):
++        if self.defer_resolution:
++            return self.defer(url, expected_title, source)
++        return self.resolve(url, expected_title)
++
+@@ -105 +119 @@ class TenderAcquisition:
+-                        'acquisition_pending':True})
++                        'acquisition_pending':True, 'intake_source':'GenTender / '+region})
+@@ -123 +137 @@ class TenderAcquisition:
+-                    entry=self.resolve(target,expected_title=title)
++                    entry=self.discover(target,expected_title=title,source=label)
+@@ -133 +147 @@ class TenderAcquisition:
+-                entry=self.resolve(target)
++                entry=self.discover(target,source=label)
+@@ -136 +150 @@ class TenderAcquisition:
+-        self.report['sources'][url]={'card_containers':len(containers),'individual_candidates':len(seen),'verified_cards':len(out)}
++        self.report['sources'][url]={'card_containers':len(containers),'individual_candidates':len(seen),'verified_cards':sum(not e.get('acquisition_pending',False) for e in out)}
+@@ -150,3 +164,3 @@ class TenderAcquisition:
+-                    label = anchor.clean()
+-                    if tender_service_demand(label): links.insert(0,url)
+-                    elif len(label)<12 or re.search(r'\b(?:link|\u0437\u0430\u043a\u0443\u043f\u043a|\u0442\u0435\u043d\u0434\u0435\u0440)',label,re.I): links.append(url)
++                    anchor_label = anchor.clean()
++                    if tender_service_demand(anchor_label): links.insert(0,url)
++                    elif len(anchor_label)<12 or re.search(r'\b(?:link|\u0437\u0430\u043a\u0443\u043f\u043a|\u0442\u0435\u043d\u0434\u0435\u0440)',anchor_label,re.I): links.append(url)
+@@ -158 +172 @@ class TenderAcquisition:
+-                entry=self.resolve(url)
++                entry=self.discover(url,source='Telegram / '+channel)
+@@ -162 +176 @@ class TenderAcquisition:
+-        coverage.update(individual_links=len(seen),verified_cards=len(out))
++        coverage.update(individual_links=len(seen),verified_cards=sum(not e.get('acquisition_pending',False) for e in out))
+@@ -181,0 +196,4 @@ class TenderAcquisition:
++        if len(self.cache) >= self.limit or self.spent >= self.budget:
++            self.unchecked.add(url+': CARD_VERIFICATION_BUDGET')
++            self.outcome('verification_deferred')
++            return None
+diff --git a/scripts/tender_monitor.py b/scripts/tender_monitor.py
+index bae60fa..13ce052 100644
+--- a/scripts/tender_monitor.py
++++ b/scripts/tender_monitor.py
+@@ -7,0 +8 @@ import sys
++from tender_intake import prioritize
+@@ -633 +634 @@ def main():
+-                if not valid_tender_card_link(entry):
++                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
+@@ -656 +657 @@ def main():
+-                if not valid_tender_card_link(entry):
++                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
+@@ -676 +677 @@ def main():
+-                if not valid_tender_card_link(entry):
++                if not entry.get('acquisition_pending') and not valid_tender_card_link(entry):
+@@ -719 +720,4 @@ def main():
+-    for entry, key in candidates:
++    verified_ids = set()
++    for entry, key in prioritize(candidates):
++        # Verification mutates deferred entries with real title/address/deadline.
++        verified = valid_tender_card_link(entry)
+@@ -721 +725,2 @@ def main():
+-        reason = ("no-specific-card" if not valid_tender_card_link(entry) else
++        request_id = request_id_for(entry)
++        reason = ("no-specific-card" if not verified else
+@@ -724 +729,2 @@ def main():
+-                  "deadline-unverified-or-closed" if deadline is None or deadline <= datetime.now(MSK) else "")
++                  "deadline-unverified-or-closed" if deadline is None or deadline <= datetime.now(MSK) else
++                  "duplicate-after-resolution" if request_id in sheet_request_ids or request_id in verified_ids else "")
+@@ -727,0 +734 @@ def main():
++            verified_ids.add(request_id)
