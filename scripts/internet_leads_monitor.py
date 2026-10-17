@@ -712,9 +712,8 @@ def geo_allowed(location, title="", description=""):
     # К тексту заявки обращаемся лишь когда отдельного адреса нет.
     loc = normalize(location or "")
     if loc:
-        return any(normalize(term) in loc for term in GEO_ALLOW)
-    hay = normalize(" ".join([title or "", description or ""]))
-    return any(normalize(term) in hay for term in GEO_ALLOW)
+        return bool(matched_geo(loc))
+    return bool(matched_geo(" ".join([title or "", description or ""])))
 
 def relevant(title, description):
     hay = (title + " " + description).lower()
@@ -991,9 +990,28 @@ def parse_day_month(text):
         return None
 
 def matched_geo(text):
+    """Match location tokens, never MSK inside Omsk or a foreign region."""
     hay = normalize(text or "")
+    # Explicit geography overrides coincidental district, street or city names.
+    region = re.findall(r'\b([\u0430-\u044f]+(?:\u0441\u043a\u0430\u044f|\u0441\u043a\u043e\u0439|\u0441\u043a\u0443\u044e))\s+\u043e\u0431\u043b(?:\u0430\u0441\u0442[\u0430-\u044f]*)?\b', hay)
+    allowed_roots = ('\u043c\u043e\u0441\u043a\u043e\u0432\u0441\u043a', '\u043a\u0430\u043b\u0443\u0436\u0441\u043a')
+    if any(not name.startswith(allowed_roots) for name in region):
+        return ""
+    if re.search(r'\b(?:\u0441\u0430\u043d\u043a\u0442\s+\u043f\u0435\u0442\u0435\u0440\u0431\u0443\u0440\u0433|\u0441\u043f\u0431|\u043e\u043c\u0441\u043a[\u0430-\u044f]*|\u0442\u043e\u043c\u0441\u043a[\u0430-\u044f]*|\u043d\u043e\u0432\u043e\u0441\u0438\u0431\u0438\u0440\u0441\u043a[\u0430-\u044f]*)\b', hay):
+        return ""
+    if re.search(r'\b\u0440\u0435\u0441\u043f\u0443\u0431\u043b\u0438\u043a[\u0430-\u044f]*\b|\b[\u0430-\u044f]+\u0441\u043a(?:\u0438\u0439|\u043e\u0433\u043e|\u043e\u043c)\s+\u043a\u0440\u0430[\u0439\u044f\u0435]\b', hay):
+        return ""
+    if re.search(r'\b\u043c\u043e\u0441\u043a\u043e\u0432\u0441\u043a[\u0430-\u044f]*\s+\u043e\u0431\u043b(?:\u0430\u0441\u0442[\u0430-\u044f]*)?\b', hay):
+        return '\u043c\u043e\u0441\u043a\u043e\u0432\u0441\u043a\u0430\u044f \u043e\u0431\u043b\u0430\u0441\u0442\u044c'
+    if re.search(r'\b\u043a\u0430\u043b\u0443\u0436\u0441\u043a[\u0430-\u044f]*\s+\u043e\u0431\u043b(?:\u0430\u0441\u0442[\u0430-\u044f]*)?\b', hay):
+        return '\u043a\u0430\u043b\u0443\u0436\u0441\u043a\u0430\u044f \u043e\u0431\u043b\u0430\u0441\u0442\u044c'
     for term in GEO_ALLOW:
-        if normalize(term) in hay:
+        needle = normalize(term)
+        if needle == '\u043c\u043e\u0441\u043a\u043e\u0432\u0441\u043a\u0438\u0439' and hay not in (needle, '\u0433 '+needle, '\u0433\u043e\u0440\u043e\u0434 '+needle):
+            continue
+        # Short place names must be whole tokens; longer stems keep declensions.
+        ending = r'\b' if len(needle) <= 5 or ' ' in needle else ''
+        if re.search(r'\b' + re.escape(needle) + ending, hay):
             return term
     return ""
 
@@ -1891,7 +1909,13 @@ def undated_activity_confirmed(text):
     return any(normalize(x) in low for x in markers)
 
 def parse_discovery_candidate(url):
-    page = fetch(url, timeout=15)
+    try:
+        page = fetch(url, timeout=15)
+    except urllib.error.HTTPError as exc:
+        if exc.code not in (404, 410):
+            raise
+        print("EXCLUDED_REMOVED_DISCOVERY:", exc.code, url)
+        return None
     text = clean(page)
     low = normalize(text)
     if not text or not any(normalize(marker) in low for marker in DEMAND_INTENT):
