@@ -6867,7 +6867,33 @@
         "scope": "all-attempts-in-logical-slot"
       },
       "finished_at": "2026-10-16T13:09:50.614972+03:00",
-      "cycle_notice": "error: STRUCTURED_REPORT_IGNORED"
+      "cycle_notice": "error: SEARCH_REPORT_NOT_ACKNOWLEDGED",
+      "qualified_slot_totals": {
+        "Internet Leads": {
+          "new": 1,
+          "sent": 1,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Telegram/MAX": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Tender Watch": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        },
+        "Object Leads": {
+          "new": 0,
+          "sent": 0,
+          "excluded": 0,
+          "unknown": 0
+        }
+      }
     },
     "2026-10-16 14:00": {
       "attempts": 1,
