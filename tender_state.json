@@ -132,12 +132,22 @@
     "513923b2dda95161918ad2d661083e41d66f5f13": "2026-10-08T09:35:56.382015+00:00"
   },
   "last_run": {
-    "at": "2026-10-17T09:13:34.133521+00:00",
+    "at": "2026-10-17T09:44:19.686540+00:00",
     "cycleKey": "2026-10-17 08:00",
-    "run_id": "39019876206.1",
+    "run_id": "39021844219.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
-      "Портал поставщиков Москвы: <urlopen error timed out>"
+      "Портал поставщиков Москвы: <urlopen error timed out>",
+      "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
     ],
     "candidates": 0,
     "rejected": [
@@ -276,7 +286,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 2,
+    "errors": 12,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -285,9 +295,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 2.41
+    "discovery_seconds": 1.7
   }
 }
