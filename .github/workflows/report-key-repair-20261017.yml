@@ -18,7 +18,7 @@ jobs:
           from pathlib import Path
           sys.path.insert(0, 'scripts')
           import search_reporting as r
-          cycle = '2026-10-17 08:00'
+          cycle = '2026-10-16 08:00'
           state = r.load_json(Path('search_cycle_history.json'))['cycles'][cycle]
           expected = r.active_chats(r.sheet_rows(r.SHEET_ID, r.USERS, 'A,E'))
           if not expected: raise RuntimeError('NO_VERIFIED_RECIPIENTS')
