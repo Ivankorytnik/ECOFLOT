@@ -16,7 +16,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:30.801786+00:00",
+        "cutoff": "2026-10-11T17:42:39.156674+00:00",
         "eligible_before_contact": 0
       },
       "samosvalam_rabota": {
@@ -27,7 +27,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:30.801528+00:00",
+        "cutoff": "2026-10-11T17:42:39.156372+00:00",
         "eligible_before_contact": 0
       },
       "spetctechnika_arenda_uslugi": {
@@ -38,7 +38,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:31.464887+00:00",
+        "cutoff": "2026-10-11T17:42:39.815951+00:00",
         "eligible_before_contact": 0
       },
       "spectehnikfree": {
@@ -49,7 +49,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:31.496338+00:00",
+        "cutoff": "2026-10-11T17:42:39.867633+00:00",
         "eligible_before_contact": 0
       },
       "spetstekhnika_arenda": {
@@ -60,8 +60,20 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:32.020911+00:00",
+        "cutoff": "2026-10-11T17:42:40.387661+00:00",
         "eligible_before_contact": 0
+      },
+      "samosvalinfo": {
+        "channel": "samosvalinfo",
+        "pages": 4,
+        "posts": 80,
+        "missing_dates": 0,
+        "complete": true,
+        "stop_reason": "date_boundary",
+        "next_url": "https://t.me/s/samosvalinfo?before=9966",
+        "recent_posts": 54,
+        "cutoff": "2026-10-11T17:42:40.939733+00:00",
+        "eligible_before_contact": 8
       },
       "rabota_dlya_samosvalov_promsru": {
         "channel": "rabota_dlya_samosvalov_promsru",
@@ -72,20 +84,8 @@
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6736",
         "recent_posts": 52,
-        "cutoff": "2026-10-11T15:45:32.051337+00:00",
+        "cutoff": "2026-10-11T17:42:40.418269+00:00",
         "eligible_before_contact": 0
-      },
-      "samosvalinfo": {
-        "channel": "samosvalinfo",
-        "pages": 4,
-        "posts": 80,
-        "missing_dates": 0,
-        "complete": true,
-        "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/samosvalinfo?before=9965",
-        "recent_posts": 53,
-        "cutoff": "2026-10-11T15:45:32.585960+00:00",
-        "eligible_before_contact": 8
       },
       "spezteh": {
         "channel": "spezteh",
@@ -95,7 +95,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:34.922178+00:00",
+        "cutoff": "2026-10-11T17:42:43.325798+00:00",
         "eligible_before_contact": 0
       },
       "dumptrucks_work": {
@@ -106,7 +106,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:34.901228+00:00",
+        "cutoff": "2026-10-11T17:42:43.261132+00:00",
         "eligible_before_contact": 0
       },
       "tonary_karery": {
@@ -117,7 +117,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T15:45:35.502826+00:00",
+        "cutoff": "2026-10-11T17:42:43.915333+00:00",
         "eligible_before_contact": 0
       },
       "vsem_podryad": {
@@ -127,9 +127,9 @@
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/vsem_podryad?before=65980",
-        "recent_posts": 368,
-        "cutoff": "2026-10-11T15:45:30.801244+00:00",
+        "next_url": "https://t.me/s/vsem_podryad?before=65984",
+        "recent_posts": 372,
+        "cutoff": "2026-10-11T17:42:39.155974+00:00",
         "eligible_before_contact": 13
       }
     },
@@ -143,9 +143,9 @@
         "customer_contact_section_missing": 1
       }
     },
-    "at": "2026-10-18T15:46:02.105200+00:00",
+    "at": "2026-10-18T17:43:11.100134+00:00",
     "cycleKey": "2026-10-18 18:00",
-    "run_id": "39141595112.1",
+    "run_id": "39150487278.1",
     "error_details": [],
     "sent": 0,
     "candidates": 0,
