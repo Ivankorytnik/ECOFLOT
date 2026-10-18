@@ -8,17 +8,6 @@
   },
   "last_run": {
     "source_coverage": {
-      "Goryachie_Zakazy": {
-        "channel": "Goryachie_Zakazy",
-        "pages": 1,
-        "posts": 20,
-        "missing_dates": 0,
-        "complete": true,
-        "stop_reason": "date_boundary",
-        "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:18.682399+00:00",
-        "eligible_before_contact": 0
-      },
       "samosvalam_rabota": {
         "channel": "samosvalam_rabota",
         "pages": 1,
@@ -27,7 +16,18 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:18.682057+00:00",
+        "cutoff": "2026-10-11T14:51:47.965135+00:00",
+        "eligible_before_contact": 0
+      },
+      "Goryachie_Zakazy": {
+        "channel": "Goryachie_Zakazy",
+        "pages": 1,
+        "posts": 20,
+        "missing_dates": 0,
+        "complete": true,
+        "stop_reason": "date_boundary",
+        "recent_posts": 0,
+        "cutoff": "2026-10-11T14:51:47.965436+00:00",
         "eligible_before_contact": 0
       },
       "spetctechnika_arenda_uslugi": {
@@ -38,7 +38,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:19.726360+00:00",
+        "cutoff": "2026-10-11T14:51:49.029353+00:00",
         "eligible_before_contact": 0
       },
       "spectehnikfree": {
@@ -49,7 +49,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:19.756730+00:00",
+        "cutoff": "2026-10-11T14:51:49.087870+00:00",
         "eligible_before_contact": 0
       },
       "spetstekhnika_arenda": {
@@ -60,7 +60,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:20.654286+00:00",
+        "cutoff": "2026-10-11T14:51:49.992154+00:00",
         "eligible_before_contact": 0
       },
       "rabota_dlya_samosvalov_promsru": {
@@ -72,7 +72,7 @@
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6736",
         "recent_posts": 52,
-        "cutoff": "2026-10-11T14:18:20.695494+00:00",
+        "cutoff": "2026-10-11T14:51:50.056730+00:00",
         "eligible_before_contact": 0
       },
       "samosvalinfo": {
@@ -84,7 +84,7 @@
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/samosvalinfo?before=9964",
         "recent_posts": 52,
-        "cutoff": "2026-10-11T14:18:21.610525+00:00",
+        "cutoff": "2026-10-11T14:51:50.987373+00:00",
         "eligible_before_contact": 8
       },
       "dumptrucks_work": {
@@ -95,7 +95,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:25.057670+00:00",
+        "cutoff": "2026-10-11T14:51:54.417275+00:00",
         "eligible_before_contact": 0
       },
       "spezteh": {
@@ -106,7 +106,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:25.337982+00:00",
+        "cutoff": "2026-10-11T14:51:54.847399+00:00",
         "eligible_before_contact": 0
       },
       "tonary_karery": {
@@ -117,7 +117,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T14:18:26.084461+00:00",
+        "cutoff": "2026-10-11T14:51:55.444356+00:00",
         "eligible_before_contact": 0
       },
       "vsem_podryad": {
@@ -128,8 +128,8 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/vsem_podryad?before=65980",
-        "recent_posts": 369,
-        "cutoff": "2026-10-11T14:18:18.681721+00:00",
+        "recent_posts": 368,
+        "cutoff": "2026-10-11T14:51:47.964776+00:00",
         "eligible_before_contact": 13
       }
     },
@@ -143,9 +143,9 @@
         "customer_contact_section_missing": 1
       }
     },
-    "at": "2026-10-18T14:19:00.084429+00:00",
+    "at": "2026-10-18T14:52:56.417120+00:00",
     "cycleKey": "2026-10-18 14:00",
-    "run_id": "39135020870.1",
+    "run_id": "39137533163.1",
     "error_details": [],
     "sent": 0,
     "candidates": 0,

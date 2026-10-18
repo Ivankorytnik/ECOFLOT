@@ -133,15 +133,27 @@
     "8948481867161cb1f311e94e2975e143c3afe551": "2026-10-17T13:51:32.275579+00:00"
   },
   "last_run": {
-    "at": "2026-10-18T14:25:17.647513+00:00",
+    "at": "2026-10-18T15:01:39.899315+00:00",
     "cycleKey": "2026-10-18 14:00",
-    "run_id": "39135020870.1",
+    "run_id": "39137533163.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
       "B2B-Center / самосвалы / Москва: SOURCE_PAGE_TOO_LARGE",
       "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE",
-      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+      "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:roseltorg.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
     ],
     "candidates": 0,
     "rejected": [
@@ -600,7 +612,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 5,
+    "errors": 17,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -616,10 +628,10 @@
       "outcomes": {
         "non_service_link": 7,
         "not_service": 1,
-        "card_unavailable": 23,
+        "card_unavailable": 22,
         "primary_unverified": 20,
         "outside_work_region": 5,
-        "verification_deferred": 83
+        "verification_deferred": 84
       },
       "sources": {
         "https://t.me/s/fsk_tenders": {
@@ -631,7 +643,7 @@
           "stop_reason": "date_boundary",
           "next_url": "https://t.me/s/fsk_tenders?before=200",
           "recent_posts": 4,
-          "cutoff": "2026-10-11T14:19:02.889549+00:00",
+          "cutoff": "2026-10-11T14:52:59.136543+00:00",
           "individual_links": 2,
           "verified_cards": 0
         },
@@ -870,7 +882,7 @@
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373100108926000020: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373100134126000132: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200006226001626: <urlopen error timed out>",
-      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200041126000653: <urlopen error timed out>",
+      "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200041126000653: CARD_VERIFICATION_BUDGET",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200349126000007: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0573500000126000238: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300047126000423: <urlopen error timed out>",
@@ -885,6 +897,6 @@
       "ПИК ETP: no verified procurement markup or card links",
       "Самолёт S.Tender: no verified procurement markup or card links"
     ],
-    "discovery_seconds": 2.11
+    "discovery_seconds": 1.07
   }
 }
