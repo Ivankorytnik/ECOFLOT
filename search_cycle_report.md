@@ -1,12 +1,12 @@
-# ECOFLOT 2026-10-18 08:00
+# ECOFLOT 2026-10-18 14:00
 
 Status: **SEARCH_PARTIAL**
 
 | Contour | Status | New | Duplicates | Errors |
 |---|---|---:|---:|---:|
-| Internet Leads | partial | 0 | 13 | 8 |
+| Internet Leads | partial | 0 | 13 | 3 |
 | Telegram/MAX/VK | partial | 0 | 0 | 29 |
-| Tender Watch | partial | 0 | 0 | 7 |
+| Tender Watch | partial | 0 | 0 | 5 |
 | Object Leads | ok | 0 | 0 | 0 |
 
 Delivery: `{"checked": 0, "confirmed": 0, "pending": 0, "missing_records": 0, "duplicate_routes": 0, "suppressed": 0, "service_rows": 0, "ok": true, "reconcile_attempts": 1, "mode": "read-only-sheet-reconciliation"}`

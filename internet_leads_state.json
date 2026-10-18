@@ -226,17 +226,12 @@
     "WEB-PROFI-d49ffec4e591e239ebb6": "2026-10-18T09:28:49.353820+00:00"
   },
   "last_run": {
-    "at": "2026-10-18T09:55:16.486950+00:00",
-    "cycleKey": "2026-10-18 08:00",
-    "run_id": "39116925613.1",
+    "at": "2026-10-18T14:18:18.218233+00:00",
+    "cycleKey": "2026-10-18 14:00",
+    "run_id": "39135020870.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 13,
@@ -244,7 +239,7 @@
     "deferred": 0,
     "new": 0,
     "sent": 0,
-    "errors": 8,
+    "errors": 3,
     "search_mode": "Deep",
     "accepted": 0,
     "duplicates_server": 0,
@@ -282,6 +277,6 @@
       "https://nerudonline.ru/rabota/samosvaly: listing markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access"
     ],
-    "discovery_seconds": 2.23
+    "discovery_seconds": 3.16
   }
 }

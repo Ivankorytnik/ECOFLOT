@@ -1,9 +1,9 @@
 {
-  "attempts": 2,
+  "attempts": 1,
   "schema_version": 2,
-  "cycleKey": "2026-10-18 08:00",
-  "run_id": "39116925613.1",
-  "started_at": "2026-10-18T12:50:43.820305+03:00",
+  "cycleKey": "2026-10-18 14:00",
+  "run_id": "39135020870.1",
+  "started_at": "2026-10-18T17:13:32.031732+03:00",
   "status": "SEARCH_PARTIAL",
   "contours": {
     "Internet Leads": {
@@ -12,7 +12,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 8,
+      "errors": 3,
       "unchecked_sources": [
         "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
@@ -23,12 +23,7 @@
       "missing_states": [],
       "error_details": [
         "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-        "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
       ],
       "state_found": true,
@@ -116,7 +111,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 7,
+      "errors": 5,
       "unchecked_sources": [
         "GenTender / Калужская область / отходы: unsupported individual-link format",
         "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -266,9 +261,7 @@
         "Портал поставщиков Москвы: <urlopen error timed out>",
         "B2B-Center / самосвалы / Москва: SOURCE_PAGE_TOO_LARGE",
         "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE",
-        "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-        "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+        "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
       ],
       "state_found": true,
       "status": "partial",
@@ -290,11 +283,9 @@
       "status": "ok",
       "exit_codes": [
         0
-      ],
-      "reused_from_previous_attempt": true
+      ]
     }
   },
-  "retrying_partial_from": "39115185946.1",
   "search_mode": "Deep",
   "preflight_errors": [],
   "expected_recipient_count": 3,
@@ -303,14 +294,14 @@
     "584620734",
     "6795645088"
   ],
-  "search_finished_at": "2026-10-18T13:01:39.170432+03:00",
+  "search_finished_at": "2026-10-18T17:25:26.849926+03:00",
   "totals": {
     "new": 0,
     "duplicates": 13,
     "accepted": 0,
     "sent": 0,
     "delivery_pending": 0,
-    "errors": 44,
+    "errors": 37,
     "unchecked_sources": [
       "GenTender / Калужская область / отходы: unsupported individual-link format",
       "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -504,19 +495,19 @@
     "ok": false
   },
   "slot_delivery": {
-    "accepted": 1,
-    "new": 1,
-    "confirmed": 1,
+    "accepted": 0,
+    "new": 0,
+    "confirmed": 0,
     "pending": 0,
     "missing_records": 0,
     "ok": true,
     "scope": "all-attempts-in-logical-slot"
   },
-  "finished_at": "2026-10-18T13:01:39.706177+03:00",
+  "finished_at": "2026-10-18T17:25:27.212742+03:00",
   "qualified_slot_totals": {
     "Internet Leads": {
-      "new": 1,
-      "sent": 1,
+      "new": 0,
+      "sent": 0,
       "excluded": 0,
       "unknown": 0
     },
@@ -540,14 +531,27 @@
     }
   },
   "report_recorded": true,
-  "report_payload_sha256": "db2b8c0a48bbeab888c5fb4a0d8e67473b9c860475d04184d0600f559ecd6518",
+  "report_payload_sha256": "80ca4da2f5e5b8b383971ce7d481aeee446b76088c5b82e58d383156d6d4be0f",
   "report_delivery": {
-    "ok": false,
+    "ok": true,
     "expected": 3,
-    "confirmed": 0,
-    "pending": 3,
-    "routes": []
+    "confirmed": 3,
+    "pending": 0,
+    "routes": [
+      {
+        "chatId": "262661708",
+        "messageId": "2529"
+      },
+      {
+        "chatId": "584620734",
+        "messageId": "2530"
+      },
+      {
+        "chatId": "6795645088",
+        "messageId": "2531"
+      }
+    ]
   },
-  "cycle_notice": "queued",
-  "report_checked_at": "2026-10-18T10:08:03.362200+00:00"
+  "cycle_notice": "sent",
+  "report_checked_at": "2026-10-18T14:28:27.071797+00:00"
 }
