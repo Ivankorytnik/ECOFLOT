@@ -497,7 +497,9 @@
     "suppressed": 0,
     "service_rows": 0,
     "ok": true,
-    "reconcile_attempts": 1,
+    "unresolved_duplicate_references": 0,
+    "pending_new_or_known_records": 0,
+    "missing_receipts": 0,
     "mode": "read-only-sheet-reconciliation"
   },
   "backlog": {
@@ -569,5 +571,6 @@
     ]
   },
   "cycle_notice": "sent",
-  "report_checked_at": "2026-10-18T17:52:25.930278+00:00"
+  "report_checked_at": "2026-10-18T17:52:25.930278+00:00",
+  "delivery_reconciled_at": "2026-10-18T21:15:32.805049+03:00"
 }
