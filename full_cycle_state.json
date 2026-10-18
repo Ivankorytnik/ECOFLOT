@@ -1,18 +1,18 @@
 {
-  "attempts": 1,
+  "attempts": 2,
   "schema_version": 2,
   "cycleKey": "2026-10-18 08:00",
-  "run_id": "39115185946.1",
-  "started_at": "2026-10-18T12:24:17.534887+03:00",
+  "run_id": "39116925613.1",
+  "started_at": "2026-10-18T12:50:43.820305+03:00",
   "status": "SEARCH_PARTIAL",
   "contours": {
     "Internet Leads": {
-      "new": 1,
-      "duplicates": 12,
-      "accepted": 1,
+      "new": 0,
+      "duplicates": 13,
+      "accepted": 0,
       "sent": 0,
-      "delivery_pending": 1,
-      "errors": 14,
+      "delivery_pending": 0,
+      "errors": 8,
       "unchecked_sources": [
         "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
@@ -23,15 +23,9 @@
       "missing_states": [],
       "error_details": [
         "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-        "Web discovery \"требуются самосвалы\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-        "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery \"нужен ассенизатор\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery \"нужен илосос\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery \"откачка ЖБО\" \"Калужская область\" заказ: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Web discovery site:propokupki.ru/moskovskaya_oblast \"требуются самосвалы\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Web discovery site:propokupki.ru/moskovskaya_oblast \"вывоз грунта\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "Web discovery site:propokupki.ru/moskovskaya_oblast \"перевозка песка\" самосвалы: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "Web discovery site:propokupki.ru/moskva \"самосвал\" \"телефон\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -49,7 +43,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 31,
+      "errors": 29,
       "unchecked_sources": [
         "Telegram/Аренда Спецтехники Москва МО: public_posts_unavailable",
         "Telegram/Аренда спецтехники Заявки: public_posts_unavailable",
@@ -79,10 +73,8 @@
       ],
       "missing_states": [],
       "error_details": [
-        "site:max.ru нужен самосвал Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-        "site:max.ru требуется самосвал Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-        "site:max.ru нужен самосвал Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru нужен самосвал Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "site:max.ru вывоз грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "site:max.ru вывоз грунта Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "site:max.ru вывоз мусора Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -124,7 +116,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 6,
+      "errors": 7,
       "unchecked_sources": [
         "GenTender / Калужская область / отходы: unsupported individual-link format",
         "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -274,8 +266,9 @@
         "Портал поставщиков Москвы: <urlopen error timed out>",
         "B2B-Center / самосвалы / Москва: SOURCE_PAGE_TOO_LARGE",
         "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE",
-        "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+        "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+        "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
       ],
       "state_found": true,
       "status": "partial",
@@ -297,9 +290,11 @@
       "status": "ok",
       "exit_codes": [
         0
-      ]
+      ],
+      "reused_from_previous_attempt": true
     }
   },
+  "retrying_partial_from": "39115185946.1",
   "search_mode": "Deep",
   "preflight_errors": [],
   "expected_recipient_count": 3,
@@ -308,14 +303,14 @@
     "584620734",
     "6795645088"
   ],
-  "search_finished_at": "2026-10-18T12:35:49.323703+03:00",
+  "search_finished_at": "2026-10-18T13:01:39.170432+03:00",
   "totals": {
-    "new": 1,
-    "duplicates": 12,
-    "accepted": 1,
-    "sent": 1,
+    "new": 0,
+    "duplicates": 13,
+    "accepted": 0,
+    "sent": 0,
     "delivery_pending": 0,
-    "errors": 51,
+    "errors": 44,
     "unchecked_sources": [
       "GenTender / Калужская область / отходы: unsupported individual-link format",
       "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -483,12 +478,12 @@
       "ПИК ETP: no verified procurement markup or card links",
       "Самолёт S.Tender: no verified procurement markup or card links"
     ],
-    "confirmed_after_reconciliation": 1,
+    "confirmed_after_reconciliation": 0,
     "pending_after_reconciliation": 0
   },
   "delivery": {
-    "checked": 1,
-    "confirmed": 1,
+    "checked": 0,
+    "confirmed": 0,
     "pending": 0,
     "missing_records": 0,
     "duplicate_routes": 0,
@@ -517,7 +512,7 @@
     "ok": true,
     "scope": "all-attempts-in-logical-slot"
   },
-  "finished_at": "2026-10-18T12:35:49.778881+03:00",
+  "finished_at": "2026-10-18T13:01:39.706177+03:00",
   "qualified_slot_totals": {
     "Internet Leads": {
       "new": 1,
@@ -545,7 +540,7 @@
     }
   },
   "report_recorded": true,
-  "report_payload_sha256": "e74284758dc78b355c717ed3a04c044c3c4412f2294642e947f418a067cc513e",
+  "report_payload_sha256": "db2b8c0a48bbeab888c5fb4a0d8e67473b9c860475d04184d0600f559ecd6518",
   "report_delivery": {
     "ok": false,
     "expected": 3,
@@ -554,5 +549,5 @@
     "routes": []
   },
   "cycle_notice": "queued",
-  "report_checked_at": "2026-10-18T09:42:30.552619+00:00"
+  "report_checked_at": "2026-10-18T10:08:03.362200+00:00"
 }
