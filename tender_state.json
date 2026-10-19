@@ -133,14 +133,26 @@
     "8948481867161cb1f311e94e2975e143c3afe551": "2026-10-17T13:51:32.275579+00:00"
   },
   "last_run": {
-    "at": "2026-10-19T15:58:26.430323+00:00",
-    "cycleKey": "2026-10-19 18:00",
-    "run_id": "39280460994.1",
+    "at": "2026-10-19T17:29:34.234020+00:00",
+    "cycleKey": "2026-10-19 14:00",
+    "run_id": "39292822207.1",
     "error_details": [
       "ЕАСУЗ / Электронный магазин МО: <urlopen error timed out>",
       "Портал поставщиков Москвы: <urlopen error timed out>",
-      "B2B-Center / самосвалы / Москва: SOURCE_PAGE_TOO_LARGE",
-      "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE"
+      "B2B-Center / самосвалы / Москва: The read operation timed out",
+      "B2B-Center / самосвалы / Московская область: SOURCE_PAGE_TOO_LARGE",
+      "Tender discovery site:fabrikant.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:roseltorg.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:roseltorg.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Tender discovery site:rts-tender.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:rts-tender.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:sberbank-ast.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Tender discovery site:etpgpb.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open"
     ],
     "candidates": 0,
     "rejected": [
@@ -346,10 +358,6 @@
       },
       {
         "id": "0137200001226008066",
-        "reason": "no-specific-card"
-      },
-      {
-        "id": "32616477458",
         "reason": "no-specific-card"
       },
       {
@@ -599,7 +607,7 @@
     ],
     "deferred": 0,
     "sent": 0,
-    "errors": 4,
+    "errors": 16,
     "search_mode": "Deep",
     "accepted": 0,
     "new": 0,
@@ -611,14 +619,14 @@
       "detail_requests": 26,
       "verified_cards": 0,
       "listing_candidates": 365,
-      "menu_links_rejected": 880,
+      "menu_links_rejected": 877,
       "outcomes": {
         "non_service_link": 8,
         "outside_or_unknown_work_region": 1,
         "card_unavailable": 23,
         "primary_unverified": 21,
         "outside_work_region": 4,
-        "verification_deferred": 83
+        "verification_deferred": 82
       },
       "sources": {
         "https://t.me/s/fsk_tenders": {
@@ -630,7 +638,7 @@
           "stop_reason": "date_boundary",
           "next_url": "https://t.me/s/fsk_tenders?before=201",
           "recent_posts": 4,
-          "cutoff": "2026-10-12T15:51:56.382638+00:00",
+          "cutoff": "2026-10-12T17:23:02.395069+00:00",
           "individual_links": 2,
           "verified_cards": 0
         },
@@ -726,7 +734,7 @@
         },
         "https://www.b2b-center.ru/search/moskva/spectexnika/": {
           "card_containers": 10,
-          "individual_candidates": 4,
+          "individual_candidates": 3,
           "verified_cards": 0
         },
         "https://www.b2b-center.ru/search/moskovskaya-oblast/spectexnika/": {
@@ -771,6 +779,7 @@
       "GenTender/eat-200909098126100086: primary card or explicit deadline not verified",
       "Level Group ETP: no verified procurement markup or card links",
       "Sminex: no verified procurement markup or card links",
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified",
       "http://zakupki.gov.ru/epz/order/notice/view/common-info.html?regNumber=0137600012926000067: <urlopen error timed out>",
@@ -874,7 +883,6 @@
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300047126000423: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300051126000144: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300062226001078: <urlopen error timed out>",
-      "https://zakupki.gov.ru/epz/order/notice/notice223/common-info.html?regNumber=32616477458: CARD_VERIFICATION_BUDGET",
       "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000387: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000443: <urlopen error timed out>",
       "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0373200081226000395: <urlopen error timed out>",
@@ -883,6 +891,6 @@
       "ПИК ETP: no verified procurement markup or card links",
       "Самолёт S.Tender: no verified procurement markup or card links"
     ],
-    "discovery_seconds": 2.52
+    "discovery_seconds": 1.71
   }
 }
