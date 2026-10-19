@@ -64,7 +64,8 @@ function ecoflotSendTextToAll_(text, extraPayload) {
     try {
       const payload = Object.assign({}, extraPayload || {}, {
         chat_id: chatId,
-        text: String(text || '')
+        text: String(text || ''),
+        disable_web_page_preview: true
       });
       const result = telegramApi_('sendMessage', payload);
       routes.push({
@@ -199,7 +200,8 @@ function ecoflotProcessTextOutbox_() {
           if (!/^-?\d+$/.test(chatId)) throw new Error('INVALID_TEXT_ONE_CHAT');
           const result = telegramApi_('sendMessage', {
             chat_id: chatId,
-            text: String(payload.text || '')
+            text: String(payload.text || ''),
+            disable_web_page_preview: true
           });
           const receipt = ecoflotReceiptV3_(result, chatId);
           routes = [receipt];
