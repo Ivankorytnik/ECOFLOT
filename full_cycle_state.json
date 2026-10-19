@@ -514,7 +514,7 @@
     }
   },
   "report_recorded": true,
-  "report_payload_sha256": "0c4713d9edf1c84d4dcd402bc84879f08e56cd8b45a2f3826af23d6007fe1c00",
+  "report_payload_sha256": "983657b438719566ce13db96d587bb34d77c35bc944596f7bc742d496730264d",
   "report_delivery": {
     "ok": true,
     "expected": 3,
@@ -536,5 +536,5 @@
     ]
   },
   "cycle_notice": "sent",
-  "report_checked_at": "2026-10-19T11:28:12.454622+00:00"
+  "report_checked_at": "2026-10-19T13:34:46.045717+00:00"
 }
