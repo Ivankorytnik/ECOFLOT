@@ -8,6 +8,8 @@ on:
       - 'scripts/search_reliability.py'
       - 'scripts/scheduled_cycle_runner.py'
       - 'scripts/test_search_*.py'
+      - 'apps-script/*.gs'
+      - 'tests/server_guards.test.js'
 permissions:
   contents: read
 jobs:
@@ -20,6 +22,7 @@ jobs:
         run: |
           python3 -m compileall -q scripts
           python3 -m unittest discover -s scripts -p 'test_search_*.py' -v
+          node tests/server_guards.test.js
       - name: Collect live receipt evidence without sends or remote writes
         run: |
           python3 - <<'PY'
