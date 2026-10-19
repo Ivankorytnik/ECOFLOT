@@ -140,10 +140,15 @@ def confirm_outbox(rows, cycle, expected, summary):
             payload = json.loads(raw)
         except (ValueError, TypeError):
             continue
+        if not isinstance(payload, dict):
+            continue
         chat = str(payload.get('chatId', ''))
         if chat not in expected or not key.endswith('|' + chat) or payload.get('text') != summary:
             continue
-        valid = routes_from([payload.get('_ef5', {}).get('receipt')])
+        metadata = payload.get('_ef5')
+        if not isinstance(metadata, dict):
+            continue
+        valid = routes_from([metadata.get('receipt')])
         for receipt in valid:
             if receipt['chatId'] == chat:
                 found.add(chat)
