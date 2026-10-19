@@ -54,6 +54,14 @@ class ReportingTests(unittest.TestCase):
     def test_queue_ack_is_not_delivery(self):
         d=r.confirm_outbox([self.queue(status='PENDING')],'2026-10-17 14:00',{'11'},'summary')
         self.assertFalse(d['ok']);self.assertEqual(d['pending'],1)
+    def test_corrupt_queue_metadata_is_ignored_not_a_global_failure(self):
+        rows=[]
+        for raw in ('null', '[]', '{"chatId":"11","text":"summary","_ef5":null}',
+                    '{"chatId":"11","text":"summary","_ef5":"bad"}'):
+            rows.append(['text_one','2026-10-17 14:00|FULL CYCLE|hash|11',raw,1,'','SENT'])
+        rows.append(self.queue())
+        self.assertTrue(r.confirm_outbox(rows,'2026-10-17 14:00',{'11'},'summary')['ok'])
+
     def test_requires_all_recipients(self):
         d=r.confirm_outbox([self.queue()],'2026-10-17 14:00',{'11','22'},'summary')
         self.assertFalse(d['ok']);self.assertEqual(d['confirmed'],1)
