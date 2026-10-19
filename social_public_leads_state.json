@@ -16,7 +16,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:39.156674+00:00",
+        "cutoff": "2026-10-12T05:47:42.780908+00:00",
         "eligible_before_contact": 0
       },
       "samosvalam_rabota": {
@@ -27,7 +27,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:39.156372+00:00",
+        "cutoff": "2026-10-12T05:47:42.780597+00:00",
         "eligible_before_contact": 0
       },
       "spetctechnika_arenda_uslugi": {
@@ -38,7 +38,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:39.815951+00:00",
+        "cutoff": "2026-10-12T05:47:43.393427+00:00",
         "eligible_before_contact": 0
       },
       "spectehnikfree": {
@@ -49,7 +49,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:39.867633+00:00",
+        "cutoff": "2026-10-12T05:47:43.448712+00:00",
         "eligible_before_contact": 0
       },
       "spetstekhnika_arenda": {
@@ -60,7 +60,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:40.387661+00:00",
+        "cutoff": "2026-10-12T05:47:43.950361+00:00",
         "eligible_before_contact": 0
       },
       "samosvalinfo": {
@@ -71,20 +71,20 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/samosvalinfo?before=9966",
-        "recent_posts": 54,
-        "cutoff": "2026-10-11T17:42:40.939733+00:00",
-        "eligible_before_contact": 8
+        "recent_posts": 53,
+        "cutoff": "2026-10-12T05:47:44.498309+00:00",
+        "eligible_before_contact": 7
       },
       "rabota_dlya_samosvalov_promsru": {
         "channel": "rabota_dlya_samosvalov_promsru",
         "pages": 4,
-        "posts": 76,
+        "posts": 74,
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6736",
-        "recent_posts": 52,
-        "cutoff": "2026-10-11T17:42:40.418269+00:00",
+        "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6740",
+        "recent_posts": 51,
+        "cutoff": "2026-10-12T05:47:43.999931+00:00",
         "eligible_before_contact": 0
       },
       "spezteh": {
@@ -95,7 +95,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:43.325798+00:00",
+        "cutoff": "2026-10-12T05:47:46.830374+00:00",
         "eligible_before_contact": 0
       },
       "dumptrucks_work": {
@@ -106,7 +106,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:43.261132+00:00",
+        "cutoff": "2026-10-12T05:47:46.763595+00:00",
         "eligible_before_contact": 0
       },
       "tonary_karery": {
@@ -117,7 +117,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-11T17:42:43.915333+00:00",
+        "cutoff": "2026-10-12T05:47:47.423184+00:00",
         "eligible_before_contact": 0
       },
       "vsem_podryad": {
@@ -127,25 +127,25 @@
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/vsem_podryad?before=65984",
-        "recent_posts": 372,
-        "cutoff": "2026-10-11T17:42:39.155974+00:00",
+        "next_url": "https://t.me/s/vsem_podryad?before=65988",
+        "recent_posts": 371,
+        "cutoff": "2026-10-12T05:47:42.780185+00:00",
         "eligible_before_contact": 13
       }
     },
     "contact_acquisition": {
-      "cards_read": 19,
+      "cards_read": 18,
       "contacts_recovered": 0,
       "sources": {},
       "outcomes": {
         "contact_markup_unverified": 13,
-        "contact_requires_access": 7,
+        "contact_requires_access": 6,
         "customer_contact_section_missing": 1
       }
     },
-    "at": "2026-10-18T17:43:11.100134+00:00",
-    "cycleKey": "2026-10-18 18:00",
-    "run_id": "39150487278.1",
+    "at": "2026-10-19T05:48:12.206768+00:00",
+    "cycleKey": "2026-10-19 08:00",
+    "run_id": "39205974181.1",
     "error_details": [],
     "sent": 0,
     "candidates": 0,
@@ -156,7 +156,6 @@
       "Telegram/Аренда Спецтехники Москва МО: public_posts_unavailable",
       "Telegram/Аренда спецтехники Заявки: public_posts_unavailable",
       "Telegram/Спецтехника аренда Москва и МО: public_posts_unavailable",
-      "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657047: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657058: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657115: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164: customer contacts require account/subscription",

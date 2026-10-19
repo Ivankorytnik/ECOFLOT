@@ -1,18 +1,18 @@
 {
-  "attempts": 2,
+  "attempts": 1,
   "schema_version": 2,
-  "cycleKey": "2026-10-18 18:00",
-  "run_id": "39150487278.1",
-  "started_at": "2026-10-18T20:38:08.041781+03:00",
+  "cycleKey": "2026-10-19 08:00",
+  "run_id": "39205974181.1",
+  "started_at": "2026-10-19T08:43:04.212413+03:00",
   "status": "SEARCH_PARTIAL",
   "contours": {
     "Internet Leads": {
       "new": 1,
-      "duplicates": 12,
+      "duplicates": 14,
       "accepted": 1,
       "sent": 0,
       "delivery_pending": 1,
-      "errors": 18,
+      "errors": 16,
       "unchecked_sources": [
         "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
@@ -24,10 +24,8 @@
       "error_details": [
         "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
         "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "Web discovery \"вывоз грунта\" \"нужен\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-        "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
         "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -53,7 +51,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 30,
+      "errors": 31,
       "unchecked_sources": [
         "Telegram/Аренда Спецтехники Москва МО: public_posts_unavailable",
         "Telegram/Аренда спецтехники Заявки: public_posts_unavailable",
@@ -61,7 +59,6 @@
         "bing: bing: results do not match the requested topic or site",
         "duckduckgo: duckduckgo: challenge or access restriction",
         "google: google: result markup not verified",
-        "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657047: customer contacts require account/subscription",
         "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657058: customer contacts require account/subscription",
         "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657115: customer contacts require account/subscription",
         "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164: customer contacts require account/subscription",
@@ -84,8 +81,9 @@
       "missing_states": [],
       "error_details": [
         "site:max.ru нужен самосвал Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
-        "site:max.ru нужен самосвал Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-        "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "site:max.ru требуется самосвал Московская область: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+        "site:max.ru нужен самосвал Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+        "site:max.ru вывоз грунта Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "site:max.ru вывоз грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "site:max.ru вывоз грунта Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
         "site:max.ru вывоз мусора Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -127,7 +125,7 @@
       "accepted": 0,
       "sent": 0,
       "delivery_pending": 0,
-      "errors": 9,
+      "errors": 12,
       "unchecked_sources": [
         "GenTender / Калужская область / отходы: unsupported individual-link format",
         "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -278,7 +276,10 @@
         "B2B-Center / спецтехника / Москва: HTTP Error 403: Forbidden",
         "B2B-Center / спецтехника / Московская область: HTTP Error 403: Forbidden",
         "B2B-Center / спецтехника / Калужская область: HTTP Error 403: Forbidden",
-        "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+        "Tender discovery site:fabrikant.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: google: result markup not verified; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: results do not match the requested topic or site",
+        "Tender discovery site:fabrikant.ru самосвал закупка Калужская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Tender discovery site:rts-tender.ru спецтехника закупка Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+        "Tender discovery site:sberbank-ast.ru самосвал закупка Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
       ],
       "state_found": true,
       "status": "partial",
@@ -300,11 +301,9 @@
       "status": "ok",
       "exit_codes": [
         0
-      ],
-      "reused_from_previous_attempt": true
+      ]
     }
   },
-  "retrying_partial_from": "39141595112.1",
   "search_mode": "Deep",
   "preflight_errors": [],
   "expected_recipient_count": 3,
@@ -313,14 +312,14 @@
     "584620734",
     "6795645088"
   ],
-  "search_finished_at": "2026-10-18T20:48:52.032382+03:00",
+  "search_finished_at": "2026-10-19T08:53:59.970460+03:00",
   "totals": {
     "new": 1,
-    "duplicates": 12,
+    "duplicates": 14,
     "accepted": 1,
     "sent": 1,
     "delivery_pending": 0,
-    "errors": 57,
+    "errors": 59,
     "unchecked_sources": [
       "GenTender / Калужская область / отходы: unsupported individual-link format",
       "GenTender / Москва / благоустройство: unsupported individual-link format",
@@ -439,7 +438,6 @@
       "https://gentender.ru/zakupka/tt-951384-utilizaciya-aviacionnogo-tehnicheskogo-imuschestva: CARD_VERIFICATION_BUDGET",
       "https://nerudonline.ru/rabota/samosvaly: listing markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access",
-      "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657047: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657058: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657115: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164: customer contacts require account/subscription",
@@ -497,14 +495,12 @@
     "suppressed": 0,
     "service_rows": 0,
     "ok": true,
-    "unresolved_duplicate_references": 0,
-    "pending_new_or_known_records": 0,
-    "missing_receipts": 0,
+    "reconcile_attempts": 1,
     "mode": "read-only-sheet-reconciliation"
   },
   "backlog": {
-    "checked": 213,
-    "confirmed": 197,
+    "checked": 214,
+    "confirmed": 198,
     "pending": 16,
     "missing_records": 0,
     "duplicate_routes": 4,
@@ -521,7 +517,7 @@
     "ok": true,
     "scope": "all-attempts-in-logical-slot"
   },
-  "finished_at": "2026-10-18T20:48:52.425867+03:00",
+  "finished_at": "2026-10-19T08:54:00.250427+03:00",
   "qualified_slot_totals": {
     "Internet Leads": {
       "new": 1,
@@ -549,28 +545,14 @@
     }
   },
   "report_recorded": true,
-  "report_payload_sha256": "3b3a5a6917cfd8cc45c4bf3478d1039105a3e77a0818bd737ea7c9b82df30c59",
+  "report_payload_sha256": "1c67f5c42b46e0ccaeec35c21121907ac1a4062bd81be3ab9510466a3c071fc6",
   "report_delivery": {
-    "ok": true,
+    "ok": false,
     "expected": 3,
-    "confirmed": 3,
-    "pending": 0,
-    "routes": [
-      {
-        "chatId": "262661708",
-        "messageId": "2559"
-      },
-      {
-        "chatId": "584620734",
-        "messageId": "2560"
-      },
-      {
-        "chatId": "6795645088",
-        "messageId": "2561"
-      }
-    ]
+    "confirmed": 0,
+    "pending": 3,
+    "routes": []
   },
-  "cycle_notice": "sent",
-  "report_checked_at": "2026-10-18T17:52:25.930278+00:00",
-  "delivery_reconciled_at": "2026-10-18T21:15:32.805049+03:00"
+  "cycle_notice": "queued",
+  "report_checked_at": "2026-10-19T06:00:32.836445+00:00"
 }

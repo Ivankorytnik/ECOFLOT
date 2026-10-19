@@ -224,19 +224,18 @@
     "WEB-PROFI-fdbb87e2335924a3501a": "2026-10-17T17:38:50.422041+00:00",
     "WEB-PROFI-0cd4983173615828f5e3": "2026-10-17T17:39:04.872615+00:00",
     "WEB-PROFI-d49ffec4e591e239ebb6": "2026-10-18T09:28:49.353820+00:00",
-    "WEB-PROFI-3b4f02c1ed2261be04a3": "2026-10-18T17:42:38.718438+00:00"
+    "WEB-PROFI-3b4f02c1ed2261be04a3": "2026-10-18T17:42:38.718438+00:00",
+    "WEB-PROFI-c658b13cf16a71a2769b": "2026-10-19T05:47:42.210977+00:00"
   },
   "last_run": {
-    "at": "2026-10-18T17:42:38.719886+00:00",
-    "cycleKey": "2026-10-18 18:00",
-    "run_id": "39150487278.1",
+    "at": "2026-10-19T05:47:42.212313+00:00",
+    "cycleKey": "2026-10-19 08:00",
+    "run_id": "39205974181.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
       "Web discovery \"нужен тонар\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"работа для самосвалов\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
-      "Web discovery \"вывоз грунта\" \"нужен\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
-      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
+      "Web discovery \"перевозка ПГС\" самосвал \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"нужен экскаватор\" \"Московская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery \"нужен экскаватор-погрузчик\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
@@ -250,12 +249,12 @@
       "Web discovery site:propokupki.ru/kaluzhskaya_oblast самосвал: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: circuit open",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
-    "candidates": 13,
-    "duplicates_local": 12,
+    "candidates": 15,
+    "duplicates_local": 14,
     "deferred": 0,
     "new": 1,
     "sent": 0,
-    "errors": 18,
+    "errors": 16,
     "search_mode": "Deep",
     "accepted": 1,
     "duplicates_server": 0,
@@ -263,7 +262,7 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "card_acquisition": {
-      "cards_read": 10,
+      "cards_read": 12,
       "contacts_recovered": 0,
       "sources": {
         "https://nerudonline.ru/rabota/samosvaly": {
@@ -282,8 +281,8 @@
       "outcomes": {
         "test_order": 7,
         "interactive_or_gated_card": 13,
-        "response_route_not_individual_order": 10,
-        "no_public_contact": 10
+        "response_route_not_individual_order": 12,
+        "no_public_contact": 12
       }
     },
     "unchecked_sources": [
@@ -293,6 +292,6 @@
       "https://nerudonline.ru/rabota/samosvaly: listing markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access"
     ],
-    "discovery_seconds": 1.71
+    "discovery_seconds": 1.43
   }
 }
