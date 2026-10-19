@@ -103,17 +103,17 @@ def build_payloads(state, rollup):
             raise ValueError('UNFINISHED_CONTOUR')
         unchecked = sorted(set(str(x) for x in c.get('unchecked_sources', []) if x))
         errors = number(c.get('errors'))
-        notes = [str(x) for x in c.get('error_details', [])[:2] if x]
-        if count['unknown']:
-            notes.append('Unverified CRM identities: ' + str(count['unknown']))
-        if count['new'] > count['sent']:
-            notes.append('Telegram delivery pending: ' + str(count['new'] - count['sent']))
+        # Source diagnostics are internal audit data, NOT a Telegram message.
+        # Forwarding URLs or raw parser/network errors generates unrelated site
+        # previews in Telegram and clutters the approved-recipient feed.
+        # The complete details remain in full_cycle_state.json and Actions logs.
+        needs_attention = bool(count['unknown'] or count['new'] > count['sent'])
         status = 'error' if c.get('status') == 'error' else (
-            'partial' if c.get('status') != 'ok' or errors or unchecked or notes else 'ok')
+            'partial' if c.get('status') != 'ok' or errors or unchecked or needs_attention else 'ok')
         output.append({'mode': 'search_complete', 'cycleKey': cycle, 'searchName': name,
                        'status': status, 'newCount': count['new'],
                        'duplicates': number(c.get('duplicates')), 'errors': errors,
-                       'unchecked_sources': unchecked, 'error': '; '.join(notes)[:1400]})
+                       'unchecked_sources': [], 'error': ''})
     return output
 
 
@@ -140,10 +140,15 @@ def confirm_outbox(rows, cycle, expected, summary):
             payload = json.loads(raw)
         except (ValueError, TypeError):
             continue
+        if not isinstance(payload, dict):
+            continue
         chat = str(payload.get('chatId', ''))
         if chat not in expected or not key.endswith('|' + chat) or payload.get('text') != summary:
             continue
-        valid = routes_from([payload.get('_ef5', {}).get('receipt')])
+        metadata = payload.get('_ef5')
+        if not isinstance(metadata, dict):
+            continue
+        valid = routes_from([metadata.get('receipt')])
         for receipt in valid:
             if receipt['chatId'] == chat:
                 found.add(chat)

@@ -60,7 +60,7 @@ function ecoflotFindDuplicateV3_(sheet, headers, lead) {
   return null;
 }
 function ecoflotQueueItemV3_(kind, key, raw) {
-  if (['lead_one','lead','edit','text'].indexOf(kind) < 0) throw new Error('UNSUPPORTED_QUEUE_KIND');
+  if (['lead_one','lead','edit','text','text_one'].indexOf(kind) < 0) throw new Error('UNSUPPORTED_QUEUE_KIND');
   var p;
   try { p = JSON.parse(raw); } catch (err) { throw new Error('INVALID_QUEUE_JSON'); }
   if (!p || typeof p !== 'object' || Array.isArray(p)) throw new Error('INVALID_QUEUE_PAYLOAD');
@@ -73,6 +73,16 @@ function ecoflotQueueItemV3_(kind, key, raw) {
     if (!ecoflotTextV3_(p.callbackKey)) throw new Error('MISSING_CALLBACK_KEY');
   } else {
     if (!ecoflotTextV3_(p.text) || ecoflotTextV3_(p.text).length > 4096) throw new Error('INVALID_QUEUE_TEXT');
+    if (kind === 'text_one') {
+      // A summary is for exactly one intended recipient. A forged or
+      // mismatched queue key must never redirect it to another chat.
+      var targetChat = ecoflotTextV3_(p.chatId);
+      if (!/^-?\d+$/.test(targetChat)) throw new Error('INVALID_TEXT_ONE_CHAT');
+      if (ecoflotTextV3_(key).slice(-targetChat.length - 1) !== '|' + targetChat ||
+          ecoflotTextV3_(key).split('|').length < 3) {
+        throw new Error('TEXT_ONE_QUEUE_KEY_MISMATCH');
+      }
+    }
   }
   return p;
 }

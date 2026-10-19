@@ -16,6 +16,12 @@ test('category remains non-specific',()=>assert.equal(ctx.ecoflotSpecificUrlV3_(
 test('missing schema stops write',()=>assert.throws(()=>ctx.ecoflotFindDuplicateV3_(sheet([]),[],{requestId:'x'}),/SCHEMA/));
 test('missing identity stops write',()=>assert.throws(()=>ctx.ecoflotFindDuplicateV3_(sheet([]),headers,{}),/REQUIRED/));
 test('lead_one requires exact single-recipient key',()=>assert.equal(ctx.ecoflotQueueItemV3_('lead_one','abc|11','{"callbackKey":"abc","chatId":"11"}').chatId,'11'));
+test('text_one requires exact recipient and queue key',()=>{
+  assert.equal(ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11',text:'Status'})).chatId,'11');
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|22',JSON.stringify({chatId:'11',text:'Status'})),/MISMATCH/);
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11,22',text:'Status'})),/INVALID_TEXT_ONE_CHAT/);
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11',text:''})),/INVALID_QUEUE_TEXT/);
+});
 test('unknown queue kind cannot become SENT',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('unknown','x','{}'),/UNSUPPORTED/));
 test('malformed JSON cannot become SENT',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('lead_one','x','{'),/JSON/));
 test('combined recipient IDs rejected',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('lead_one','abc|11,22','{"callbackKey":"abc","chatId":"11,22"}'),/RECIPIENT/));
@@ -26,4 +32,15 @@ test('wrong recipient not delivered',()=>assert.throws(()=>ctx.ecoflotReceiptV3_
 test('partial duplicate routes not complete',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x',telegramRoute:[{chatId:'11',messageId:'8'}]},'request_id',['11','22']).telegramSent,false));
 test('all duplicate recipients verified',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x',telegramRoute:[{chatId:'11',messageId:'8'},{chatId:'22',messageId:'9'}]},'request_id',['11','22']).telegramSent,true));
 test('no recipients cannot mean delivered',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x'},'request_id',[]).telegramSent,false));
+test('outbox text messages always disable Telegram link previews',()=>{
+  const source=fs.readFileSync('apps-script/multiuser_hotfix.gs','utf8');
+  const recipientBody=source.match(/function ecoflotSendTextToAll_\([\s\S]*?function ecoflotSendLeadToAll_/);
+  assert(recipientBody,'missing multiuser sending function');
+  assert(/disable_web_page_preview:\s*true/.test(recipientBody[0]));
+  const outboxBody=source.match(/function ecoflotProcessTextOutbox_\([\s\S]*?function ecoflotInstallOutboxTrigger_/);
+  assert(outboxBody,'missing outbox function');
+  const single=outboxBody[0].match(/if \(kind === 'text_one'\) \{[\s\S]*?ecoflotReceiptV3_/);
+  assert(single,'missing text_one sender');
+  assert(/disable_web_page_preview:\s*true/.test(single[0]));
+});
 console.log('TOTAL '+passed+' tests passed');
