@@ -2724,6 +2724,37 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-e174ce77fd6678e7c5d7": {
+      "requestId": "WEB-PROFI-e174ce77fd6678e7c5d7",
+      "cycleKey": "2026-10-19 18:00",
+      "run_id": "39280460994.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-19T15:51:00.266313+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-19T15:51:00.266329+00:00",
+      "verified_at": "2026-10-19T15:58:36.508660+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2643"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2644"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2645"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
