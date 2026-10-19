@@ -1,3 +1,2 @@
-2026-10-17 post-deployment verification PR13 11dc59e9c53ce2c36fa0056d200065908c3422aa
-Run all configured Deep Search contours with visible card links, Telegram previews, seven-day history and fair primary tender verification.
-Operational EXTRA cycle only; preserve scheduled keys, contact/source/geography rules, approved recipients and all existing delivery receipts. Never replay SENT cards.
+2026-10-19 production verification after PR16 dcc6023677537901a1f23615dc8d971dc1666942
+Manual EXTRA Deep Search, preserve dedupe and recipient safety; do not replay delivered cards.
