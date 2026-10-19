@@ -16,6 +16,12 @@ test('category remains non-specific',()=>assert.equal(ctx.ecoflotSpecificUrlV3_(
 test('missing schema stops write',()=>assert.throws(()=>ctx.ecoflotFindDuplicateV3_(sheet([]),[],{requestId:'x'}),/SCHEMA/));
 test('missing identity stops write',()=>assert.throws(()=>ctx.ecoflotFindDuplicateV3_(sheet([]),headers,{}),/REQUIRED/));
 test('lead_one requires exact single-recipient key',()=>assert.equal(ctx.ecoflotQueueItemV3_('lead_one','abc|11','{"callbackKey":"abc","chatId":"11"}').chatId,'11'));
+test('text_one requires exact recipient and queue key',()=>{
+  assert.equal(ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11',text:'Status'})).chatId,'11');
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|22',JSON.stringify({chatId:'11',text:'Status'})),/MISMATCH/);
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11,22',text:'Status'})),/INVALID_TEXT_ONE_CHAT/);
+  assert.throws(()=>ctx.ecoflotQueueItemV3_('text_one','slot|report|11',JSON.stringify({chatId:'11',text:''})),/INVALID_QUEUE_TEXT/);
+});
 test('unknown queue kind cannot become SENT',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('unknown','x','{}'),/UNSUPPORTED/));
 test('malformed JSON cannot become SENT',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('lead_one','x','{'),/JSON/));
 test('combined recipient IDs rejected',()=>assert.throws(()=>ctx.ecoflotQueueItemV3_('lead_one','abc|11,22','{"callbackKey":"abc","chatId":"11,22"}'),/RECIPIENT/));
