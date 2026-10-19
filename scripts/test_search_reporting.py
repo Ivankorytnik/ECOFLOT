@@ -23,6 +23,21 @@ class ReportingTests(unittest.TestCase):
         self.assertEqual(r.build_payloads(s,self.counts())[0]['status'],'partial')
         s['contours']['Internet Leads']['status']='error'
         self.assertEqual(r.build_payloads(s,self.counts())[0]['status'],'error')
+    def test_technical_diagnostics_never_reach_telegram(self):
+        state=self.state()
+        state['contours']['Internet Leads'].update(
+            status='partial', errors=2,
+            unchecked_sources=['https://nerudonline.ru/rabota/samosvaly: listing markup not verified'],
+            error_details=['NO_VERIFIED_SEARCH_ENGINE: google: circuit open'])
+        payload=r.build_payloads(state,self.counts())[0]
+        self.assertEqual(payload['status'],'partial')
+        self.assertEqual(payload['errors'],2)
+        self.assertEqual(payload['unchecked_sources'],[])
+        self.assertEqual(payload['error'],'')
+        self.assertNotIn('nerudonline',json.dumps(payload))
+        self.assertNotIn('NO_VERIFIED_SEARCH_ENGINE',json.dumps(payload))
+        self.assertIn('nerudonline',state['contours']['Internet Leads']['unchecked_sources'][0])
+
     def test_pending_lead_never_clean_success(self):
         counts=self.counts();counts['Internet Leads']['new']=1
         self.assertEqual(r.build_payloads(self.state(),counts)[0]['status'],'partial')
