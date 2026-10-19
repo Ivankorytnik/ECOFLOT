@@ -2693,6 +2693,37 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-e7cbac63eb0ba725": {
+      "requestId": "WEB-SAMOSVALIN-e7cbac63eb0ba725",
+      "cycleKey": "2026-10-19 08:00",
+      "run_id": "39238730602.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-19T10:41:36.090198+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-19T10:41:36.090211+00:00",
+      "verified_at": "2026-10-19T10:50:41.398996+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2577"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2578"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2579"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
