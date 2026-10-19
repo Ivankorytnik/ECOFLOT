@@ -12654,7 +12654,9 @@
         "suppressed": 0,
         "service_rows": 0,
         "ok": true,
-        "reconcile_attempts": 1,
+        "unresolved_duplicate_references": 0,
+        "pending_new_or_known_records": 0,
+        "missing_receipts": 0,
         "mode": "read-only-sheet-reconciliation"
       },
       "backlog": {
@@ -12726,7 +12728,8 @@
         ]
       },
       "cycle_notice": "sent",
-      "report_checked_at": "2026-10-19T17:30:04.843772+00:00"
+      "report_checked_at": "2026-10-19T17:30:04.843772+00:00",
+      "delivery_reconciled_at": "2026-10-19T20:44:59.633082+03:00"
     },
     "2026-10-19 14:00 EXTRA 39261319792.1": {
       "attempts": 1,
