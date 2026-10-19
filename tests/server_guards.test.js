@@ -26,4 +26,15 @@ test('wrong recipient not delivered',()=>assert.throws(()=>ctx.ecoflotReceiptV3_
 test('partial duplicate routes not complete',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x',telegramRoute:[{chatId:'11',messageId:'8'}]},'request_id',['11','22']).telegramSent,false));
 test('all duplicate recipients verified',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x',telegramRoute:[{chatId:'11',messageId:'8'},{chatId:'22',messageId:'9'}]},'request_id',['11','22']).telegramSent,true));
 test('no recipients cannot mean delivered',()=>assert.equal(ctx.ecoflotDuplicateAckV3_('x',{requestId:'x'},'request_id',[]).telegramSent,false));
+test('outbox text messages always disable Telegram link previews',()=>{
+  const source=fs.readFileSync('apps-script/multiuser_hotfix.gs','utf8');
+  const recipientBody=source.match(/function ecoflotSendTextToAll_\([\s\S]*?function ecoflotSendLeadToAll_/);
+  assert(recipientBody,'missing multiuser sending function');
+  assert(/disable_web_page_preview:\s*true/.test(recipientBody[0]));
+  const outboxBody=source.match(/function ecoflotProcessTextOutbox_\([\s\S]*?function ecoflotInstallOutboxTrigger_/);
+  assert(outboxBody,'missing outbox function');
+  const single=outboxBody[0].match(/if \(kind === 'text_one'\) \{[\s\S]*?ecoflotReceiptV3_/);
+  assert(single,'missing text_one sender');
+  assert(/disable_web_page_preview:\s*true/.test(single[0]));
+});
 console.log('TOTAL '+passed+' tests passed');
