@@ -29,6 +29,7 @@ class SamosvalRecoveryTests(unittest.TestCase):
     def test_individual_route(self):
         self.assertTrue(is_samosval_order_route('https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657221'))
         self.assertFalse(is_samosval_order_route('https://samosval.info/katalog-transporta/kartochka-transportnoy-kompanii.php?ID=111076'))
+        self.assertFalse(is_samosval_order_route('https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/'))
 
     def test_neighbour_orders_do_not_share_data(self):
         from datetime import timedelta
