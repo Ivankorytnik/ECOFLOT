@@ -142,7 +142,14 @@ def configured_worker(name):
             original_collect = internet.collect_candidates
             def collect_with_cards():
                 candidates, errors = original_collect()
-                return [acquisition.enrich(item) for item in candidates], errors
+                # Direct primary classifieds: do not depend on blocked search engines.
+                from primary_source_recovery import collect_propokupki
+                recovered, recovery_errors = collect_propokupki(internet)
+                candidates.extend(recovered)
+                errors.extend(recovery_errors)
+                # Preserve dedupe and enrichment in the existing shared pipeline.
+                unique = {item["request_id"]: item for item in candidates}
+                return [acquisition.enrich(item) for item in unique.values()], errors
             stack.enter_context(binding(internet, 'collect_candidates', collect_with_cards))
         if name == 'tender_monitor':
             original_relevant = module.relevant
