@@ -25,7 +25,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:05.873146+00:00",
+        "cutoff": "2026-10-13T18:51:38.787787+00:00",
         "eligible_before_contact": 0
       },
       "samosvalam_rabota": {
@@ -36,7 +36,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:05.872840+00:00",
+        "cutoff": "2026-10-13T18:51:38.787431+00:00",
         "eligible_before_contact": 0
       },
       "spetctechnika_arenda_uslugi": {
@@ -47,7 +47,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:06.879584+00:00",
+        "cutoff": "2026-10-13T18:51:39.666226+00:00",
         "eligible_before_contact": 0
       },
       "spectehnikfree": {
@@ -58,7 +58,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:09.452133+00:00",
+        "cutoff": "2026-10-13T18:51:39.733699+00:00",
         "eligible_before_contact": 0
       },
       "spetstekhnika_arenda": {
@@ -69,7 +69,19 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:14.220275+00:00",
+        "cutoff": "2026-10-13T18:51:40.457993+00:00",
+        "eligible_before_contact": 0
+      },
+      "rabota_dlya_samosvalov_promsru": {
+        "channel": "rabota_dlya_samosvalov_promsru",
+        "pages": 4,
+        "posts": 77,
+        "missing_dates": 0,
+        "complete": true,
+        "stop_reason": "date_boundary",
+        "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6748",
+        "recent_posts": 50,
+        "cutoff": "2026-10-13T18:51:40.506605+00:00",
         "eligible_before_contact": 0
       },
       "samosvalinfo": {
@@ -79,9 +91,9 @@
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/samosvalinfo?before=9976",
-        "recent_posts": 62,
-        "cutoff": "2026-10-13T17:44:21.072459+00:00",
+        "next_url": "https://t.me/s/samosvalinfo?before=9977",
+        "recent_posts": 63,
+        "cutoff": "2026-10-13T18:51:41.242881+00:00",
         "eligible_before_contact": 10
       },
       "dumptrucks_work": {
@@ -92,19 +104,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:26.806698+00:00",
-        "eligible_before_contact": 0
-      },
-      "rabota_dlya_samosvalov_promsru": {
-        "channel": "rabota_dlya_samosvalov_promsru",
-        "pages": 4,
-        "posts": 77,
-        "missing_dates": 0,
-        "complete": true,
-        "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6747",
-        "recent_posts": 49,
-        "cutoff": "2026-10-13T17:44:15.194730+00:00",
+        "cutoff": "2026-10-13T18:51:44.273033+00:00",
         "eligible_before_contact": 0
       },
       "spezteh": {
@@ -115,7 +115,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:27.672503+00:00",
+        "cutoff": "2026-10-13T18:51:45.110547+00:00",
         "eligible_before_contact": 0
       },
       "tonary_karery": {
@@ -126,7 +126,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T17:44:28.083070+00:00",
+        "cutoff": "2026-10-13T18:51:45.151618+00:00",
         "eligible_before_contact": 0
       },
       "vsem_podryad": {
@@ -136,9 +136,9 @@
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/vsem_podryad?before=66126",
-        "recent_posts": 337,
-        "cutoff": "2026-10-13T17:44:05.872437+00:00",
+        "next_url": "https://t.me/s/vsem_podryad?before=66128",
+        "recent_posts": 339,
+        "cutoff": "2026-10-13T18:51:38.787087+00:00",
         "eligible_before_contact": 16
       }
     },
@@ -152,13 +152,13 @@
         "customer_contact_section_missing": 1
       }
     },
-    "at": "2026-10-20T17:46:16.041430+00:00",
-    "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
-    "run_id": "39467645527.1",
+    "at": "2026-10-20T18:52:17.540936+00:00",
+    "cycleKey": "2026-10-20 18:00",
+    "run_id": "39477956776.1",
     "error_details": [],
     "sent": 0,
     "candidates": 9,
-    "duplicates_local": 0,
+    "duplicates_local": 9,
     "deferred": 0,
     "errors": 0,
     "unverified_sources": [
@@ -190,10 +190,10 @@
       "https://vsem-podryad.ru/request/f5016139-36ae-4409-bd14-5ed9113fbd00/?from=tg_post: card contact markup unverified or JavaScript rendering required"
     ],
     "search_mode": "Deep",
-    "accepted": 9,
-    "new": 9,
+    "accepted": 0,
+    "new": 0,
     "duplicates_server": 0,
-    "delivery_pending": 9,
+    "delivery_pending": 0,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [],
