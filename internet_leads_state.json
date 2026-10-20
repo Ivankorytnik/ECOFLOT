@@ -227,32 +227,32 @@
     "WEB-PROFI-3b4f02c1ed2261be04a3": "2026-10-18T17:42:38.718438+00:00",
     "WEB-PROFI-c658b13cf16a71a2769b": "2026-10-19T05:47:42.210977+00:00",
     "WEB-SAMOSVALIN-e7cbac63eb0ba725": "2026-10-19T10:41:36.093592+00:00",
-    "WEB-PROFI-e174ce77fd6678e7c5d7": "2026-10-19T15:51:00.270021+00:00"
+    "WEB-PROFI-e174ce77fd6678e7c5d7": "2026-10-19T15:51:00.270021+00:00",
+    "WEB-PROFI-a24397890f379680afab": "2026-10-20T10:01:14.515104+00:00"
   },
   "last_run": {
-    "at": "2026-10-19T20:21:15.675617+00:00",
-    "cycleKey": "2026-10-19 18:00",
-    "run_id": "39317992805.1",
+    "at": "2026-10-20T10:01:14.516498+00:00",
+    "cycleKey": "2026-10-20 08:00",
+    "run_id": "39404057743.1",
     "error_details": [
       "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-      "Web discovery \"требуются самосвалы\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: duckduckgo: challenge or access restriction; bing: bing: result markup not verified",
-      "Web discovery \"нужен контейнер\" \"вывоз мусора\" Москва: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
+      "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
       "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
     ],
     "candidates": 15,
-    "duplicates_local": 15,
+    "duplicates_local": 14,
     "deferred": 0,
-    "new": 0,
+    "new": 1,
     "sent": 0,
-    "errors": 4,
+    "errors": 3,
     "search_mode": "Deep",
-    "accepted": 0,
+    "accepted": 1,
     "duplicates_server": 0,
-    "delivery_pending": 0,
+    "delivery_pending": 1,
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "card_acquisition": {
-      "cards_read": 12,
+      "cards_read": 10,
       "contacts_recovered": 0,
       "sources": {
         "https://nerudonline.ru/rabota/samosvaly": {
@@ -271,20 +271,22 @@
       "outcomes": {
         "test_order": 7,
         "interactive_or_gated_card": 13,
-        "response_route_not_individual_order": 10,
-        "no_public_contact": 12
+        "response_route_not_individual_order": 7,
+        "no_public_contact": 10,
+        "budget": 1
       }
     },
     "unchecked_sources": [
-      "bing: bing: result markup not verified",
+      "Card contact enrichment budget reached",
       "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified",
       "https://nerudonline.ru/rabota/samosvaly: listing markup not verified",
       "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access",
-      "https://www.napodrabotku.ru/order/95097956: response route <urlopen error timed out>",
-      "https://www.napodrabotku.ru/order/95158511: response route <urlopen error timed out>"
+      "https://www.napodrabotku.ru/order/95097956: response route The read operation timed out",
+      "https://www.napodrabotku.ru/order/95155644: response route The read operation timed out",
+      "https://www.napodrabotku.ru/order/95158511: response route The read operation timed out"
     ],
-    "discovery_seconds": 4.2
+    "discovery_seconds": 5.06
   }
 }
