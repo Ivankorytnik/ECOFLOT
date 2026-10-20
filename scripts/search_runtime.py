@@ -137,6 +137,9 @@ def configured_worker(name):
         if name == 'internet_leads_monitor':
             from card_acquisition import Acquisition
             acquisition = Acquisition(internet.fetch)
+            from primary_source_recovery import parse_samosval_orders
+            stack.enter_context(binding(internet, 'parse_samosval_info',
+                                        lambda page, source_url: parse_samosval_orders(internet, page, source_url)))
             for parser in ('parse_exkavator', 'parse_nerudonline', 'parse_rentag'):
                 stack.enter_context(binding(internet, parser, getattr(acquisition, parser)))
             original_collect = internet.collect_candidates
