@@ -87,7 +87,10 @@ class TenderAcquisition:
             page=self.fetch(url,timeout=max(1,min(9,self.budget-self.spent)))
             self.cache[url]=page;self.report['detail_requests']+=1;return page
         except Exception:
-            self.cache[url]='';raise
+            # A timeout is not a permanent cache hit. Let another verified
+            # attempt try the same card if source/network becomes reachable.
+            self.cache.pop(url, None)
+            raise
         finally:self.spent+=time.monotonic()-start
 
     def defer(self, url, expected_title='', source=''):
@@ -123,6 +126,40 @@ class TenderAcquisition:
         return out
 
     def extract_direct(self,page,label,url,region):
+        # A few B2B-Center listing responses are >2.5 MB. The full DOM
+        # reader intentionally rejects those pages, but the individual
+        # procurement anchors can still be parsed without caching the
+        # surrounding navigation and unrelated catalogue text.
+        if len(page) > 2500000:
+            from source_repair import Anchors
+            parser = Anchors()
+            parser.feed(page[:8000000])
+            out, seen = [], set()
+            for anchor in parser.links:
+                target = absolute_link(url, anchor.get('href', ''))
+                rid = procurement_id(target)
+                if not rid or host(target) not in PRIMARY or target in seen:
+                    continue
+                # Do not assume a generic or truncated anchor is an order;
+                # the downstream primary-card verifier must confirm demand.
+                title = re.sub(r'\\s+', ' ', anchor.get('text', '')).strip()
+                if not tender_service_demand(title):
+                    continue
+                seen.add(target)
+                entry = self.discover(target, expected_title=title, source=label)
+                if entry:
+                    out.append(entry)
+                if len(out) >= 50:
+                    break
+            self.report['sources'][url] = {
+                'oversized_html': len(page), 'observed_demand_links': len(seen),
+                'verified_cards': sum(not e.get('acquisition_pending', False) for e in out),
+            }
+            if len(page) > 8000000:
+                self.unchecked.add(label + ': oversized listing scanned first 8MB only')
+            if not seen:
+                self.unchecked.add(label + ': oversized listing has no verified service links')
+            return out
         root=DOM(page).root;out=[];seen=set();containers=list(root.find_all(cls='card-item'))
         self.report['menu_links_rejected']+=sum(1 for a in root.find_all('a',attr='href') if not procurement_id(absolute_link(url,a.attrs['href'])))
         if containers:
@@ -242,7 +279,13 @@ class TenderAcquisition:
             self.verified[url]=entry;self.report['verified_cards']+=1
             return entry
         except Exception as exc:
-            self.unchecked.add(url+': '+str(exc)[:140]);self.outcome('card_unavailable');return None
+            # Network and parsing exceptions must not poison the per-run cache.
+            # Deterministic rejects above remain cached until the next run.
+            self.verified.pop(url, None)
+            self.cache.pop(url, None)
+            self.unchecked.add(url+': '+str(exc)[:140])
+            self.outcome('card_unavailable')
+            return None
 
     def parse_b2b(self,root,url,rid):
         title=clean_title(root)

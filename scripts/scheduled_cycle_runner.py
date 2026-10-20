@@ -65,7 +65,15 @@ def fallback_slot(history, expression, now=None):
     """Use a delayed fallback to repair the oldest due slot that is still missing."""
     now = now or datetime.now(MSK)
     recorded = set((history or {}).get('cycles', {}))
-    for slot in due_slots(now):
+    # Never sacrifice the current slot to recover an earlier missed search.
+    # GitHub cron can arrive hours late: run the most recent due slot first.
+    due = due_slots(now)
+    if due:
+        newest = due[-1]
+        if newest not in recorded:
+            return newest
+    # Only after current coverage exists, recover older missing slots.
+    for slot in reversed(due):
         if slot not in recorded:
             return slot
     return scheduled_slot(expression, now)

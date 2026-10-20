@@ -179,6 +179,24 @@ class Acquisition:
                     item['url'] = result['canonical_order_url']
                 self.report['contacts_recovered']+=1
                 return item
+            # A Telegram post may point to a real, individually verified
+            # customer order whose phone is access-gated. Never invent the
+            # number or treat a generic category/advertising link as a contact.
+            # contact_requires_access is emitted ONLY by a card parser after
+            # validating the individual ID and the customer-contact section.
+            if (result.get('reason') == 'contact_requires_access'
+                    and str(item.get('source') or '').startswith('Telegram / ')
+                    and known_card(url) and url in item.get('card_links', [])
+                    and item.get('url', '').startswith('https://t.me/')):
+                item.update(
+                    phone='', contact_url=url,
+                    card_order_gate_verified=True,
+                    contact_source_url=url,
+                    contact_note='Телефон скрыт площадкой. Отклик по ссылке на заказ; может потребоваться авторизация.'
+                )
+                self.report['contacts_recovered'] += 1
+                self.outcome('verified_order_link_without_public_phone')
+                return item
             self.outcome(result.get('reason','no_public_contact'))
         return item
 

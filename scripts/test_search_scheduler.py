@@ -53,7 +53,7 @@ class SchedulerContracts(unittest.TestCase):
             ['2026-10-12 08:00', '2026-10-12 14:00', '2026-10-12 18:00'],
         )
 
-    def test_delayed_fallback_repairs_oldest_missing_due_slot(self):
+    def test_delayed_fallback_prioritizes_current_due_slot(self):
         history = {'cycles': {'2026-10-12 08:00': {'status': 'SEARCH_PARTIAL'}}}
         self.assertEqual(
             fallback_slot(history, '37 5 * * *', datetime(2026, 10, 12, 16, 40, tzinfo=MSK)),
@@ -68,6 +68,13 @@ class SchedulerContracts(unittest.TestCase):
         self.assertEqual(
             fallback_slot(history, '37 5 * * *', datetime(2026, 10, 12, 19, 10, tzinfo=MSK)),
             '2026-10-12 18:00',
+        )
+
+    def test_late_evening_prefers_evening_when_morning_missing(self):
+        history = {'cycles': {'2026-10-12 14:00': {'status':'COMPLETE'}}}
+        self.assertEqual(
+            fallback_slot(history, '37 5 * * *', datetime(2026, 10, 12, 19, 10, tzinfo=MSK)),
+            '2026-10-12 18:00'
         )
 
     @staticmethod

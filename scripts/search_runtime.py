@@ -137,12 +137,34 @@ def configured_worker(name):
         if name == 'internet_leads_monitor':
             from card_acquisition import Acquisition
             acquisition = Acquisition(internet.fetch)
+            from primary_source_recovery import parse_samosval_orders
+            stack.enter_context(binding(internet, 'parse_samosval_info',
+                                        lambda page, source_url: parse_samosval_orders(internet, page, source_url)))
+            from primary_source_recovery import is_samosval_order_route
+            original_contact = internet.ensure_public_contact
+            def verified_order_contact(item):
+                url = str(item.get('url') or '')
+                if is_samosval_order_route(url) and item.get('contact_evidence_required'):
+                    # The order is accessible by its own ID even when the
+                    # customer's phone is gated; never borrow another phone.
+                    item['phone'] = ''
+                    item['contact_url'] = url
+                    return True, ''
+                return original_contact(item)
+            stack.enter_context(binding(internet, 'ensure_public_contact', verified_order_contact))
             for parser in ('parse_exkavator', 'parse_nerudonline', 'parse_rentag'):
                 stack.enter_context(binding(internet, parser, getattr(acquisition, parser)))
             original_collect = internet.collect_candidates
             def collect_with_cards():
                 candidates, errors = original_collect()
-                return [acquisition.enrich(item) for item in candidates], errors
+                # Direct primary classifieds: do not depend on blocked search engines.
+                from primary_source_recovery import collect_propokupki
+                recovered, recovery_errors = collect_propokupki(internet)
+                candidates.extend(recovered)
+                errors.extend(recovery_errors)
+                # Preserve dedupe and enrichment in the existing shared pipeline.
+                unique = {item["request_id"]: item for item in candidates}
+                return [acquisition.enrich(item) for item in unique.values()], errors
             stack.enter_context(binding(internet, 'collect_candidates', collect_with_cards))
         if name == 'tender_monitor':
             original_relevant = module.relevant
