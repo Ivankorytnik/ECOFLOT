@@ -1,15 +1,17 @@
 {
   "sent": {},
   "last_run": {
-    "at": "2026-10-20T10:02:04.329927+00:00",
+    "at": "2026-10-20T10:29:44.469301+00:00",
     "cycleKey": "2026-10-20 08:00",
-    "run_id": "39404057743.1",
-    "error_details": [],
+    "run_id": "39407472685.1",
+    "error_details": [
+      "site:max.ru вывоз грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+    ],
     "sent": 0,
     "candidates": 0,
     "duplicates_local": 0,
     "deferred": 0,
-    "errors": 0,
+    "errors": 1,
     "unverified_sources": [
       "MAX: публичная поисковая выдача не дала проверяемых страниц"
     ],
@@ -21,9 +23,10 @@
     "metrics_version": 2,
     "runtime_version": "2026-10-07.2",
     "unchecked_sources": [
+      "bing: bing: results do not match the requested topic or site",
       "duckduckgo: duckduckgo: challenge or access restriction",
       "google: google: result markup not verified"
     ],
-    "discovery_seconds": 7.11
+    "discovery_seconds": 7.1
   }
 }

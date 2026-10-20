@@ -14383,35 +14383,29 @@
       "delivery_reconciled_at": "2026-10-19T23:41:09.519636+03:00"
     },
     "2026-10-20 08:00": {
-      "attempts": 1,
+      "attempts": 2,
       "schema_version": 2,
       "cycleKey": "2026-10-20 08:00",
-      "run_id": "39404057743.1",
-      "started_at": "2026-10-20T12:54:17.229883+03:00",
+      "run_id": "39407472685.1",
+      "started_at": "2026-10-20T13:22:33.129033+03:00",
       "status": "SEARCH_PARTIAL",
       "contours": {
         "Internet Leads": {
-          "new": 1,
-          "duplicates": 14,
-          "accepted": 1,
+          "new": 0,
+          "duplicates": 15,
+          "accepted": 0,
           "sent": 0,
-          "delivery_pending": 1,
-          "errors": 3,
+          "delivery_pending": 0,
+          "errors": 2,
           "unchecked_sources": [
-            "Card contact enrichment budget reached",
-            "bing: bing: results do not match the requested topic or site",
             "duckduckgo: duckduckgo: challenge or access restriction",
             "google: google: result markup not verified",
             "https://nerudonline.ru/rabota/samosvaly: listing markup not verified",
-            "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access",
-            "https://www.napodrabotku.ru/order/95097956: response route The read operation timed out",
-            "https://www.napodrabotku.ru/order/95155644: response route The read operation timed out",
-            "https://www.napodrabotku.ru/order/95158511: response route The read operation timed out"
+            "https://rentag.ru/arenda-spectehniki/zayavki: some cards require guest navigation or account access"
           ],
           "missing_states": [],
           "error_details": [
             "Spectex Spectex / заявки спецтехники: <urlopen error [Errno 101] Network is unreachable>",
-            "Web discovery \"требуется спецтехника\" \"Калужская область\": NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site",
             "Web discovery page https://alliance-catalog.ru/obyavleniya/arenda-samosvalov-v-moskve/zakazy/: <urlopen error timed out>"
           ],
           "state_found": true,
@@ -14426,11 +14420,12 @@
           "accepted": 0,
           "sent": 0,
           "delivery_pending": 0,
-          "errors": 0,
+          "errors": 1,
           "unchecked_sources": [
             "Telegram/Аренда Спецтехники Москва МО: public_posts_unavailable",
             "Telegram/Аренда спецтехники Заявки: public_posts_unavailable",
             "Telegram/Спецтехника аренда Москва и МО: public_posts_unavailable",
+            "bing: bing: results do not match the requested topic or site",
             "duckduckgo: duckduckgo: challenge or access restriction",
             "google: google: result markup not verified",
             "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657115: customer contacts require account/subscription",
@@ -14445,7 +14440,6 @@
             "https://vsem-podryad.ru/request/0740215c-725a-405d-b5b0-1e6f08a4c179/?from=tg_post: card contact markup unverified or JavaScript rendering required",
             "https://vsem-podryad.ru/request/2cfcaa0a-dd4d-49bb-927f-2341378e2084/?from=tg_post: card contact markup unverified or JavaScript rendering required",
             "https://vsem-podryad.ru/request/30ca3078-4961-4baa-bef2-a3e66c3445c8/?from=tg_post: card contact markup unverified or JavaScript rendering required",
-            "https://vsem-podryad.ru/request/34113eed-25ba-47ea-ae5b-4fc425337542/?from=tg_post: card contact markup unverified or JavaScript rendering required",
             "https://vsem-podryad.ru/request/37999e53-c500-4856-9d37-0c7511f91b8f/?from=tg_post: card contact markup unverified or JavaScript rendering required",
             "https://vsem-podryad.ru/request/7b9224c8-ae2f-42fb-919e-c1e5f006a524/?from=tg_post: card contact markup unverified or JavaScript rendering required",
             "https://vsem-podryad.ru/request/86b094bb-e9b1-4ae6-8698-1c6dae6ccc39/?from=tg_post: card contact markup unverified or JavaScript rendering required",
@@ -14459,7 +14453,9 @@
             "VK: no primary-post collector configured"
           ],
           "missing_states": [],
-          "error_details": [],
+          "error_details": [
+            "site:max.ru вывоз грунта Московская область: NO_VERIFIED_SEARCH_ENGINE: google: circuit open; duckduckgo: circuit open; bing: bing: results do not match the requested topic or site"
+          ],
           "state_found": true,
           "status": "partial",
           "exit_codes": [
@@ -14498,6 +14494,7 @@
             "GenTender/0373200081226000395: primary card or explicit deadline not verified",
             "GenTender/0373200349126000007: primary card or explicit deadline not verified",
             "GenTender/0848300051126000144: primary card or explicit deadline not verified",
+            "GenTender/0848300060626000377: primary card or explicit deadline not verified",
             "GenTender/eat-200909098126100086: primary card or explicit deadline not verified",
             "Level Group ETP: no verified procurement markup or card links",
             "Sminex: no verified procurement markup or card links",
@@ -14533,7 +14530,6 @@
             "https://gentender.ru/zakupka/0848300048726000482-okazanie-transportnyh-uslug-po-perevozke-obuchayuschihsya-i: CARD_VERIFICATION_BUDGET",
             "https://gentender.ru/zakupka/0848300049026000841-okazanie-uslug-po-arende-tehniki-s-ekipazhem-dlya-rabot-po: CARD_VERIFICATION_BUDGET",
             "https://gentender.ru/zakupka/0848300053226000330-vypolnenie-rabot-po-razrabotke-arhitekturno-planirovochnyh: CARD_VERIFICATION_BUDGET",
-            "https://gentender.ru/zakupka/0848300060626000377-mehanizirovannaya-uborka-territorii-ot-snega-s-primeneniem: CARD_VERIFICATION_BUDGET",
             "https://gentender.ru/zakupka/0848300062226001077-okazanie-uslug-po-likvidacii-nesankcionirovannyh-stihiynyh: CARD_VERIFICATION_BUDGET",
             "https://gentender.ru/zakupka/0848300062226001078-okazanie-uslug-po-perevozke-sportsmenov-k-mestu: CARD_VERIFICATION_BUDGET",
             "https://gentender.ru/zakupka/0848300064126000363-okazanie-uslug-po-vyvozu-spila-i-smeta-s-territoriy: CARD_VERIFICATION_BUDGET",
@@ -14590,6 +14586,7 @@
             "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200011426001667: <urlopen error timed out>",
             "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200349126000007: <urlopen error timed out>",
             "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300051126000144: <urlopen error timed out>",
+            "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300060626000377: <urlopen error timed out>",
             "https://zakupki.gov.ru/epz/order/notice/notice223/common-info.html?regNumber=32616420274: <urlopen error timed out>",
             "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000387: <urlopen error timed out>",
             "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000443: <urlopen error timed out>",
@@ -14627,9 +14624,11 @@
           "status": "ok",
           "exit_codes": [
             0
-          ]
+          ],
+          "reused_from_previous_attempt": true
         }
       },
+      "retrying_partial_from": "39404057743.1",
       "search_mode": "Deep",
       "preflight_errors": [],
       "expected_recipient_count": 3,
@@ -14638,16 +14637,15 @@
         "584620734",
         "6795645088"
       ],
-      "search_finished_at": "2026-10-20T13:08:39.529625+03:00",
+      "search_finished_at": "2026-10-20T13:36:09.302057+03:00",
       "totals": {
-        "new": 1,
-        "duplicates": 14,
-        "accepted": 1,
-        "sent": 1,
+        "new": 0,
+        "duplicates": 15,
+        "accepted": 0,
+        "sent": 0,
         "delivery_pending": 0,
         "errors": 7,
         "unchecked_sources": [
-          "Card contact enrichment budget reached",
           "GenTender / Калужская область / отходы: unsupported individual-link format",
           "GenTender / Москва / благоустройство: unsupported individual-link format",
           "GenTender / Москва / отходы: unsupported individual-link format",
@@ -14671,6 +14669,7 @@
           "GenTender/0373200081226000395: primary card or explicit deadline not verified",
           "GenTender/0373200349126000007: primary card or explicit deadline not verified",
           "GenTender/0848300051126000144: primary card or explicit deadline not verified",
+          "GenTender/0848300060626000377: primary card or explicit deadline not verified",
           "GenTender/eat-200909098126100086: primary card or explicit deadline not verified",
           "Level Group ETP: no verified procurement markup or card links",
           "Sminex: no verified procurement markup or card links",
@@ -14711,7 +14710,6 @@
           "https://gentender.ru/zakupka/0848300048726000482-okazanie-transportnyh-uslug-po-perevozke-obuchayuschihsya-i: CARD_VERIFICATION_BUDGET",
           "https://gentender.ru/zakupka/0848300049026000841-okazanie-uslug-po-arende-tehniki-s-ekipazhem-dlya-rabot-po: CARD_VERIFICATION_BUDGET",
           "https://gentender.ru/zakupka/0848300053226000330-vypolnenie-rabot-po-razrabotke-arhitekturno-planirovochnyh: CARD_VERIFICATION_BUDGET",
-          "https://gentender.ru/zakupka/0848300060626000377-mehanizirovannaya-uborka-territorii-ot-snega-s-primeneniem: CARD_VERIFICATION_BUDGET",
           "https://gentender.ru/zakupka/0848300062226001077-okazanie-uslug-po-likvidacii-nesankcionirovannyh-stihiynyh: CARD_VERIFICATION_BUDGET",
           "https://gentender.ru/zakupka/0848300062226001078-okazanie-uslug-po-perevozke-sportsmenov-k-mestu: CARD_VERIFICATION_BUDGET",
           "https://gentender.ru/zakupka/0848300064126000363-okazanie-uslug-po-vyvozu-spila-i-smeta-s-territoriy: CARD_VERIFICATION_BUDGET",
@@ -14770,7 +14768,6 @@
           "https://vsem-podryad.ru/request/0740215c-725a-405d-b5b0-1e6f08a4c179/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/2cfcaa0a-dd4d-49bb-927f-2341378e2084/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/30ca3078-4961-4baa-bef2-a3e66c3445c8/?from=tg_post: card contact markup unverified or JavaScript rendering required",
-          "https://vsem-podryad.ru/request/34113eed-25ba-47ea-ae5b-4fc425337542/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/37999e53-c500-4856-9d37-0c7511f91b8f/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/7b9224c8-ae2f-42fb-919e-c1e5f006a524/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/86b094bb-e9b1-4ae6-8698-1c6dae6ccc39/?from=tg_post: card contact markup unverified or JavaScript rendering required",
@@ -14781,9 +14778,6 @@
           "https://vsem-podryad.ru/request/c07a3a20-bbc2-4595-80b4-9e127bd5d374/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/df929853-d7f0-48b7-bd64-916bea195f36/?from=tg_post: card contact markup unverified or JavaScript rendering required",
           "https://vsem-podryad.ru/request/f5016139-36ae-4409-bd14-5ed9113fbd00/?from=tg_post: card contact markup unverified or JavaScript rendering required",
-          "https://www.napodrabotku.ru/order/95097956: response route The read operation timed out",
-          "https://www.napodrabotku.ru/order/95155644: response route The read operation timed out",
-          "https://www.napodrabotku.ru/order/95158511: response route The read operation timed out",
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0137200001226008004: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0137200001226008064: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0137600004226000167: <urlopen error timed out>",
@@ -14796,6 +14790,7 @@
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200011426001667: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0373200349126000007: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300051126000144: <urlopen error timed out>",
+          "https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber=0848300060626000377: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/notice223/common-info.html?regNumber=32616420274: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000387: <urlopen error timed out>",
           "https://zakupki.gov.ru/epz/order/notice/ok20/view/common-info.html?regNumber=0148200005426000443: <urlopen error timed out>",
@@ -14806,12 +14801,12 @@
           "ПИК ETP: no verified procurement markup or card links",
           "Самолёт S.Tender: no verified procurement markup or card links"
         ],
-        "confirmed_after_reconciliation": 1,
+        "confirmed_after_reconciliation": 0,
         "pending_after_reconciliation": 0
       },
       "delivery": {
-        "checked": 1,
-        "confirmed": 1,
+        "checked": 0,
+        "confirmed": 0,
         "pending": 0,
         "missing_records": 0,
         "duplicate_routes": 0,
@@ -14840,7 +14835,7 @@
         "ok": true,
         "scope": "all-attempts-in-logical-slot"
       },
-      "finished_at": "2026-10-20T13:08:39.857598+03:00",
+      "finished_at": "2026-10-20T13:36:09.698046+03:00",
       "qualified_slot_totals": {
         "Internet Leads": {
           "new": 1,
@@ -14868,7 +14863,7 @@
         }
       },
       "report_recorded": true,
-      "report_payload_sha256": "e299a6135357540cb276961b46b828380d3fa454ecc3cf3f15bcd102ff2874d8",
+      "report_payload_sha256": "0f642fb9ea401449a6b3d7c6dcda5dc15fc658b87dd1ca760bb9352298c5e6c4",
       "report_delivery": {
         "ok": false,
         "expected": 3,
@@ -14877,7 +14872,7 @@
         "routes": []
       },
       "cycle_notice": "queued",
-      "report_checked_at": "2026-10-20T10:15:08.895911+00:00"
+      "report_checked_at": "2026-10-20T10:42:32.152459+00:00"
     }
   }
 }
