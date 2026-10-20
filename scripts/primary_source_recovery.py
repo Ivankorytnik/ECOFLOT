@@ -35,12 +35,12 @@ def collect_propokupki(m):
             errors.append("ProPokupki " + label + ": " + str(exc)[:180])
     def read_card(url):
         page = m.fetch(url, timeout=12, attempts=1)
-        heading = re.search(r"(?is)<h1\\b[^>]*>(.*?)</h1>", page)
+        heading = re.search(r"(?is)<h1\b[^>]*>(.*?)</h1>", page)
         if not heading:
             return None
         title = m.clean(heading.group(1))
         fragment = page[heading.start():heading.start() + 12000]
-        end = re.search(r"(?is)<footer\\b|похожие объявления|другие объявления", fragment)
+        end = re.search(r"(?is)<footer\b|похожие объявления|другие объявления", fragment)
         if end:
             fragment = fragment[:end.start()]
         lines = m.lines_from_html(fragment)
@@ -62,7 +62,7 @@ def collect_propokupki(m):
         if not phone:
             return None
         date = ""
-        for raw in re.findall(r"(?<!\\d)(\\d{1,2}[./-]\\d{1,2}[./-](?:20)?\\d{2})(?!\\d)", title + " " + text[:1400]):
+        for raw in re.findall(r"(?<!\d)(\d{1,2}[./-]\d{1,2}[./-](?:20)?\d{2})(?!\d)", title + " " + text[:1400]):
             parts = raw.replace("/", ".").replace("-", ".").split(".")
             if len(parts[-1]) == 2:
                 parts[-1] = "20" + parts[-1]
