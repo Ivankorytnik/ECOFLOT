@@ -93,6 +93,19 @@ def social_title(text):
     return "Заявка на спецтехнику / перевозку"
 
 
+def social_contact_ready(item):
+    # Only a card reader that VERIFIED the individual order identity and
+    # the publisher's access gate may return a response link without a phone.
+    direct = str(item.get('contact_url') or '')
+    if (item.get('card_order_gate_verified') is True
+            and direct in item.get('card_links', ())
+            and known_card(direct)
+            and str(item.get('url') or '').startswith('https://t.me/')):
+        item['phone'] = ''
+        return True, ''
+    return ensure_public_contact(item)
+
+
 def social_quality_ready(item):
     title = clean(item.get("title") or "")
     url = str(item.get("url") or "").strip()
@@ -103,7 +116,7 @@ def social_quality_ready(item):
         return False, "no-direct-post-link"
     if not re.fullmatch(r"20\d{2}-\d{2}-\d{2}", date_text):
         return False, "no-confirmed-date"
-    ok, reason = ensure_public_contact(item)
+    ok, reason = social_contact_ready(item)
     if not ok:
         return False, reason
     return True, ""
@@ -201,7 +214,7 @@ def main():
     contact_ready = []
     for item in candidates:
         acquisition.enrich(item)
-        ok, reason = ensure_public_contact(item)
+        ok, reason = social_contact_ready(item)
         if ok:
             contact_ready.append(item)
         else:
