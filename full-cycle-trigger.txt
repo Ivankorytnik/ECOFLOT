@@ -1,2 +1,2 @@
-2026-10-19 production verification after PR16 dcc6023677537901a1f23615dc8d971dc1666942
-Manual EXTRA Deep Search, preserve dedupe and recipient safety; do not replay delivered cards.
+2026-10-20 live production verification after ECOFLOT PR18 merge 0414e5050941d085a82ea7537f468fb122e11c6a
+Run one forced EXTRA Deep Search. Keep server deduplication and verified recipient routing. Preserve existing data and do not replay delivered cards.
