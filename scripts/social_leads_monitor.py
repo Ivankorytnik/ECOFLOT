@@ -237,6 +237,12 @@ def main():
             continue
         if item["url"] in sheet_links or sig in sheet_sigs:
             continue
+        # A Telegram post may mirror an individual order already discovered
+        # directly on Samosval.info. Treat the canonical source card as the
+        # same job even when its Telegram post has a different request ID.
+        if any(link in sheet_links for link in item.get("card_links", ()) if known_card(link)):
+            print("EXCLUDED_CROSS_SOURCE_DUPLICATE:", item["request_id"], item.get("card_links", [])[:2])
+            continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
         new_items.append(item)
