@@ -172,6 +172,11 @@ def send_no_results():
         source="Social Leads Telegram",
     )
 
+def cross_source_duplicate(item, sheet_links):
+    """Same underlying job in a Telegram repost and primary order listing."""
+    return any(link in sheet_links for link in item.get("card_links", ()) if known_card(link))
+
+
 def main():
     global SOCIAL_DEADLINE
     SOURCE_COVERAGE.clear()
@@ -236,6 +241,12 @@ def main():
         if (not legacy_local and item["request_id"] in sent) or item["request_id"] in sheet_ids:
             continue
         if item["url"] in sheet_links or sig in sheet_sigs:
+            continue
+        # A Telegram post may mirror an individual order already discovered
+        # directly on Samosval.info. Treat the canonical source card as the
+        # same job even when its Telegram post has a different request ID.
+        if cross_source_duplicate(item, sheet_links):
+            print("EXCLUDED_CROSS_SOURCE_DUPLICATE:", item["request_id"], item.get("card_links", [])[:2])
             continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
