@@ -63,6 +63,22 @@ class AcquisitionFollowupTests(unittest.TestCase):
     def test_known_tender_never_refetched(self):
         fetch=Mock();acq=TenderAcquisition(fetch,{'TENDER-1234567'},defer_resolution=True)
         entry=acq.defer(B2B);self.assertFalse(acq.verify_entry(entry));fetch.assert_not_called()
+    def test_oversized_b2b_listing_keeps_observed_service_card(self):
+        url='https://www.b2b-center.ru/market/earthworks/tender-1234567/'
+        html='<a href="'+url+'">Вывоз грунта</a>'+'<p>Catalogue filler</p>'*150000
+        a=TenderAcquisition(Mock(),defer_resolution=True)
+        entries=a.extract_direct(html,'B2B oversized','https://www.b2b-center.ru/search/moskva/samosvaly/','Москва')
+        self.assertEqual(len(entries),1)
+        self.assertEqual(entries[0]['id'],'1234567')
+        self.assertTrue(entries[0]['acquisition_pending'])
+
+    def test_failed_network_card_can_retry(self):
+        fetch=Mock(side_effect=[TimeoutError('network'),b2b_page()])
+        a=TenderAcquisition(fetch)
+        self.assertIsNone(a.resolve(B2B))
+        self.assertIsNotNone(a.resolve(B2B))
+        self.assertEqual(fetch.call_count,2)
+
     def test_round_robin_prevents_source_starvation(self):
         items=[({'id':str(i),'title':TITLE,'intake_source':'A'},str(i)) for i in range(10)]
         items.append(({'id':'b','title':TITLE,'intake_source':'B'},'b'))
