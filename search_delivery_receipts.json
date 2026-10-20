@@ -2786,6 +2786,595 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657269": {
+      "requestId": "WEB-SAMOSVALIN-657269",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:42:39.063047+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:42:39.063056+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2715"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2716"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2717"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-654332": {
+      "requestId": "WEB-SAMOSVALIN-654332",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:42:46.384487+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:42:46.384498+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2718"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2719"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2720"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657165": {
+      "requestId": "WEB-SAMOSVALIN-657165",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:42:57.702250+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:42:57.702261+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2721"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2722"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2723"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657217": {
+      "requestId": "WEB-SAMOSVALIN-657217",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:06.183481+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:06.183492+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2724"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2725"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2726"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657253": {
+      "requestId": "WEB-SAMOSVALIN-657253",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:13.125023+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:13.125034+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2727"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2728"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2729"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657164": {
+      "requestId": "WEB-SAMOSVALIN-657164",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:22.947845+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:22.947855+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2730"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2731"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2732"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657219": {
+      "requestId": "WEB-SAMOSVALIN-657219",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:33.253967+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:33.253976+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2733"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2734"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2735"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657221": {
+      "requestId": "WEB-SAMOSVALIN-657221",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:44.292909+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:44.292919+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2736"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2737"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2738"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657168": {
+      "requestId": "WEB-SAMOSVALIN-657168",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:43:55.393899+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:43:55.393910+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2739"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2740"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2741"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-SAMOSVALIN-657169": {
+      "requestId": "WEB-SAMOSVALIN-657169",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Samosval.info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:44:05.264255+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:44:05.264268+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2742"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2743"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2744"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10057": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10057",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:10.010271+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:10.010283+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2745"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2746"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2747"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10048": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10048",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:17.198423+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:17.198435+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2748"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2749"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2750"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10032": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10032",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:24.778807+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:24.778818+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2751"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2752"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2753"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10033": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10033",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:32.458810+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:32.458820+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2754"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2755"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2756"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10012": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10012",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:41.268903+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:41.268914+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2757"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2758"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2759"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10031": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10031",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:45:50.617121+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:45:50.617133+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2760"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2761"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2762"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10013": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10013",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:46:00.861037+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:46:00.861049+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2763"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2764"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2765"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10014": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10014",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:46:07.869334+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:46:07.869348+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2766"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2767"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2768"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "SOCIAL-TG-samosvalinfo-10015": {
+      "requestId": "SOCIAL-TG-samosvalinfo-10015",
+      "cycleKey": "2026-10-20 18:00 EXTRA 39467645527.1",
+      "run_id": "39467645527.1",
+      "source": "Telegram / Samosval.Info",
+      "duplicate": false,
+      "accepted_at": "2026-10-20T17:46:16.036976+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-20T17:46:16.036986+00:00",
+      "verified_at": "2026-10-20T17:59:16.337392+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2769"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2770"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2771"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
