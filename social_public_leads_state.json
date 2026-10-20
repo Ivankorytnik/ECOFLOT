@@ -8,17 +8,6 @@
   },
   "last_run": {
     "source_coverage": {
-      "Goryachie_Zakazy": {
-        "channel": "Goryachie_Zakazy",
-        "pages": 1,
-        "posts": 20,
-        "missing_dates": 0,
-        "complete": true,
-        "stop_reason": "date_boundary",
-        "recent_posts": 0,
-        "cutoff": "2026-10-13T10:28:57.853456+00:00",
-        "eligible_before_contact": 0
-      },
       "samosvalam_rabota": {
         "channel": "samosvalam_rabota",
         "pages": 1,
@@ -27,7 +16,18 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:28:57.853083+00:00",
+        "cutoff": "2026-10-13T15:33:36.864031+00:00",
+        "eligible_before_contact": 0
+      },
+      "Goryachie_Zakazy": {
+        "channel": "Goryachie_Zakazy",
+        "pages": 1,
+        "posts": 20,
+        "missing_dates": 0,
+        "complete": true,
+        "stop_reason": "date_boundary",
+        "recent_posts": 0,
+        "cutoff": "2026-10-13T15:33:36.864423+00:00",
         "eligible_before_contact": 0
       },
       "spetctechnika_arenda_uslugi": {
@@ -38,7 +38,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:28:58.631700+00:00",
+        "cutoff": "2026-10-13T15:33:37.562841+00:00",
         "eligible_before_contact": 0
       },
       "spectehnikfree": {
@@ -49,7 +49,7 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:28:58.686732+00:00",
+        "cutoff": "2026-10-13T15:33:37.582319+00:00",
         "eligible_before_contact": 0
       },
       "spetstekhnika_arenda": {
@@ -60,32 +60,32 @@
         "complete": false,
         "stop_reason": "public_posts_unavailable",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:28:59.346663+00:00",
+        "cutoff": "2026-10-13T15:33:38.143711+00:00",
         "eligible_before_contact": 0
       },
       "rabota_dlya_samosvalov_promsru": {
         "channel": "rabota_dlya_samosvalov_promsru",
         "pages": 4,
-        "posts": 74,
+        "posts": 76,
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
         "next_url": "https://t.me/s/rabota_dlya_samosvalov_promsru?before=6747",
         "recent_posts": 48,
-        "cutoff": "2026-10-13T10:28:59.398991+00:00",
+        "cutoff": "2026-10-13T15:33:38.177318+00:00",
         "eligible_before_contact": 0
       },
       "samosvalinfo": {
         "channel": "samosvalinfo",
-        "pages": 4,
-        "posts": 80,
+        "pages": 5,
+        "posts": 100,
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/samosvalinfo?before=9990",
-        "recent_posts": 59,
-        "cutoff": "2026-10-13T10:29:00.049848+00:00",
-        "eligible_before_contact": 10
+        "next_url": "https://t.me/s/samosvalinfo?before=9975",
+        "recent_posts": 61,
+        "cutoff": "2026-10-13T15:33:38.725649+00:00",
+        "eligible_before_contact": 9
       },
       "dumptrucks_work": {
         "channel": "dumptrucks_work",
@@ -95,7 +95,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:29:02.735914+00:00",
+        "cutoff": "2026-10-13T15:33:41.195936+00:00",
         "eligible_before_contact": 0
       },
       "spezteh": {
@@ -106,7 +106,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:29:02.883876+00:00",
+        "cutoff": "2026-10-13T15:33:41.733815+00:00",
         "eligible_before_contact": 0
       },
       "tonary_karery": {
@@ -117,7 +117,7 @@
         "complete": true,
         "stop_reason": "date_boundary",
         "recent_posts": 0,
-        "cutoff": "2026-10-13T10:29:03.551543+00:00",
+        "cutoff": "2026-10-13T15:33:41.914040+00:00",
         "eligible_before_contact": 0
       },
       "vsem_podryad": {
@@ -127,9 +127,9 @@
         "missing_dates": 0,
         "complete": true,
         "stop_reason": "date_boundary",
-        "next_url": "https://t.me/s/vsem_podryad?before=66102",
-        "recent_posts": 332,
-        "cutoff": "2026-10-13T10:28:57.852680+00:00",
+        "next_url": "https://t.me/s/vsem_podryad?before=66125",
+        "recent_posts": 340,
+        "cutoff": "2026-10-13T15:33:36.863710+00:00",
         "eligible_before_contact": 16
       }
     },
@@ -139,13 +139,13 @@
       "sources": {},
       "outcomes": {
         "contact_markup_unverified": 16,
-        "contact_requires_access": 9,
+        "contact_requires_access": 8,
         "customer_contact_section_missing": 1
       }
     },
-    "at": "2026-10-20T10:29:36.818885+00:00",
-    "cycleKey": "2026-10-20 08:00",
-    "run_id": "39407472685.1",
+    "at": "2026-10-20T15:34:10.216642+00:00",
+    "cycleKey": "2026-10-20 14:00",
+    "run_id": "39449152004.1",
     "error_details": [],
     "sent": 0,
     "candidates": 0,
@@ -156,7 +156,6 @@
       "Telegram/Аренда Спецтехники Москва МО: public_posts_unavailable",
       "Telegram/Аренда спецтехники Заявки: public_posts_unavailable",
       "Telegram/Спецтехника аренда Москва и МО: public_posts_unavailable",
-      "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657115: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657165: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657168: customer contacts require account/subscription",
@@ -166,16 +165,17 @@
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657221: customer contacts require account/subscription",
       "https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657253: customer contacts require account/subscription",
       "https://vsem-podryad.ru/request/0740215c-725a-405d-b5b0-1e6f08a4c179/?from=tg_post: card contact markup unverified or JavaScript rendering required",
-      "https://vsem-podryad.ru/request/2cfcaa0a-dd4d-49bb-927f-2341378e2084/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/30ca3078-4961-4baa-bef2-a3e66c3445c8/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/37999e53-c500-4856-9d37-0c7511f91b8f/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/7b9224c8-ae2f-42fb-919e-c1e5f006a524/?from=tg_post: card contact markup unverified or JavaScript rendering required",
+      "https://vsem-podryad.ru/request/7d0236d8-d90a-4c4d-99ea-89b4dcddfa1d/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/86b094bb-e9b1-4ae6-8698-1c6dae6ccc39/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/9437936d-904c-45ab-808c-8ad798d1f117/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/ac9e0b9a-cb46-4fcd-b4ff-c4b37a11ae1e/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/bc1d2e26-fa49-4415-8dad-6aefee6f372d/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/bd7edbeb-36c8-4863-b347-aa0fd706af10/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/c07a3a20-bbc2-4595-80b4-9e127bd5d374/?from=tg_post: card contact markup unverified or JavaScript rendering required",
+      "https://vsem-podryad.ru/request/ced66593-631d-4aa3-a85c-30cb54764f8c/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/df929853-d7f0-48b7-bd64-916bea195f36/?from=tg_post: card contact markup unverified or JavaScript rendering required",
       "https://vsem-podryad.ru/request/f5016139-36ae-4409-bd14-5ed9113fbd00/?from=tg_post: card contact markup unverified or JavaScript rendering required"
     ],
