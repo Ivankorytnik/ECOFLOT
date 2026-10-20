@@ -52,5 +52,21 @@ class SamosvalRecoveryTests(unittest.TestCase):
         self.assertEqual(2, len(results))
         self.assertNotEqual(results[0]['url'], results[1]['url'])
 
+class SocialVerifiedGateTests(unittest.TestCase):
+    def test_no_generic_telegram_post_without_contact(self):
+        import social_leads_monitor as social
+        item = dict(url='https://t.me/samosvalinfo/10048', card_links=[])
+        self.assertFalse(social.social_contact_ready(item)[0])
+
+    def test_card_gate_must_match_actual_post_link(self):
+        import social_leads_monitor as social
+        card = 'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657164'
+        item = dict(url='https://t.me/samosvalinfo/10048',
+                    card_links=[card], contact_url=card,
+                    card_order_gate_verified=True)
+        self.assertTrue(social.social_contact_ready(item)[0])
+        item['card_links'] = []
+        self.assertFalse(social.social_contact_ready(item)[0])
+
 if __name__ == '__main__':
     unittest.main()
