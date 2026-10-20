@@ -20,7 +20,7 @@ def collect_propokupki(m):
     for label, source in sources:
         try:
             page = m.fetch(source, timeout=12, attempts=1)
-            for href, raw in re.findall(r'(?is)<a[^>]+href=["\\\']([^"\\\']+)["\\\'][^>]*>(.*?)</a>', page):
+            for href, raw in re.findall(r"""(?is)<a[^>]+href=["']([^"']+)["'][^>]*>(.*?)</a>""", page):
                 title = m.normalize(m.clean(raw))
                 if not any(v in title for v in ("самосвал", "тонар", "спецтех", "экскаватор", "вывоз мусора", "перевозка песка")):
                     continue
