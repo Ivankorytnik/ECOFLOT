@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, timezone
 from types import SimpleNamespace
-from primary_source_recovery import collect_propokupki
+from primary_source_recovery import collect_propokupki, parse_samosval_orders, is_samosval_order_route
 
 class PrimarySourceRecoveryTests(unittest.TestCase):
     def test_order_card_is_collected_once(self):
@@ -24,6 +24,32 @@ class PrimarySourceRecoveryTests(unittest.TestCase):
         self.assertEqual(1, len(leads))
         self.assertEqual(url, leads[0]['url'])
         self.assertTrue(leads[0]['contact_evidence_required'])
+
+class SamosvalRecoveryTests(unittest.TestCase):
+    def test_individual_route(self):
+        self.assertTrue(is_samosval_order_route('https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657221'))
+        self.assertFalse(is_samosval_order_route('https://samosval.info/katalog-transporta/kartochka-transportnoy-kompanii.php?ID=111076'))
+
+    def test_neighbour_orders_do_not_share_data(self):
+        from datetime import timedelta
+        from zoneinfo import ZoneInfo
+        today = datetime.now(ZoneInfo('Europe/Moscow'))
+        future = (today + timedelta(days=3)).strftime('%d.%m.%Y %H:%M')
+        day = today.strftime('%d.%m.%Y')
+        page = ('<p>ID: 657221</p><p>Дата публикации: '+day+'</p><p>Объявление актуально до: '+future+
+                '</p><p>Требуются самосвалы, перевозка песка, Московская область.</p><p>Контакты заказчика: скрыты</p>'
+                '<h2>Работа для самосвалов</h2><p>ID: 657222</p><p>Дата публикации: '+day+
+                '</p><p>Объявление актуально до: '+future+
+                '</p><p>Нужен самосвал, вывоз грунта, Москва.</p>')
+        import internet_leads_monitor as m
+        original = m.lines_from_html
+        m.lines_from_html = lambda value: __import__('re').sub(r'<[^>]*>', '\\n', value).splitlines()
+        try:
+            results = parse_samosval_orders(m, page, 'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/moskovskaya-oblast/')
+        finally:
+            m.lines_from_html = original
+        self.assertEqual(2, len(results))
+        self.assertNotEqual(results[0]['url'], results[1]['url'])
 
 if __name__ == '__main__':
     unittest.main()
