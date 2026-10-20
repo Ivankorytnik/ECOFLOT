@@ -1,0 +1,26 @@
+name: ECOFLOT source recovery live smoke
+on:
+  push:
+    branches: ['fix/2026-10-20-leads-source-recovery']
+    paths:
+      - 'scripts/search_live_source_smoke.py'
+      - '.github/workflows/source-recovery-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  public-sources:
+    if: github.ref == 'refs/heads/fix/2026-10-20-leads-source-recovery'
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate safety and source parsers
+        run: |
+          python3 -m compileall -q scripts
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -q
+      - name: Read live public source pages without posting leads
+        env:
+          ECOFLOT_NOTIFY_SUMMARY: '0'
+          SUPPRESS_NO_RESULTS: '1'
+        run: python3 -u scripts/search_live_source_smoke.py
