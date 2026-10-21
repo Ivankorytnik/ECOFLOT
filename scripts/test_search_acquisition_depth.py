@@ -221,6 +221,22 @@ class ProcurementAcquisitionTests(unittest.TestCase):
         fetch=Mock(return_value=b2b_page());a=TenderAcquisition(fetch)
         self.assertEqual(a.resolve(self.url),a.resolve(self.url));fetch.assert_called_once()
 
+    def test_tender_host_cooldown_preserves_other_sources(self):
+        def read(url, **kw):
+            if 'zakupki.gov.ru' in url:
+                raise TimeoutError('primary portal unavailable')
+            return b2b_page()
+        fetch=Mock(side_effect=read)
+        a=TenderAcquisition(fetch,limit=20,budget=180)
+        failures=['https://zakupki.gov.ru/epz/order/notice/ea20/view/common-info.html?regNumber='+str(1234567890123456700+i) for i in range(7)]
+        for url in failures:
+            self.assertIsNone(a.resolve(url))
+        calls=[call.args[0] for call in fetch.call_args_list]
+        self.assertEqual(sum('zakupki.gov.ru' in url for url in calls),2)
+        self.assertIsNotNone(a.resolve(self.url))
+        self.assertEqual(a.report['outcomes'].get('host_cooldown'),5)
+        self.assertTrue(any('source temporarily paused' in x for x in a.unchecked))
+
     def test_limits_stay_unchecked(self):
         a=TenderAcquisition(Mock(),limit=0);self.assertIsNone(a.resolve(self.url));self.assertTrue(a.unchecked)
 
