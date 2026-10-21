@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from social_depth import read_history, scoped_contacts
 from source_markup import absolute_link
 from card_acquisition import Acquisition, known_card
+from order_identity import (item_order_key, known_order_keys, order_urls_in_text)
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -98,6 +99,11 @@ def social_contact_ready(item):
     # the publisher's access gate may return a response link without a phone.
     direct = str(item.get('contact_url') or '')
     if (item.get('card_order_gate_verified') is True
+            and not item.get('phone')):
+        # An account/subscription wall on Samosval is not a public contact.
+        # Profi and VezetVsem remain the explicitly approved exceptions.
+        return False, 'registration-required-for-customer-contact'
+    if (item.get('card_order_gate_verified') is True
             and direct in item.get('card_links', ())
             and known_card(direct)
             and str(item.get('url') or '').startswith('https://t.me/')):
@@ -155,7 +161,11 @@ def parse_channel(label, channel):
             'priority':'\u0412\u044b\u0441\u043e\u043a\u0438\u0439' if lead_class(title,text)=='HOT' else '\u0421\u0440\u0435\u0434\u043d\u0438\u0439',
         }
         item.update(scoped_contacts(post['body'],channel))
-        item['card_links'] = [url for url in post.get('links', []) if known_card(url)]
+        # Some Telegram public pages show the source card as a plain-text
+        # URL, not an <a> element. Preserve its observed individual order ID.
+        candidates = list(post.get('links', [])) + order_urls_in_text(text)
+        item['card_links'] = list(dict.fromkeys(
+            url for url in candidates if known_card(url)))
         score,work,equipment = relevance_score(item)
         item.update(score=score,work=work,equipment=equipment,lead_class=lead_class(title,text))
         if score >= MIN_RELEVANCE_SCORE:
@@ -172,8 +182,11 @@ def send_no_results():
         source="Social Leads Telegram",
     )
 
-def cross_source_duplicate(item, sheet_links):
-    """Same underlying job in a Telegram repost and primary order listing."""
+def cross_source_duplicate(item, sheet_links, sheet_order_keys=None):
+    """Compare specific source order identity, not Telegram message or title."""
+    order_key = item_order_key(item)
+    if order_key and order_key in (known_order_keys(sheet_links) if sheet_order_keys is None else sheet_order_keys):
+        return True
     return any(link in sheet_links for link in item.get("card_links", ()) if known_card(link))
 
 
@@ -186,6 +199,8 @@ def main():
     sent = state.setdefault("sent", {})
     legacy_local = state.get("last_run", {}).get("metrics_version") != 2
     sheet_ids, sheet_links, sheet_sigs, _ = load_sheet_index()
+    sheet_order_keys = known_order_keys(sheet_links, sheet_ids)
+    pending_order_keys = set()
     candidates = []
     errors = []
     unverified_sources = []
@@ -237,6 +252,7 @@ def main():
 
     new_items = []
     for item in candidates:
+        key = item_order_key(item)
         sig = signature(item["title"], item["location"], item["description"])
         if (not legacy_local and item["request_id"] in sent) or item["request_id"] in sheet_ids:
             continue
@@ -245,18 +261,22 @@ def main():
         # A Telegram post may mirror an individual order already discovered
         # directly on Samosval.info. Treat the canonical source card as the
         # same job even when its Telegram post has a different request ID.
-        if cross_source_duplicate(item, sheet_links):
-            print("EXCLUDED_CROSS_SOURCE_DUPLICATE:", item["request_id"], item.get("card_links", [])[:2])
+        if cross_source_duplicate(item, sheet_links, sheet_order_keys) or (key and key in pending_order_keys):
+            print("EXCLUDED_CROSS_SOURCE_DUPLICATE:", item["request_id"], key)
             continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
         new_items.append(item)
+        if key:
+            pending_order_keys.add(key)
 
     sent_count = 0
     for item in new_items[:MAX_SEND]:
         try:
             send_webhook(item)
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
+            if item_order_key(item):
+                sheet_order_keys.add(item_order_key(item))
             sent_count += 1
             save_state(state)
             print("ACCEPTED:", item["source"], item["score"], item["request_id"], item["title"][:120])

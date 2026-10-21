@@ -5,6 +5,8 @@ import html
 import json
 import os
 import re
+from order_identity import (item_order_key, known_order_keys, order_key_from_url,
+                            primary_order_link)
 import sys
 import ssl
 import time
@@ -426,6 +428,11 @@ def ensure_public_contact(item):
 
     item["phone"] = phone
     item["contact_url"] = contact_url
+    if phone or contact_url.startswith("mailto:") or is_public_contact_url(contact_url):
+        item["contact_access"] = "Прямой контакт"
+    else:
+        item["contact_access"] = "Отклик через площадку"
+        item["contact_note"] = "Телефон заказчика не опубликован. Для отклика может потребоваться вход на площадку."
     return True, ""
 
 def normalize_phone(value):
@@ -1213,6 +1220,10 @@ def parse_samosval_info(page, source_url):
             continue
         date_text = published_m.group(1)
         link = urllib.parse.urljoin(source_url, href)
+        # A transporter company profile is NOT a demand card. A valid date
+        # and nearby demand words on a listing do not make it an order.
+        if not order_key_from_url(link).startswith("samosval:"):
+            continue
         key = hashlib.sha1(link.encode("utf-8")).hexdigest()[:16]
         item = build_open_feed_item(
             "Samosval.info", source_url, key, title[:180], combined[:1800], date_text,
@@ -1673,8 +1684,10 @@ def parse_profi_orders(page, source_label, source_url):
             continue
 
         sig = signature(title, location, description)
+        order_key = order_key_from_url(order_url)
         out.append({
-            "request_id": "WEB-PROFI-" + sig[:20],
+            "request_id": ("WEB-PROFI-" + order_key.split(":", 1)[1]
+                           if order_key.startswith("profi:") else "WEB-PROFI-" + sig[:20]),
             "title": title[:250],
             "description": description[:1800],
             "price": price[:120],
@@ -2322,6 +2335,8 @@ def internet_quality_ready(item):
     date_text = clean(item.get("date") or "")
     if len(title) < 12 or title.lower() in ("telegram-заявка", "заявка на технику / перевозку", "актуальная заявка"):
         return False, "unclear-title"
+    if source == "samosval info" and not order_key_from_url(url).startswith("samosval:"):
+        return False, "not-an-individual-order"
     if not url.startswith(("http://", "https://")):
         return False, "no-direct-link"
     if date_text.lower() in ("", "-", "актуальная заявка"):
@@ -2346,9 +2361,12 @@ def send_webhook(item):
         f"Цена: {item['price']}\n"
         f"Дата/актуальность: {item['date']}\n"
         f"Телефон: {item.get('phone') or '-'}\n"
+        f"Способ связи: {item.get('contact_access') or 'Не подтверждён'}\n"
         f"Контакт: {item.get('contact_url') or '-'}\n"
         f"Ссылка: {item['url']}\n"
-        f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9PBqN55y9pUs6WUnA8Ws/export?format=xlsx"
+        + (f"Первичный заказ: {primary_order_link(item)}\n" if primary_order_link(item) else "")
+        + (f"Примечание о контакте: {item['contact_note']}\n" if item.get('contact_note') else "")
+        + f"Excel: https://docs.google.com/spreadsheets/d/1wQQhP81P_07QkAGB5KzI20w9pUs6WUnA8Ws/export?format=xlsx"
     )
     rid = urllib.parse.quote(item["request_id"])
     action_lines = [
@@ -2372,7 +2390,7 @@ def send_webhook(item):
         "when": item["date"],
         "address": item["location"],
         "source": item["source"],
-        "link": item["url"],
+        "link": primary_order_link(item) or item["url"],
         "status": "Новая",
         "comment": "\n".join(action_lines)[:3500],
         "requestId": item["request_id"],
@@ -2407,6 +2425,7 @@ def main():
     sent = state.setdefault("sent", {})
     legacy_local = state.get("last_run", {}).get("metrics_version") != 2
     sheet_ids, sheet_links, sheet_sigs, sheet_ok = load_sheet_index()
+    sheet_order_keys = known_order_keys(sheet_links, sheet_ids)
     print(
         f"SHEET_DEDUPE: {'ok' if sheet_ok else 'fallback-to-state'}, "
         f"ids={len(sheet_ids)}, links={len(sheet_links)}, sigs={len(sheet_sigs)}"
@@ -2455,17 +2474,24 @@ def main():
 
     new_items = []
     local_seen = set()
+    pending_order_keys = set()
     for item in candidates:
         request_id = item["request_id"]
+        key = item_order_key(item)
         sig = signature(item["title"], item["location"], item["description"])
         url_is_duplicate = (not is_listing_url_for_dedupe(item)) and item["url"] in sheet_links
         if request_id in sheet_ids or url_is_duplicate or sig in sheet_sigs:
+            continue
+        if key and (key in sheet_order_keys or key in pending_order_keys):
+            print("EXCLUDED_SAME_SOURCE_ORDER:", key, request_id)
             continue
         if any(key in sheet_links for key in contact_dedupe_keys(item)):
             continue
         if (not legacy_local and request_id in sent) or request_id in local_seen:
             continue
         local_seen.add(request_id)
+        if key:
+            pending_order_keys.add(key)
         new_items.append(item)
 
     print(f"FILTER_STAGE after_dedupe={len(new_items)}")
@@ -2475,6 +2501,8 @@ def main():
             send_webhook(item)
             sent[item["request_id"]] = datetime.now(timezone.utc).isoformat()
             sheet_ids.add(item["request_id"])
+            if item_order_key(item):
+                sheet_order_keys.add(item_order_key(item))
             if not is_listing_url_for_dedupe(item):
                 sheet_links.add(item["url"])
             for key in contact_dedupe_keys(item):
