@@ -190,6 +190,16 @@ def cross_source_duplicate(item, sheet_links, sheet_order_keys=None):
     return any(link in sheet_links for link in item.get("card_links", ()) if known_card(link))
 
 
+def already_known_before_contact(item, sent, sheet_ids, sheet_links, sheet_order_keys, legacy_local):
+    """Skip confirmed duplicates before network I/O, not before identity checks."""
+    rid = str(item.get('request_id') or '')
+    return bool(
+        ((not legacy_local and rid in sent) or rid in sheet_ids)
+        or item.get('url') in sheet_links
+        or cross_source_duplicate(item, sheet_links, sheet_order_keys)
+    )
+
+
 def main():
     global SOCIAL_DEADLINE
     SOURCE_COVERAGE.clear()
@@ -237,10 +247,8 @@ def main():
     to_enrich = []
     skipped_known = 0
     for item in candidates:
-        rid = item['request_id']
-        if ((not legacy_local and rid in sent) or rid in sheet_ids
-                or item['url'] in sheet_links
-                or cross_source_duplicate(item, sheet_links, sheet_order_keys)):
+        if already_known_before_contact(
+                item, sent, sheet_ids, sheet_links, sheet_order_keys, legacy_local):
             skipped_known += 1
             continue
         to_enrich.append(item)
