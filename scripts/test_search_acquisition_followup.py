@@ -5,7 +5,7 @@ from card_acquisition import Acquisition, known_card
 from social_depth import parse_public_page
 from source_markup import DOM
 from tender_acquisition import TenderAcquisition
-from tender_intake import prioritize
+from tender_intake import prioritize, should_skip_verification
 from test_search_acquisition_depth import b2b_page, post
 import tender_monitor
 
@@ -78,6 +78,26 @@ class AcquisitionFollowupTests(unittest.TestCase):
         self.assertIsNone(a.resolve(B2B))
         self.assertIsNotNone(a.resolve(B2B))
         self.assertEqual(fetch.call_count,2)
+
+    def test_irrelevant_tender_hints_do_not_consume_card_budget(self):
+        self.assertTrue(should_skip_verification({
+            'title': 'Поставка запасных частей для автобусов',
+            'acquisition_pending': True,
+        }))
+        self.assertTrue(should_skip_verification({
+            'title': 'Оказание услуг бронирования проездных документов',
+            'acquisition_pending': True,
+        }))
+        self.assertFalse(should_skip_verification({
+            'title': 'Услуги по вывозу мусора и поставка контейнеров',
+            'acquisition_pending': True,
+        }))
+        self.assertFalse(should_skip_verification({
+            'title': '', 'acquisition_pending': True,
+        }))
+        self.assertFalse(should_skip_verification({
+            'title': 'Поставка запчастей', 'acquisition_pending': False,
+        }))
 
     def test_round_robin_prevents_source_starvation(self):
         items=[({'id':str(i),'title':TITLE,'intake_source':'A'},str(i)) for i in range(10)]

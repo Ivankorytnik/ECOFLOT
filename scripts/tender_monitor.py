@@ -5,7 +5,7 @@ import json
 import os
 import re
 import sys
-from tender_intake import prioritize
+from tender_intake import prioritize, should_skip_verification
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -719,6 +719,12 @@ def main():
     rejected = []
     verified_ids = set()
     for entry, key in prioritize(candidates):
+        # Do not use the limited primary-card verification budget on a
+        # clearly unrelated catalogue item (e.g. delivery of spare parts).
+        # Unknown/generic titles still require primary-card verification.
+        if should_skip_verification(entry):
+            rejected.append({"id": entry.get("id"), "reason": "non-service-listing-title"})
+            continue
         # Verification mutates deferred entries with real title/address/deadline.
         verified = valid_tender_card_link(entry)
         deadline = parse_deadline(entry.get("deadline"))
