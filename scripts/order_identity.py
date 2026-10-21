@@ -43,13 +43,18 @@ def order_urls_in_text(text):
             if order_key_from_url(raw.rstrip(".,;:!?"))]
 
 
-def item_order_key(item):
-    """Ambiguous posts with several different orders never get merged."""
+def item_order_keys(item):
+    """All independently observed stable order identities; never guess one."""
     urls = [item.get("url", ""), item.get("contact_url", "")]
     urls.extend(item.get("card_links") or [])
     if str(item.get("source", "")).startswith("Telegram / "):
         urls.extend(order_urls_in_text(item.get("description", "")))
-    keys = {key for url in urls if (key := order_key_from_url(url))}
+    return {key for url in urls if (key := order_key_from_url(url))}
+
+
+def item_order_key(item):
+    """Ambiguous posts with several different orders never get merged."""
+    keys = item_order_keys(item)
     return next(iter(keys)) if len(keys) == 1 else ""
 
 

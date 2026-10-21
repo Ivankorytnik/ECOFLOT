@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from social_depth import read_history, scoped_contacts
 from source_markup import absolute_link
 from card_acquisition import Acquisition, known_card
-from order_identity import (item_order_key, known_order_keys, order_urls_in_text)
+from order_identity import (item_order_key, item_order_keys, known_order_keys, order_urls_in_text)
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -183,11 +183,28 @@ def send_no_results():
     )
 
 def cross_source_duplicate(item, sheet_links, sheet_order_keys=None):
-    """Compare specific source order identity, not Telegram message or title."""
+    """Discard only posts that unambiguously repeat one already known order.
+
+    A post with links to distinct jobs must not disappear merely because one
+    source URL is already present in CRM. Keep it for normal verification.
+    """
+    cards = {url for url in (item.get('card_links') or []) if known_card(url)}
+    if len(item_order_keys(item)) > 1 or len(cards) > 1:
+        return False
     order_key = item_order_key(item)
     if order_key and order_key in (known_order_keys(sheet_links) if sheet_order_keys is None else sheet_order_keys):
         return True
     return any(link in sheet_links for link in item.get("card_links", ()) if known_card(link))
+
+
+def already_known_before_contact(item, sent, sheet_ids, sheet_links, sheet_order_keys, legacy_local):
+    """Skip confirmed duplicates before network I/O, not before identity checks."""
+    rid = str(item.get('request_id') or '')
+    return bool(
+        ((not legacy_local and rid in sent) or rid in sheet_ids)
+        or item.get('url') in sheet_links
+        or cross_source_duplicate(item, sheet_links, sheet_order_keys)
+    )
 
 
 def main():
@@ -231,8 +248,20 @@ def main():
     unique = {x["request_id"]: x for x in candidates}
     candidates = sorted(unique.values(), key=lambda x: (-x["score"], x["source"], x["title"]))
 
-    contact_ready = []
+    # Reject already-seen messages and source orders before spending the
+    # limited network budget on contact-card enrichment. Uncertain records
+    # are still verified by the existing contact and quality guards below.
+    to_enrich = []
+    skipped_known = 0
     for item in candidates:
+        if already_known_before_contact(
+                item, sent, sheet_ids, sheet_links, sheet_order_keys, legacy_local):
+            skipped_known += 1
+            continue
+        to_enrich.append(item)
+    print(f'TELEGRAM_EARLY_DEDUPE known={skipped_known} to_verify={len(to_enrich)}', flush=True)
+    contact_ready = []
+    for item in to_enrich:
         acquisition.enrich(item)
         ok, reason = social_contact_ready(item)
         if ok:
@@ -300,7 +329,7 @@ def main():
         "error_details": errors,
         "sent": sent_count,
         "candidates": len(candidates),
-        "duplicates_local": len(candidates) - len(new_items),
+        "duplicates_local": skipped_known + len(candidates) - len(new_items),
         "deferred": max(0, len(new_items) - MAX_SEND),
         "errors": len(errors),
         "unverified_sources": sorted(set(unverified_sources)),

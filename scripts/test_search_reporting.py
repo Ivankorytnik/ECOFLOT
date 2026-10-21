@@ -38,6 +38,21 @@ class ReportingTests(unittest.TestCase):
         self.assertNotIn('NO_VERIFIED_SEARCH_ENGINE',json.dumps(payload))
         self.assertIn('nerudonline',state['contours']['Internet Leads']['unchecked_sources'][0])
 
+    def test_unchanged_report_signature_keeps_no_repost_in_retry(self):
+        state=self.state()
+        state['report_recorded']=True
+        payloads=r.build_payloads(state,self.counts())
+        import hashlib
+        state['report_payload_sha256']=hashlib.sha256(json.dumps(payloads,sort_keys=True).encode()).hexdigest()
+        # No live webhook or Telegram posting is needed for this regression.
+        sent=[]
+        with patch.object(r,'load_json',return_value={'items':{}}),patch.object(r,'qualified_rollup',return_value=self.counts()):
+            def read(_id,tab,cols):
+                if tab==r.USERS:return [['11','approved'],['22','approved']]
+                return []
+            r.publish_cycle(state,read=read,post=lambda p:sent.append(p),wait=0)
+        self.assertEqual(sent,[])
+
     def test_pending_lead_never_clean_success(self):
         counts=self.counts();counts['Internet Leads']['new']=1
         self.assertEqual(r.build_payloads(self.state(),counts)[0]['status'],'partial')

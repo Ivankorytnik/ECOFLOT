@@ -13,6 +13,26 @@ class SchedulerContracts(unittest.TestCase):
     def test_delayed_evening_crosses_midnight(self):
         self.assertEqual(scheduled_slot('7,17,27 15 * * *', datetime(2026, 10, 8, 0, 2, tzinfo=MSK)), '2026-10-07 18:00')
 
+    def test_off_peak_primary_and_backup_bind_to_logical_slots(self):
+        for hour, utc_hour in ((8, 5), (14, 11), (18, 15)):
+            for minute in (3, 23):
+                expression = f'{minute} {utc_hour} * * *'
+                with self.subTest(expression=expression):
+                    self.assertEqual(scheduled_slot(
+                        expression, datetime(2026, 10, 21, hour, 58, tzinfo=MSK)),
+                        f'2026-10-21 {hour:02d}:00')
+
+    def test_single_primary_wake_up_maps_to_moscow_slots(self):
+        for expression, hour in (
+            ('0 5 * * *', 8),
+            ('0 11 * * *', 14),
+            ('0 15 * * *', 18),
+        ):
+            with self.subTest(expression=expression):
+                self.assertEqual(scheduled_slot(
+                    expression, datetime(2026, 10, 21, hour, 45, tzinfo=MSK)),
+                    f'2026-10-21 {hour:02d}:00')
+
     def test_all_backup_minutes_share_key(self):
         keys = {scheduled_slot('7,17,27 5 * * *', datetime(2026, 10, 7, 8, minute, tzinfo=MSK)) for minute in (7, 17, 27, 59)}
         self.assertEqual(keys, {'2026-10-07 08:00'})
