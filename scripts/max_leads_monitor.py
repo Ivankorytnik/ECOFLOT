@@ -7,6 +7,7 @@ import re
 import sys
 import urllib.parse
 import urllib.request
+from source_markup import DOM
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from search_reliability import (load_json as reliable_load, atomic_json, finish_metrics,
@@ -33,6 +34,8 @@ from internet_leads_monitor import (
     ensure_public_contact,
     contact_dedupe_keys,
     discovery_result_urls,
+    extract_public_contact,
+    is_public_contact_url,
 )
 
 STATE_PATH = Path("max_public_leads_state.json")
@@ -112,59 +115,162 @@ def demand_ok(text):
         return False
     return relevant((text or "")[:250], text or "")
 
+def individual_max_post_url(url):
+    """Return only a concrete public post, never a channel/profile or foreign host."""
+    try:
+        parsed = urllib.parse.urlsplit(str(url or "").strip())
+        if (parsed.scheme != "https" or parsed.hostname != "max.ru"
+                or parsed.username or parsed.password or parsed.port not in (None, 443)):
+            return ""
+        parts = parsed.path.strip("/").split("/")
+        if (len(parts) != 2
+                or not re.fullmatch(r"[A-Za-z0-9_.-]{3,64}", parts[0])
+                or not re.fullmatch(r"[A-Za-z0-9_-]{8,90}", parts[1])):
+            return ""
+        return "https://max.ru/" + "/".join(parts)
+    except (TypeError, ValueError):
+        return ""
+
+
 def search_bing(query):
-    # Multi-engine discovery is implemented in internet_leads_monitor.
-    return [u for u in discovery_result_urls(query) if "max.ru/" in u.lower()]
+    # Enforce the exact public host and an individual post path. Substrings
+    # like example.com/max.ru/ and channel profile pages are not MAX orders.
+    return [post for url in discovery_result_urls(query)
+            if (post := individual_max_post_url(url))]
+
 
 def fetch_max_page(url):
-    page = fetch(url, timeout=20)
-    text = clean(page)
-    return page, text
+    return fetch(url, timeout=10, attempts=1)
 
-def extract_confirmed_date(page, text):
-    patterns = [
-        r'(?i)(?:datePublished|article:published_time)[^>]{0,120}(20\d{2}-\d{2}-\d{2})',
-        r'(?<!\d)(\d{1,2}\.\d{1,2}\.20\d{2})(?!\d)',
-        r'(?<!\d)(20\d{2}-\d{2}-\d{2})(?!\d)',
-    ]
-    for pattern in patterns:
-        m = re.search(pattern, page + " " + text)
-        if not m:
+
+def max_post_metadata(page, url):
+    """Only verified post-specific metadata or a single article is demand text.
+
+    Page-wide nav/footer text and the channel's own @handle are never contacts.
+    """
+    root = DOM(page).root
+    meta = {}
+    for node in root.find_all("meta"):
+        key = (node.attrs.get("property") or node.attrs.get("name") or "").lower()
+        if key and node.attrs.get("content"):
+            meta.setdefault(key, node.attrs["content"])
+    canonical = individual_max_post_url(url)
+    if not canonical:
+        return "", []
+    # A redirect to the channel/profile must not be mistaken for the post.
+    page_url = meta.get("og:url", "")
+    if page_url and individual_max_post_url(page_url) != canonical:
+        return "", []
+    articles = list(root.find_all("article"))
+    content = html.unescape(meta.get("og:description")
+                            or meta.get("twitter:description") or "").strip()
+    if not content and len(articles) == 1:
+        content = articles[0].clean()
+    if not content:
+        return "", []
+    dates = [meta.get(k, "") for k in
+             ("article:published_time", "datepublished", "publication_date",
+              "article:published", "date")]
+    if len(articles) == 1:
+        dates.extend(n.attrs.get("datetime", "")
+                     for n in articles[0].find_all("time", attr="datetime"))
+    # Some public MAX post pages embed schema.org datePublished as JSON-LD.
+    for node in root.find_all("script"):
+        if node.attrs.get("type", "").lower() != "application/ld+json":
             continue
-        raw = m.group(1)
-        for fmt in ("%Y-%m-%d", "%d.%m.%Y"):
-            try:
-                dt = datetime.strptime(raw, fmt).replace(tzinfo=timezone.utc)
-                if datetime.now(timezone.utc) - dt <= timedelta(days=RECENT_DAYS):
-                    return dt
-                return None
-            except ValueError:
-                pass
+        raw = "".join(ch for ch in node.children if isinstance(ch, str))
+        match = re.search(r'"datePublished"\s*:\s*"([^"]+)"', raw, re.I)
+        if match:
+            dates.append(match.group(1))
+    return clean(content), dates
+
+
+def extract_confirmed_date(page, text=""):
+    """Only publication metadata can establish freshness, not job deadlines."""
+    candidates = text if isinstance(text, (tuple, list)) else []
+    for value in candidates:
+        raw = str(value or "").strip()
+        if not raw:
+            continue
+        try:
+            if re.fullmatch(r"\d{1,2}\.\d{1,2}\.20\d{2}", raw):
+                dt = datetime.strptime(raw, "%d.%m.%Y").replace(tzinfo=timezone.utc)
+            else:
+                dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                dt = dt.astimezone(timezone.utc)
+        except ValueError:
+            continue
+        age = datetime.now(timezone.utc) - dt
+        if timedelta(0) <= age <= timedelta(days=RECENT_DAYS):
+            return dt
     return None
 
 
+def explicit_max_contact(text, post_url):
+    """Require customer contact explicitly published in the post body."""
+    phone, _ = extract_public_contact(text)
+    url = ""
+    for match in re.finditer(r"https?://[^\s<>\"']+", text or "", re.I):
+        value = match.group(0).rstrip(".,;:!?)]}")
+        if not is_public_contact_url(value):
+            continue
+        target = urllib.parse.urlsplit(value)
+        host = (target.hostname or "").lower()
+        if host == "max.ru":
+            # A self-link or a linked channel post is not the buyer's address.
+            if (individual_max_post_url(value)
+                    or value.split("?", 1)[0] == post_url):
+                continue
+            # Profile links count only when explicitly labelled as a contact.
+            preceding = (text or "")[max(0, match.start()-55):match.start()].lower()
+            if not re.search(r"контакт|связ|пишит|заказчик|обращай", preceding):
+                continue
+        url = value
+        break
+    if not url:
+        email = re.search(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
+                          text or "", re.I)
+        if email:
+            url = "mailto:" + email.group(0)
+    # Do not turn MAX's own @channel_name into a fictitious Telegram contact.
+    return phone, url
+
+
 def extract_candidates(url):
-    page, text = fetch_max_page(url)
-    if not text or not demand_ok(text):
+    url = individual_max_post_url(url)
+    if not url:
+        return []
+    page = fetch_max_page(url)
+    text, dates = max_post_metadata(page, url)
+    if not text:
+        return []
+    if not demand_ok(text):
         return []
     geo = matched_geo(text)
     if not geo:
         return []
-    dt = extract_confirmed_date(page, text)
+    dt = extract_confirmed_date(page, dates)
     if not dt:
         return []
     title = max_title(text)
+    phone, contact_url = explicit_max_contact(text, url)
     key = hashlib.sha1(url.encode("utf-8")).hexdigest()[:20]
     item = {
         "request_id": "SOCIAL-MAX-" + key,
         "title": title,
         "description": text[:1800],
+        "contact_text": "",
+        "contact_evidence_required": True,
+        "phone": phone,
+        "contact_url": contact_url,
         "price": "договорная",
         "date": dt.strftime("%Y-%m-%d"),
         "location": geo,
         "volume": extract_volume(text) or "-",
         "url": url,
-        "source": "MAX / публичная страница",
+        "source": "MAX / конкретная публичная публикация",
         "priority": "Высокий" if lead_class(title, text) == "HOT" else "Средний",
     }
     score, work, equipment = relevance_score(item)
