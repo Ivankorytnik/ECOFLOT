@@ -45,6 +45,23 @@ class CrossSourceDedupeTests(unittest.TestCase):
         self.assertNotEqual(item_order_key({'url':first}),
                             item_order_key({'url':'https://profi.ru/backoffice/n.php?o=95250396'}))
 
+    def test_multi_order_card_links_cannot_erase_new_order(self):
+        other = CARD.replace('657269', '657164')
+        item = {'request_id': 'SOCIAL-TG-samosvalinfo-10058',
+                'source': 'Telegram / Samosval.Info',
+                'url': 'https://t.me/samosvalinfo/10058',
+                'description': 'Two independent orders: '+CARD+' '+other,
+                'card_links': [CARD, other]}
+        self.assertEqual(item_order_key(item), '')
+        self.assertFalse(cross_source_duplicate(item, {CARD}, known_order_keys({CARD})))
+        self.assertFalse(already_known_before_contact(item, {}, set(), {CARD}, known_order_keys({CARD}), False))
+
+    def test_multi_source_cards_without_shared_identity_not_dropped(self):
+        second = 'https://exkavator.ru/exchange/item/278456_order.html'
+        item = {'source': 'Telegram / Orders', 'url': 'https://t.me/orders/500',
+                'card_links': [CARD, second]}
+        self.assertFalse(cross_source_duplicate(item, {CARD}, known_order_keys({CARD})))
+
     def test_two_independent_orders_in_one_post_are_ambiguous(self):
         other=CARD.replace('657269','657164')
         item={'source':'Telegram / Samosval.Info','url':'https://t.me/samosvalinfo/10058',
