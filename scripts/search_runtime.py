@@ -57,19 +57,27 @@ def record_identity_conflict(request_id, response, source):
 
 class DiscoverySession:
     """Per-worker circuit breaker: unavailable engines do not consume every query."""
-    def __init__(self, fetcher, budget=120, failure_limit=2):
+    def __init__(self, fetcher, budget=120, failure_limit=2, probe_every=6):
         self.fetcher = fetcher
         self.budget = budget
         self.spent = 0.0
-        self.failure_limit = failure_limit
+        self.failure_limit = max(1, int(failure_limit))
+        # The old breaker stayed open for the entire worker: after two
+        # failures MAX's remaining 20+ queries could never reach an engine.
+        # A bounded half-open probe permits recovery without unbounded IO.
+        self.probe_every = max(1, int(probe_every))
+        self.query_number = 0
+        self.retry_after = dict.fromkeys(ENGINES, 0)
         self.failures = dict.fromkeys(ENGINES, 0)
         self.warnings = set()
 
     def search(self, query):
+        self.query_number += 1
         errors = []
         empty_verified = False
         for engine, base in ENGINES.items():
-            if self.failures[engine] >= self.failure_limit:
+            if (self.failures[engine] >= self.failure_limit
+                    and self.query_number < self.retry_after[engine]):
                 errors.append(engine + ': circuit open')
                 continue
             if self.spent >= self.budget:
@@ -81,11 +89,14 @@ class DiscoverySession:
                 page = self.fetcher(base + quote(query), timeout=timeout, attempts=1)
                 urls = parse_results(page, engine, query)
                 self.failures[engine] = 0
+                self.retry_after[engine] = 0
                 if urls:
                     return urls
                 empty_verified = True
             except Exception as exc:
                 self.failures[engine] += 1
+                if self.failures[engine] >= self.failure_limit:
+                    self.retry_after[engine] = self.query_number + self.probe_every
                 message = engine + ': ' + str(exc)[:180]
                 errors.append(message)
                 self.warnings.add(message)

@@ -35,7 +35,25 @@ class RuntimeTests(unittest.TestCase):
         for i in range(25):
             with self.assertRaises(runtime.UnverifiedSearch):
                 session.search(str(i))
-        self.assertEqual(fetch.call_count, 6)
+        # 2 initial tries + half-open probes at searches 8, 14, 20
+        # for each engine. Sources cannot be permanently disabled by a
+        # transient first failure.
+        self.assertEqual(fetch.call_count, 15)
+
+    def test_discovery_half_open_probe_recovers_live_result(self):
+        calls = []
+        def read(url, **kwargs):
+            calls.append(url)
+            if len(calls) <= 6:
+                raise TimeoutError('temporary outage')
+            return '<a href="https://max.ru/channel_work/Aa01"><h3>Нужен самосвал</h3></a>'
+        session = runtime.DiscoverySession(read, probe_every=6)
+        for index in range(7):
+            with self.assertRaises(runtime.UnverifiedSearch):
+                session.search('site:max.ru самосвал')
+        self.assertEqual(len(calls), 6)
+        self.assertEqual(session.search('site:max.ru самосвал'), ['https://max.ru/channel_work/Aa01'])
+        self.assertEqual(len(calls), 7)
 
     def test_discovery_verified_zero(self):
         fetch = Mock(return_value='no results found')

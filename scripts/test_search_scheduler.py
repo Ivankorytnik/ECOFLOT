@@ -30,6 +30,19 @@ class SchedulerContracts(unittest.TestCase):
                         f'2026-10-10 {hour:02d}:00',
                     )
 
+    def test_early_independent_fallback_maps_to_same_slot(self):
+        for expression, hour in (
+            ('13,23,37,47 5 * * *', 8),
+            ('13,23,37,47 11 * * *', 14),
+            ('13,23,37,47 15 * * *', 18),
+        ):
+            for minute in (13, 23, 37, 47):
+                with self.subTest(expression=expression, minute=minute):
+                    self.assertEqual(
+                        scheduled_slot(expression, datetime(2026, 10, 21, hour, minute, tzinfo=MSK)),
+                        f'2026-10-21 {hour:02}:00',
+                    )
+
     def test_scheduled_fallback_maps_to_same_slots(self):
         self.assertEqual(scheduled_slot('37 5 * * *', datetime(2026, 10, 9, 8, 37, tzinfo=MSK)), '2026-10-09 08:00')
         self.assertEqual(scheduled_slot('37 11 * * *', datetime(2026, 10, 9, 14, 37, tzinfo=MSK)), '2026-10-09 14:00')
