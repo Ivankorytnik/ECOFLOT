@@ -120,3 +120,35 @@ function ecoflotDuplicateAckV3_(incomingId, existing, reason, approvedChats) {
           callbackKey:ecoflotTextV3_(existing.callbackKey),
           routes:routes, telegramSent:delivered, telegramQueued:!delivered};
 }
+
+/**
+ * Read-only verification in the live GAS editor before redeploy.
+ * No spreadsheet reads/writes, no Telegram sends, no triggers.
+ */
+function ecoflotGuardSelfTest20261021_() {
+  var profi = 'https://profi.ru/backoffice/n.php?o=95227492';
+  var same = 'https://www.profi.ru/backoffice/n.php?utm_source=telegram&o=95227492';
+  var other = 'https://profi.ru/backoffice/n.php?o=95250396';
+  var samosval = 'https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657269';
+  var headers = ['Request ID', '\u0421\u0441\u044b\u043b\u043a\u0430', '\u0422\u0435\u043b\u0435\u0444\u043e\u043d'];
+  var existing = [['WEB-PROFI-legacy-1', profi, '-'], ['WEB-SAMOSVALIN-657269', samosval, '-']];
+  var sample = {
+    getLastRow: function() { return existing.length + 1; },
+    getRange: function() {
+      return {getDisplayValues: function() { return existing; }};
+    }
+  };
+  var tests = [
+    {name:'profi_exact_source_order', ok:ecoflotSpecificUrlV3_(profi) === ecoflotSpecificUrlV3_(same)},
+    {name:'different_profi_orders', ok:ecoflotSpecificUrlV3_(profi) !== ecoflotSpecificUrlV3_(other)},
+    {name:'profi_duplicate', ok:(ecoflotFindDuplicateV3_(sample,headers,{requestId:'new',link:same})||{}).reason === 'specific_link'},
+    {name:'samosval_duplicate', ok:(ecoflotFindDuplicateV3_(sample,headers,{requestId:'new2',link:samosval})||{}).reason === 'specific_link'},
+    {name:'different_order_not_merged', ok:ecoflotFindDuplicateV3_(sample,headers,{requestId:'other',link:other}) === null},
+    {name:'hook_in_live_findDuplicate', ok:typeof findDuplicate_ === 'function' &&
+      String(findDuplicate_).indexOf('ecoflotFindDuplicateV3_') >= 0}
+  ];
+  var result = {ok:tests.every(function(t){return t.ok;}),build:'2026-10-21-guard-v3',readOnly:true,tests:tests};
+  console.log(JSON.stringify(result));
+  if (!result.ok) throw new Error('ECOFLOT_GUARD_NOT_INSTALLED_OR_TEST_FAILED: ' + JSON.stringify(result));
+  return result;
+}
