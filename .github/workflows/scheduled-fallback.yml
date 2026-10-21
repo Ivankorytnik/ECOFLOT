@@ -2,11 +2,11 @@ name: ECOFLOT scheduled fallback
 
 on:
   schedule:
-    # Independent recovery wake-ups: first try at +13 minutes instead of
-    # relying on a single +37 minute event. Same logical slot and dedupe.
-    - cron: '13,23,37,47 5 * * *'
-    - cron: '13,23,37,47 11 * * *'
-    - cron: '13,23,37,47 15 * * *'
+    # Single independent +37-minute recovery opportunity per slot.
+    # Previous 4 fallbacks queued behind 4 primary runs and delayed later slots.
+    - cron: '37 5 * * *'
+    - cron: '37 11 * * *'
+    - cron: '37 15 * * *'
   push:
     branches: [main]
     paths:
