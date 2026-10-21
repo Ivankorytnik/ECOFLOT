@@ -20,6 +20,15 @@ function ecoflotSpecificUrlV3_(value) {
   if (!url) return '';
   var path = url.replace(/^https:\/\/[^/]+/, '');
   if (/^https:\/\/profi\.ru\/(rabota|registration)\//i.test(url)) return '';
+  // A Profi response URL is one individual order, unlike a category feed.
+  // Ignore non-identity query parameters but do not merge different o= IDs.
+  var profi = url.match(/^https:\/\/profi\.ru\/backoffice\/n\.php\?(.+)$/i);
+  if (profi) {
+    var hits = profi[1].match(/(?:^|&)o=([1-9]\d{5,11})(?:&|$)/g) || [];
+    if (hits.length !== 1) return '';
+    var order = hits[0].match(/o=([1-9]\d{5,11})/);
+    return order ? 'https://profi.ru/backoffice/n.php?o=' + order[1] : '';
+  }
   if (/^https:\/\/(?:[^/]+\.)?spectehinfo\.ru\/arenda\//i.test(url)) return '';
   if (/^https:\/\/nerudonline\.ru\/rabota\/samosvaly(?:\?|$)/i.test(url)) return '';
   if (/^https:\/\/exkavator\.ru\/exchange\/rent\/main\.html/i.test(url)) return '';

@@ -7,6 +7,9 @@ const sheet=rows=>({getLastRow:()=>rows.length+1,getRange:()=>({getDisplayValues
 let passed=0;
 function test(name,fn){fn();passed++;console.log('PASS '+name);}
 test('shared Profi URL does not merge independent orders',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://profi.ru/rabota/remont/tasks/','70000000000']]),headers,{requestId:'new',link:'https://profi.ru/rabota/remont/tasks/',phone:'70000000000'}),null));
+test('same Profi order despite title and tracking is duplicate',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://profi.ru/backoffice/n.php?o=95227492','']]),headers,{requestId:'new',link:'https://www.profi.ru/backoffice/n.php?utm_source=tg&o=95227492'}).reason,'specific_link'));
+test('different Profi o IDs stay distinct',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://profi.ru/backoffice/n.php?o=95227492','']]),headers,{requestId:'new',link:'https://profi.ru/backoffice/n.php?o=95250396'}),null));
+test('Profi fake or multi-order identity is never specific',()=>assert.equal(ctx.ecoflotSpecificUrlV3_('https://profi.ru/backoffice/n.php?o=95227492&o=95250396'),''));
 test('same request ID remains duplicate',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://profi.ru/rabota/remont/tasks/','']]),headers,{requestId:'old',link:''}).reason,'request_id'));
 test('same phone is not an order ID',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://example.com/order/11111','70000000000']]),headers,{requestId:'new',link:'https://example.com/order/22222',phone:'70000000000'}),null));
 test('same specific order URL is duplicate',()=>assert.equal(ctx.ecoflotFindDuplicateV3_(sheet([['old','https://example.com/order/12345','']]),headers,{requestId:'new',link:'https://example.com/order/12345?utm_source=test'}).reason,'specific_link'));
