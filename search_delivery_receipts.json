@@ -3375,6 +3375,99 @@
         "6795645088"
       ],
       "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-9443098a56427c3cafd6": {
+      "requestId": "WEB-PROFI-9443098a56427c3cafd6",
+      "cycleKey": "2026-10-21 08:00 EXTRA 39567979734.1",
+      "run_id": "39567979734.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-21T08:20:30.787186+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-21T08:20:30.787200+00:00",
+      "verified_at": "2026-10-21T08:28:14.893345+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2805"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2806"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2807"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-4e854d9c6e236d638b76": {
+      "requestId": "WEB-PROFI-4e854d9c6e236d638b76",
+      "cycleKey": "2026-10-21 08:00 EXTRA 39567979734.1",
+      "run_id": "39567979734.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-21T08:20:37.252510+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-21T08:20:37.252522+00:00",
+      "verified_at": "2026-10-21T08:28:14.893345+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2808"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2809"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2810"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
+    },
+    "WEB-PROFI-b98c07173336e5b4b717": {
+      "requestId": "WEB-PROFI-b98c07173336e5b4b717",
+      "cycleKey": "2026-10-21 08:00 EXTRA 39567979734.1",
+      "run_id": "39567979734.1",
+      "source": "Профи.ру",
+      "duplicate": false,
+      "accepted_at": "2026-10-21T08:20:44.773523+00:00",
+      "status": "DELIVERED",
+      "first_seen_at": "2026-10-21T08:20:44.773536+00:00",
+      "verified_at": "2026-10-21T08:28:14.893345+00:00",
+      "verified_routes": [
+        {
+          "chatId": "262661708",
+          "messageId": "2811"
+        },
+        {
+          "chatId": "584620734",
+          "messageId": "2812"
+        },
+        {
+          "chatId": "6795645088",
+          "messageId": "2813"
+        }
+      ],
+      "verified_expected_chats": [
+        "262661708",
+        "584620734",
+        "6795645088"
+      ],
+      "evidence": "sheet:SENT+telegram-message-ids"
     }
   }
 }
