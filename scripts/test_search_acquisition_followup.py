@@ -92,6 +92,10 @@ class AcquisitionFollowupTests(unittest.TestCase):
             'title': 'Бронирование проездных документов',
             'acquisition_pending': True,
         }))
+        self.assertTrue(should_skip_verification({
+            'title': 'Бронирования билетов для организации',
+            'acquisition_pending': True,
+        }))
         self.assertFalse(should_skip_verification({
             'title': 'Услуги по вывозу мусора и поставка контейнеров',
             'acquisition_pending': True,
