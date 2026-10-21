@@ -135,7 +135,7 @@ KNOWN_ALREADY_SENT = {
     "32616409181",
 }
 
-def fetch(url: str, timeout=30) -> str:
+def fetch(url: str, timeout=10) -> str:
     req = urllib.request.Request(
         url,
         headers={
@@ -627,7 +627,7 @@ def main():
     for source_label, channel, source_region in TELEGRAM_TENDER_SOURCES:
         try:
             url = f"https://t.me/s/{channel}"
-            page = fetch(url)
+            page = fetch(url, timeout=10)
             cards = extract_telegram_tenders(page, source_label, channel, source_region)
             print(f"TELEGRAM_TENDER_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
@@ -648,7 +648,7 @@ def main():
 
     for source_region, url in SOURCES:
         try:
-            page = fetch(url)
+            page = fetch(url, timeout=10)
             cards = extract_cards(page, source_region)
             print(f"SOURCE {source_region}: {len(cards)} active cards")
             for entry in cards:
@@ -670,7 +670,7 @@ def main():
 
     for source_label, url, source_region in DIRECT_SOURCES:
         try:
-            page = fetch(url)
+            page = fetch(url, timeout=9)
             cards = extract_direct_cards(page, source_label, url, source_region)
             print(f"DIRECT_SOURCE {source_label}: {len(cards)} candidate cards")
             for entry in cards:
