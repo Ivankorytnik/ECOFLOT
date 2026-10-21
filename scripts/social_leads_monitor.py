@@ -231,8 +231,22 @@ def main():
     unique = {x["request_id"]: x for x in candidates}
     candidates = sorted(unique.values(), key=lambda x: (-x["score"], x["source"], x["title"]))
 
-    contact_ready = []
+    # Reject already-seen messages and source orders before spending the
+    # limited network budget on contact-card enrichment. Uncertain records
+    # are still verified by the existing contact and quality guards below.
+    to_enrich = []
+    skipped_known = 0
     for item in candidates:
+        rid = item['request_id']
+        if ((not legacy_local and rid in sent) or rid in sheet_ids
+                or item['url'] in sheet_links
+                or cross_source_duplicate(item, sheet_links, sheet_order_keys)):
+            skipped_known += 1
+            continue
+        to_enrich.append(item)
+    print(f'TELEGRAM_EARLY_DEDUPE known={skipped_known} to_verify={len(to_enrich)}', flush=True)
+    contact_ready = []
+    for item in to_enrich:
         acquisition.enrich(item)
         ok, reason = social_contact_ready(item)
         if ok:
@@ -300,7 +314,7 @@ def main():
         "error_details": errors,
         "sent": sent_count,
         "candidates": len(candidates),
-        "duplicates_local": len(candidates) - len(new_items),
+        "duplicates_local": skipped_known + len(candidates) - len(new_items),
         "deferred": max(0, len(new_items) - MAX_SEND),
         "errors": len(errors),
         "unverified_sources": sorted(set(unverified_sources)),
