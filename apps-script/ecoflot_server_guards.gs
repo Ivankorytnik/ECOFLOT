@@ -24,10 +24,9 @@ function ecoflotSpecificUrlV3_(value) {
   // Ignore non-identity query parameters but do not merge different o= IDs.
   var profi = url.match(/^https:\/\/profi\.ru\/backoffice\/n\.php\?(.+)$/i);
   if (profi) {
-    var hits = profi[1].match(/(?:^|&)o=([1-9]\d{5,11})(?:&|$)/g) || [];
-    if (hits.length !== 1) return '';
-    var order = hits[0].match(/o=([1-9]\d{5,11})/);
-    return order ? 'https://profi.ru/backoffice/n.php?o=' + order[1] : '';
+    var ids = profi[1].split('&').filter(function(q) { return /^o=/.test(q); });
+    if (ids.length !== 1 || !/^o=[1-9]\d{5,11}$/.test(ids[0])) return '';
+    return 'https://profi.ru/backoffice/n.php?' + ids[0];
   }
   if (/^https:\/\/(?:[^/]+\.)?spectehinfo\.ru\/arenda\//i.test(url)) return '';
   if (/^https:\/\/nerudonline\.ru\/rabota\/samosvaly(?:\?|$)/i.test(url)) return '';
