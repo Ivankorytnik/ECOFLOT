@@ -1,11 +1,23 @@
 import unittest
-from social_leads_monitor import cross_source_duplicate
+from social_leads_monitor import cross_source_duplicate, already_known_before_contact
 from order_identity import (item_order_key, known_order_keys, order_key_from_url,
                             order_urls_in_text, primary_order_link)
 
 CARD='https://samosval.info/doska-obyavleniy/trebuyutsya-samosvaly-i-tonary/detail.php?ID=657269'
 
 class CrossSourceDedupeTests(unittest.TestCase):
+    def test_early_dedupe_skips_known_message_before_network(self):
+        item={'request_id':'SOCIAL-TG-samosvalinfo-10057', 'url':'https://t.me/samosvalinfo/10057', 'card_links':[]}
+        self.assertTrue(already_known_before_contact(item, {}, {item['request_id']}, set(), set(), True))
+        self.assertTrue(already_known_before_contact(item, {item['request_id']: 'old'}, set(), set(), set(), False))
+        self.assertFalse(already_known_before_contact(item, {}, set(), set(), set(), False))
+
+    def test_early_dedupe_skips_source_order_but_not_unrelated_card(self):
+        item={'request_id':'SOCIAL-TG-samosvalinfo-10057', 'url':'https://t.me/samosvalinfo/10057', 'card_links':[CARD]}
+        self.assertTrue(already_known_before_contact(item, {}, set(), {CARD}, known_order_keys({CARD}), False))
+        self.assertFalse(already_known_before_contact(item, {}, set(), {'https://example.com/other'}, set(), False))
+
+
     def test_same_order_in_telegram_and_web(self):
         item={'url':'https://t.me/samosvalinfo/10057','card_links':[CARD]}
         self.assertTrue(cross_source_duplicate(item,{CARD}))
