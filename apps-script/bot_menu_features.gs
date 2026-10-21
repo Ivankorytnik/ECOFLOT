@@ -3,27 +3,20 @@
  *
  * Adds:
  * 1) Excel export with open leads only.
- * 2) Manual launch of all 4 current GitHub Actions searches.
- * 3) Lead analytics summary.
+ * 2) Lead analytics summary.
  *
- * Existing lead/status/search logic is not replaced.
+ * Existing lead/status business logic is not replaced.
  */
 
 const ECOFLOT_MENU = Object.freeze({
   EXPORT: '📥 Выгрузить в Excel',
-  SEARCH: '🔎 Запустить внеплановый поиск',
   ANALYTICS: '📊 Показать аналитику'
 });
-
-const ECOFLOT_MANUAL_SEARCH_WORKFLOWS = Object.freeze([
-  'full-cycle.yml'
-]);
 
 function ecoflotMainMenuKeyboard_() {
   return {
     keyboard: [
       [{ text: ECOFLOT_MENU.EXPORT }],
-      [{ text: ECOFLOT_MENU.SEARCH }],
       [{ text: ECOFLOT_MENU.ANALYTICS }]
     ],
     resize_keyboard: true,
@@ -56,11 +49,6 @@ function ecoflotHandleMenuMessage_(message) {
 
   if (command === '/export' || raw === ECOFLOT_MENU.EXPORT || /^выгрузить\s+в\s+(excel|ексель)$/i.test(raw)) {
     ecoflotExportOpenLeadsToExcel_(chatId);
-    return true;
-  }
-
-  if (command === '/search' || raw === ECOFLOT_MENU.SEARCH || /^запустить\s+внеплановый\s+поиск$/i.test(raw)) {
-    ecoflotTriggerManualSearch_(chatId);
     return true;
   }
 
@@ -406,125 +394,6 @@ function ecoflotTopEntries_(obj, limit) {
     .slice(0, limit || 10);
 }
 
-function ecoflotTriggerManualSearch_(chatId) {
-  const props = PropertiesService.getScriptProperties();
-  const lock = LockService.getScriptLock();
-
-  if (!lock.tryLock(3000)) {
-    ecoflotSendText_(chatId, '⏳ Запуск уже обрабатывается. Повторите чуть позже.');
-    return true;
-  }
-
-  try {
-    const lastRun = Number(props.getProperty('ECOFLOT_MANUAL_SEARCH_STARTED_AT') || 0);
-    const now = Date.now();
-    const cooldownMs = 5 * 60 * 1000;
-
-    if (lastRun && now - lastRun < cooldownMs) {
-      const remain = Math.ceil((cooldownMs - (now - lastRun)) / 60000);
-      ecoflotSendText_(
-        chatId,
-        '⏳ Внеплановый поиск уже запускался недавно. Повторный запуск будет доступен примерно через ' +
-        remain +
-        ' мин.'
-      );
-      return true;
-    }
-
-    const token =
-      props.getProperty('ECOFLOT_GITHUB_TOKEN') ||
-      props.getProperty('GITHUB_TOKEN') ||
-      props.getProperty('GH_TOKEN') ||
-      '';
-
-    if (!token) {
-      ecoflotSendText_(
-        chatId,
-        '⚠️ Кнопка готова, но для запуска GitHub Actions нужно один раз добавить Script Property ECOFLOT_GITHUB_TOKEN.'
-      );
-      return true;
-    }
-
-    const owner = 'Ivankorytnik';
-    const repo = 'ECOFLOT';
-    const results = [];
-
-    ECOFLOT_MANUAL_SEARCH_WORKFLOWS.forEach(function(workflow) {
-      const url =
-        'https://api.github.com/repos/' +
-        encodeURIComponent(owner) +
-        '/' +
-        encodeURIComponent(repo) +
-        '/actions/workflows/' +
-        encodeURIComponent(workflow) +
-        '/dispatches';
-
-      const response = UrlFetchApp.fetch(url, {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify({ ref: 'main' }),
-        headers: {
-          Authorization: 'Bearer ' + token,
-          Accept: 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28'
-        },
-        muteHttpExceptions: true
-      });
-
-      const code = response.getResponseCode();
-      results.push({
-        workflow: workflow,
-        ok: code === 204,
-        code: code,
-        body: response.getContentText()
-      });
-    });
-
-    const failed = results.filter(function(x) { return !x.ok; });
-
-    if (failed.length) {
-      const details = failed
-        .map(function(x) { return x.workflow + ': HTTP ' + x.code; })
-        .join(', ');
-
-      ecoflotSendText_(
-        chatId,
-        '⚠️ Не все поиски запустились. ' + details
-      );
-      return true;
-    }
-
-    props.setProperty('ECOFLOT_MANUAL_SEARCH_STARTED_AT', String(now));
-
-    ecoflotSendMainMenu_(
-      chatId,
-      [
-        '🚀 Внеплановый поиск запущен по действующему ТЗ.',
-        '',
-        'Запущен единый последовательный full-cycle:',
-        '• Internet Leads',
-        '• Telegram / MAX / VK',
-        '• Tender Watch',
-        '• Object Leads',
-        '',
-        'Новые результаты будут отправлены в Telegram и записаны в текущий контур CRM / Google Sheets после проверки на дубли.'
-      ].join('\n')
-    );
-
-    return true;
-  } catch (error) {
-    console.error('Manual search error: ' + (error && error.stack ? error.stack : error));
-    ecoflotSendText_(
-      chatId,
-      '⚠️ Не удалось запустить внеплановый поиск. ' +
-      String(error && error.message ? error.message : error)
-    );
-    return true;
-  } finally {
-    try { lock.releaseLock(); } catch (ignore) {}
-  }
-}
-
 function ecoflotSendText_(chatId, text) {
   telegramApi_('sendMessage', {
     chat_id: String(chatId),
@@ -586,7 +455,6 @@ function ecoflotInstallTelegramCommands_() {
     commands: [
       { command: 'menu', description: 'Показать меню ECOFLOT' },
       { command: 'export', description: 'Выгрузить незакрытые заявки в Excel' },
-      { command: 'search', description: 'Запустить внеплановый поиск' },
       { command: 'analytics', description: 'Показать аналитику по заявкам' }
     ]
   });
