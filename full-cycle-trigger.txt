@@ -1,2 +1,2 @@
-2026-10-20 live production verification after ECOFLOT PR18 merge 0414e5050941d085a82ea7537f468fb122e11c6a
-Run one forced EXTRA Deep Search. Keep server deduplication and verified recipient routing. Preserve existing data and do not replay delivered cards.
+2026-10-21 10:23 MSK: authorized post-merge control Deep Search PR20 (72bc31ef)
+One forced EXTRA cycle only. Preserve deduplication, approved recipients, and existing history. Confirm source coverage, delivery receipts and summary. No duplicate card replay.
