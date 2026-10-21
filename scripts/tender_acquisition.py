@@ -73,6 +73,13 @@ class TenderAcquisition:
         self.fetch=fetch;self.known_ids=known_ids if known_ids is not None else set()
         self.defer_resolution = defer_resolution
         self.limit=limit;self.budget=budget;self.spent=0.;self.cache={};self.verified={};self.unchecked=set()
+        # A primary source that times out repeatedly must not consume the
+        # whole card-verification budget. Other hosts remain available.
+        self.get_attempts=0
+        self.host_failures={}
+        self.host_retry_at={}
+        self.host_failure_limit=2
+        self.host_probe_every=12
         self.report={'detail_requests':0,'verified_cards':0,'listing_candidates':0,'menu_links_rejected':0,'outcomes':{},'sources':{}}
 
     def outcome(self,reason):
@@ -80,15 +87,27 @@ class TenderAcquisition:
 
     def get(self,url):
         if url in self.cache:return self.cache[url]
+        source = host(url)
+        if (self.host_failures.get(source,0)>=self.host_failure_limit
+                and self.get_attempts<self.host_retry_at.get(source,0)):
+            raise RuntimeError('SOURCE_HOST_COOLDOWN')
         if len(self.cache)>=self.limit or self.spent>=self.budget:
             self.unchecked.add('Tender card verification budget reached');raise RuntimeError('CARD_VERIFICATION_BUDGET')
+        self.get_attempts+=1
         start=time.monotonic()
         try:
             page=self.fetch(url,timeout=max(1,min(9,self.budget-self.spent)))
+            self.host_failures[source]=0
+            self.host_retry_at.pop(source,None)
             self.cache[url]=page;self.report['detail_requests']+=1;return page
         except Exception:
-            # A timeout is not a permanent cache hit. Let another verified
-            # attempt try the same card if source/network becomes reachable.
+            # A timeout is not a permanent cache hit. After two failures,
+            # pause this host; probe after other sources had 12 GET attempts.
+            # Failed individual cards remain unverified and may be revisited
+            # in a later run.
+            self.host_failures[source]=self.host_failures.get(source,0)+1
+            if self.host_failures[source]>=self.host_failure_limit:
+                self.host_retry_at[source]=self.get_attempts+self.host_probe_every
             self.cache.pop(url, None)
             raise
         finally:self.spent+=time.monotonic()-start
@@ -283,8 +302,12 @@ class TenderAcquisition:
             # Deterministic rejects above remain cached until the next run.
             self.verified.pop(url, None)
             self.cache.pop(url, None)
-            self.unchecked.add(url+': '+str(exc)[:140])
-            self.outcome('card_unavailable')
+            if str(exc)=='SOURCE_HOST_COOLDOWN':
+                self.unchecked.add(host(url)+': source temporarily paused after repeated GET failures')
+                self.outcome('host_cooldown')
+            else:
+                self.unchecked.add(url+': '+str(exc)[:140])
+                self.outcome('card_unavailable')
             return None
 
     def parse_b2b(self,root,url,rid):
