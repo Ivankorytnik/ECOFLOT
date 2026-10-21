@@ -9,7 +9,7 @@ from concurrent.futures import ThreadPoolExecutor
 from social_depth import read_history, scoped_contacts
 from source_markup import absolute_link
 from card_acquisition import Acquisition, known_card
-from order_identity import (item_order_key, known_order_keys, order_urls_in_text)
+from order_identity import (item_order_key, item_order_keys, known_order_keys, order_urls_in_text)
 import urllib.request
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -183,7 +183,14 @@ def send_no_results():
     )
 
 def cross_source_duplicate(item, sheet_links, sheet_order_keys=None):
-    """Compare specific source order identity, not Telegram message or title."""
+    """Discard only posts that unambiguously repeat one already known order.
+
+    A post with links to distinct jobs must not disappear merely because one
+    source URL is already present in CRM. Keep it for normal verification.
+    """
+    cards = {url for url in (item.get('card_links') or []) if known_card(url)}
+    if len(item_order_keys(item)) > 1 or len(cards) > 1:
+        return False
     order_key = item_order_key(item)
     if order_key and order_key in (known_order_keys(sheet_links) if sheet_order_keys is None else sheet_order_keys):
         return True
