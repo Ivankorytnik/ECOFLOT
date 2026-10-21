@@ -46,4 +46,14 @@ test('outbox text messages always disable Telegram link previews',()=>{
   assert(single,'missing text_one sender');
   assert(/disable_web_page_preview:\s*true/.test(single[0]));
 });
+test('read-only GAS sync verification detects the live identity hook',()=>{
+  ctx.findDuplicate_ = function(sheet, headers, lead) {
+    return ctx.ecoflotFindDuplicateV3_(sheet,headers,lead);
+  };
+  const verified = ctx.ecoflotGuardSelfTest20261021_();
+  assert.equal(verified.ok,true);
+  assert.equal(verified.readOnly,true);
+  assert.equal(verified.tests.length,6);
+  delete ctx.findDuplicate_;
+});
 console.log('TOTAL '+passed+' tests passed');
