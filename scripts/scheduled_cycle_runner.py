@@ -18,6 +18,9 @@ MSK = ZoneInfo('Europe/Moscow')
 # Keep the previous expressions temporarily so a heavily delayed legacy GitHub
 # schedule can still be mapped to the correct logical slot after deployment.
 SLOTS = {
+    '0 5 * * *': 8,
+    '0 11 * * *': 14,
+    '0 15 * * *': 18,
     '0,7,17,27 5 * * *': 8,
     '0,7,17,27 11 * * *': 14,
     '0,7,17,27 15 * * *': 18,
