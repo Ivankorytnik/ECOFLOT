@@ -64,7 +64,10 @@ class SocialVerifiedGateTests(unittest.TestCase):
         item = dict(url='https://t.me/samosvalinfo/10048',
                     card_links=[card], contact_url=card,
                     card_order_gate_verified=True)
-        self.assertTrue(social.social_contact_ready(item)[0])
+        # A paid Samosval gate is not direct contact even if the card is real.
+        allowed, reason = social.social_contact_ready(item)
+        self.assertFalse(allowed)
+        self.assertEqual(reason, 'registration-required-for-customer-contact')
         item['card_links'] = []
         self.assertFalse(social.social_contact_ready(item)[0])
 
