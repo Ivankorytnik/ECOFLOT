@@ -1,12 +1,12 @@
 name: ECOFLOT full cycle
 on:
   schedule:
-    # One scheduled event per Moscow slot. GitHub may delay cron execution;
-    # launching 4 primary + 4 fallback jobs per slot caused a queued storm.
-    # Each job is bound to the logical 08:00/14:00/18:00 Moscow slot.
-    - cron: '0 5 * * *'
-    - cron: '0 11 * * *'
-    - cron: '0 15 * * *'
+    # One primary wake-up per Moscow slot, away from GitHub's top-of-hour
+    # schedule congestion. GitHub cron is best-effort, not an exact timer.
+    # Each event retains its logical 08:00 / 14:00 / 18:00 Moscow slot.
+    - cron: '3 5 * * *'
+    - cron: '3 11 * * *'
+    - cron: '3 15 * * *'
   workflow_dispatch:
     inputs:
       force:
