@@ -22,7 +22,7 @@ CONTOURS = [
     ('Internet Leads', ['internet_leads_monitor.py'], ['internet_leads_state.json'], 720),
     ('Telegram/MAX/VK', ['social_leads_monitor.py', 'max_leads_monitor.py'],
      ['social_public_leads_state.json', 'max_public_leads_state.json'], 360),
-    ('Tender Watch', ['tender_monitor.py'], ['tender_state.json'], 720),
+    ('Tender Watch', ['tender_monitor.py'], ['tender_state.json'], 420),
     ('Object Leads', ['object_leads_monitor.py'], ['object_leads_state.json'], 360),
 ]
 TERMINAL = {'COMPLETE', 'SEARCH_PARTIAL', 'SEARCH_FAILED', 'DELIVERY_PENDING'}
@@ -85,6 +85,12 @@ def main():
              'started_at': datetime.now(MSK).isoformat(), 'status': 'STARTED', 'contours': {}}
     if retry_partial:
         state['retrying_partial_from'] = previous.get('run_id')
+    # A retry is not evidence that yesterday's Telegram report was missing.
+    # Preserve durable summary publication acknowledgement for this cycle.
+    if previous and not extra:
+        for key in ('report_recorded', 'report_payload_sha256', 'report_delivery', 'report_checked_at'):
+            if key in previous:
+                state[key] = copy.deepcopy(previous[key])
     atomic_json(STATE_FILE, state)
     env = os.environ.copy()
     # User contract: every scheduled slot (08:00, 14:00, 18:00 MSK)
