@@ -1,2 +1,0 @@
-2026-10-19 Deep Search: three-day lookback (16-19 October) for Moscow, Moscow Oblast and Kaluga Oblast.
-All four contours, strict validation, no replay of SENT cards. Keep scheduled search unchanged.

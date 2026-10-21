@@ -1,3 +1,0 @@
-2026-10-21 PR23 post-merge: one guarded EXTRA Deep Search.
-Check all contours, verified contact-only leads, Sheet ack, Telegram delivery receipts. Keep dedupe and history. No replay of old cards.
-99d96f4319bce9dc42215b09d0a62953866ae3bc
