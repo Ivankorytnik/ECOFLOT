@@ -1,0 +1,91 @@
+name: ECOFLOT customer card state checks
+on:
+  push:
+    branches: ['repair/20261017-customer-card-state']
+permissions:
+  contents: write
+concurrency:
+  group: ecoflot-customer-card-state
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ECOFLOT_NOTIFY_SUMMARY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: repair/20261017-customer-card-state
+          fetch-depth: 0
+      - name: Bind reviewed customer-card adapter
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('scripts/card_acquisition.py')
+          def sha(raw):return hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          raw=p.read_bytes()
+          if sha(raw)!='9422a8ec381a3364f34472a9410d383c2ac2cfca':
+            if sha(raw)!='b54446b9806e8fa03c500934cdda7aa0e594deba':raise RuntimeError('Source baseline changed')
+            s=raw.decode('utf-8')
+            old="        root=DOM(page).root\n        if (urlsplit(url).hostname or '').removeprefix('www.') == 'samosval.info':"
+            new='\n'.join([
+              "        root=DOM(page).root",
+              "        if (urlsplit(url).hostname or '').removeprefix('www.') == 'vsem-podryad.ru':",
+              "            from customer_card_contacts import vsem_contacts",
+              "            result = vsem_contacts(root, url)",
+              "            reason = result.get('reason', '')",
+              "            if reason == 'contact_requires_access':",
+              "                self.unchecked.add(url + ': customer contacts require account access')",
+              "            elif reason in ('card_identity_unverified', 'customer_contact_section_missing'):",
+              "                self.unchecked.add(url + ': ' + reason)",
+              "            return result",
+              "        if (urlsplit(url).hostname or '').removeprefix('www.') == 'samosval.info':",
+            ])
+            if s.count(old)!=1:raise RuntimeError('Expected adapter location not unique')
+            raw=s.replace(old,new).encode('utf-8')
+            if sha(raw)!='9422a8ec381a3364f34472a9410d383c2ac2cfca':raise RuntimeError('Post-apply digest differs')
+            p.write_bytes(raw)
+          PY
+      - name: All regressions
+        run: |
+          set -euo pipefail
+          mkdir -p customer-evidence
+          python3 -m unittest discover -s scripts -p 'test_search_*.py' -v 2>&1 | tee customer-evidence/tests.log
+          node tests/server_guards.test.js
+      - name: Check exact observed public customer cards without login
+        run: |
+          python3 - <<'PY'
+          import sys,json
+          from pathlib import Path
+          sys.path.insert(0,'scripts')
+          from internet_leads_monitor import fetch
+          from card_acquisition import Acquisition
+          checks=[('86b094bb-e9b1-4ae6-8698-1c6dae6ccc39','customer_order_closed'),('ac9e0b9a-cb46-4fcd-b4ff-c4b37a11ae1e','contact_requires_access')]
+          result=[]
+          for rid,expected in checks:
+            url='https://vsem-podryad.ru/request/'+rid+'/'
+            outcome=Acquisition(fetch).contact_from_card(fetch(url,timeout=12,attempts=1),url,'')
+            result.append({'url':url,'reason':outcome.get('reason'),'contact_exposed':bool(outcome.get('phone') or outcome.get('contact_url')),'expected':expected})
+          Path('customer-evidence/cards.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
+          print(json.dumps(result,ensure_ascii=False))
+          if any(x['reason']!=x['expected'] or x['contact_exposed'] for x in result):raise RuntimeError('Real card state did not match visible evidence')
+          PY
+      - name: Save tested adapter on repair branch only
+        run: |
+          set -euo pipefail
+          git add scripts/card_acquisition.py
+          if ! git diff --cached --quiet; then
+            git config user.name ecoflot-bot
+            git config user.email ecoflot-bot@users.noreply.github.com
+            git commit -m 'Bind tested individual customer-card state and contact parser'
+            git push origin HEAD:refs/heads/repair/20261017-customer-card-state
+          fi
+          git rev-parse HEAD > customer-evidence/tested-commit.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ecoflot-customer-card-state-verified
+          path: customer-evidence/
+          retention-days: 7
